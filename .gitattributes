@@ -1,0 +1,5 @@
+*.so filter=lfs diff=lfs merge=lfs -text
+yt-dlp filter=lfs diff=lfs merge=lfs -text
+**/yt-dlp filter=lfs diff=lfs merge=lfs -text
+*.zip filter=lfs diff=lfs merge=lfs -text
+**/ytdlp filter=lfs diff=lfs merge=lfs -text
