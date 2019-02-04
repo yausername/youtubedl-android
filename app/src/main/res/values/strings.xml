@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">youtubedl-android-example</string>
+
+    <string name="btn_streaming_example">Streaming Example</string>
+    <string name="btn_downloading_example">Downloading Example</string>
+    <string name="btn_start_stream">Start Stream</string>
+    <string name="btn_start_download">Start Download</string>
+    <string name="url_hint">enter url here</string>
+    <string name="url_error">enter a valid url</string>
+    <string name="start">Do the thing</string>
+    <string name="download_start">Starting Download</string>
+    <string name="download_complete">Download Complete</string>
+    <string name="download_failed">Download Failed</string>
+</resources>
