@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return BuildConfig.DEBUG;
             }
         });
-        
+
         try {
             YoutubeDL.getInstance().init(getApplication());
         } catch (YoutubeDLException e) {
