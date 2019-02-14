@@ -23,7 +23,7 @@ import java.util.Map;
 public class YoutubeDL {
 
     private static final YoutubeDL INSTANCE = new YoutubeDL();
-    private static final String baseName = "ytdl-android";
+    private static final String baseName = "youtubedl-android";
     private static final String pythonName = "python";
     private static final String pythonBin = "usr/bin/python";
     private static final String youtubeDLName = "youtube-dl";
