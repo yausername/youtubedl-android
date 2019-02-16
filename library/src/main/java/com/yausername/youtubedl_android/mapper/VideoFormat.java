@@ -23,4 +23,6 @@ public class VideoFormat {
     public long filesize;
     public int fps;
     public String url;
+    @JsonProperty("manifest_url")
+    public String manifestUrl;
 }
