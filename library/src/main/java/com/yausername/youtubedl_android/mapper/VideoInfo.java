@@ -56,6 +56,8 @@ public class VideoInfo {
     public ArrayList<VideoFormat> formats;
     public ArrayList<VideoThumbnail> thumbnails;
     //public ArrayList<VideoSubtitle> subtitles;
+	@JsonProperty("manifest_url")
+	public String manifestUrl;
     
     //some useful getters
 	public String getViewCount() {
