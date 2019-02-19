@@ -56,7 +56,7 @@ public class YoutubeDL {
         if (!pythonDir.exists()) {
             pythonDir.mkdir();
             try {
-                YoutubeDLUtils.unzip(application.getResources().openRawResource(R.raw.python3_7_aarch64), pythonDir);
+                YoutubeDLUtils.unzip(application.getResources().openRawResource(R.raw.python3_7_arm), pythonDir);
             } catch (IOException e) {
                 throw new YoutubeDLException("failed to initialize", e);
             }
