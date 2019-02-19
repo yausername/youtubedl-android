@@ -23,7 +23,7 @@ allprojects {
 Step 2: Add the dependency
 ```gradle
 dependencies {
-    implementation 'com.github.yausername:youtubedl-android:0.1.+'
+    implementation 'com.github.yausername:youtubedl-android:0.2.+'
 }
 ```
 
