@@ -3,9 +3,11 @@ Android library wrapper for [youtube-dl](https://github.com/rg3/youtube-dl) exec
 
 [![](https://jitpack.io/v/yausername/youtubedl-android.svg)](https://jitpack.io/#yausername/youtubedl-android)
 
+
 ## Credits
 *  [youtubedl-java](https://github.com/sapher/youtubedl-java) by [sapher](https://github.com/sapher), youtubedl-android adds android compatibility to youtubedl-java.
 
+<br/>
 
 ## Installation
 
@@ -25,6 +27,7 @@ dependencies {
 }
 ```
 
+<br/>
 
 ## Usage
 
@@ -60,7 +63,14 @@ System.out.println(streamInfo.getTitle());
 * youtube-dl supports myriad different options which be seen [here](https://github.com/rg3/youtube-dl)
 
 
-# Sample app
+<br/>
+
+## Sample app
 
 ![Download Example](https://media.giphy.com/media/LpDmy1nS4JjERk39xS/giphy.gif)
 ![Streaming Example](https://media.giphy.com/media/1qXGlSPB3pqRQ7dLxx/giphy.gif)
+
+<br/>
+
+## Docs
+ *  Though not required for just using this library, documentation on building python for android can be seen [here](BUILD_PYTHON.md)
