@@ -26,7 +26,7 @@ public class YoutubeDL {
     private static final String baseName = "youtubedl-android";
     private static final String pythonName = "python";
     private static final String pythonBin = "usr/bin/python";
-    private static final String youtubeDLName = "youtube-dl";
+    private static final String youtubeDLName = "__main__.py";
 
     private boolean initialized = false;
     private File pythonPath;
