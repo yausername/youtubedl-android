@@ -1,5 +1,7 @@
 package com.yausername.youtubedl_android.utils;
 
+import com.orhanobut.logger.Logger;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,5 +44,24 @@ public class YoutubeDLUtils {
         } finally {
             zis.close();
         }
+    }
+
+    public static void deleteIfExists(File file) throws FileNotFoundException {
+        if (file.isDirectory()) {
+            for (File c : file.listFiles())
+                deleteIfExists(c);
+        }
+        if (!file.delete())
+            throw new FileNotFoundException("Failed to delete file: " + file);
+    }
+
+    public static boolean delete(File file){
+        try {
+            deleteIfExists(file);
+        } catch (FileNotFoundException e) {
+            Logger.e(e, "unable to delete file");
+            return false;
+        }
+        return true;
     }
 }
