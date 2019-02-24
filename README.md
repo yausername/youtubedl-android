@@ -62,6 +62,11 @@ System.out.println(streamInfo.getTitle());
 
 * youtube-dl supports myriad different options which be seen [here](https://github.com/rg3/youtube-dl)
 
+* youtube-dl binary can be updated from within the library
+```java
+YoutubeDL.getInstance().updateYoutubeDL(getApplication());
+```
+
 
 <br/>
 
