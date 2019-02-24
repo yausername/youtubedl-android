@@ -3,6 +3,7 @@
 
     <string name="btn_streaming_example">Streaming Example</string>
     <string name="btn_downloading_example">Downloading Example</string>
+    <string name="btn_update">Update Youtube-DL</string>
     <string name="btn_start_stream">Start Stream</string>
     <string name="btn_start_download">Start Download</string>
     <string name="url_hint">enter url here</string>
