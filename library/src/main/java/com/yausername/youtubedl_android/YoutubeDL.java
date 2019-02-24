@@ -23,10 +23,12 @@ import java.util.Map;
 public class YoutubeDL {
 
     private static final YoutubeDL INSTANCE = new YoutubeDL();
-    private static final String baseName = "youtubedl-android";
+    protected static final String baseName = "youtubedl-android";
     private static final String pythonName = "python";
     private static final String pythonBin = "usr/bin/python";
-    private static final String youtubeDLName = "__main__.py";
+    protected static final String youtubeDLName = "youtube-dl";
+    private static final String youtubeDLBin = "__main__.py";
+    protected static final String youtubeDLFile = "youtube_dl.zip";
 
     private boolean initialized = false;
     private File pythonPath;
@@ -35,7 +37,7 @@ public class YoutubeDL {
     private String ENV_SSL_CERT_FILE;
     private YoutubeDLOptions globalOptions = new YoutubeDLOptions();
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    protected static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static YoutubeDL getInstance() {
         return INSTANCE;
@@ -47,29 +49,46 @@ public class YoutubeDL {
         initLogger();
 
         File baseDir = new File(application.getFilesDir(), baseName);
+        if(!baseDir.exists()) baseDir.mkdir();
+
         File pythonDir = new File(baseDir, pythonName);
         pythonPath = new File(pythonDir, pythonBin);
-        youtubeDLPath = new File(baseDir, youtubeDLName);
+
+        File youtubeDLDir = new File(baseDir, youtubeDLName);
+        youtubeDLPath = new File(youtubeDLDir, youtubeDLBin);
+
         ENV_LD_LIBRARY_PATH = pythonDir.getAbsolutePath() + "/usr/lib";
         ENV_SSL_CERT_FILE = pythonDir.getAbsolutePath() + "/usr/etc/tls/cert.pem";
 
+        initPython(application, pythonDir);
+        initYoutubeDL(application, youtubeDLDir);
+
+        initialized = true;
+    }
+
+    protected void initYoutubeDL(Application application, File youtubeDLDir) throws YoutubeDLException {
+        if (!youtubeDLDir.exists()) {
+            youtubeDLDir.mkdirs();
+            try {
+                YoutubeDLUtils.unzip(application.getResources().openRawResource(R.raw.youtube_dl), youtubeDLDir);
+            } catch (IOException e) {
+                YoutubeDLUtils.delete(youtubeDLDir);
+                throw new YoutubeDLException("failed to initialize", e);
+            }
+        }
+    }
+
+    protected void initPython(Application application, File pythonDir) throws YoutubeDLException {
         if (!pythonDir.exists()) {
-            pythonDir.mkdir();
+            pythonDir.mkdirs();
             try {
                 YoutubeDLUtils.unzip(application.getResources().openRawResource(R.raw.python3_7_arm), pythonDir);
             } catch (IOException e) {
+                YoutubeDLUtils.delete(pythonDir);
                 throw new YoutubeDLException("failed to initialize", e);
             }
             pythonPath.setExecutable(true);
         }
-        if (!youtubeDLPath.exists()) {
-            try {
-                YoutubeDLUtils.unzip(application.getResources().openRawResource(R.raw.youtube_dl), baseDir);
-            } catch (IOException e) {
-                throw new YoutubeDLException("failed to initialize", e);
-            }
-        }
-        initialized = true;
     }
 
     private void initLogger() {
@@ -176,5 +195,13 @@ public class YoutubeDL {
         youtubeDLResponse = new YoutubeDLResponse(command, exitCode, elapsedTime, out, err);
 
         return youtubeDLResponse;
+    }
+
+    synchronized public YoutubeDLUpdater.UpdateStatus updateYoutubeDL(Application application) throws YoutubeDLException {
+        try {
+            return YoutubeDLUpdater.update(application);
+        } catch (IOException e) {
+            throw new YoutubeDLException("failed to update youtube-dl", e);
+        }
     }
 }
