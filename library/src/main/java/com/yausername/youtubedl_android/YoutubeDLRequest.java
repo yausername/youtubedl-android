@@ -41,12 +41,4 @@ public class YoutubeDLRequest {
         return command;
     }
 
-    public List<String> buildCommand(YoutubeDLOptions globalOptions){
-        List<String> command = new ArrayList<>();
-        command.addAll(globalOptions.buildOptions());
-        command.addAll(options.buildOptions());
-        command.addAll(urls);
-        return command;
-    }
-
 }
