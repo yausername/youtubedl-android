@@ -1,7 +1,6 @@
 package com.yausername.youtubedl_android;
 
 import android.app.Application;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,7 +34,6 @@ public class YoutubeDL {
     private File youtubeDLPath;
     private String ENV_LD_LIBRARY_PATH;
     private String ENV_SSL_CERT_FILE;
-    private YoutubeDLOptions globalOptions = new YoutubeDLOptions();
 
     protected static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -104,25 +102,10 @@ public class YoutubeDL {
         if (!initialized) throw new IllegalStateException("instance not initialized");
     }
 
-    public YoutubeDL setOption(@NonNull String key, @NonNull String value) {
-        globalOptions.setOption(key, value);
-        return this;
-    }
-
-    public YoutubeDL setOption(@NonNull String key, @NonNull Number value) {
-        globalOptions.setOption(key, value);
-        return this;
-    }
-
-    public YoutubeDL setOption(String key) {
-        globalOptions.setOption(key);
-        return this;
-    }
-
     public VideoInfo getInfo(String url) throws YoutubeDLException {
         YoutubeDLRequest request = new YoutubeDLRequest(url);
         request.setOption("--dump-json");
-        YoutubeDLResponse response = execute(request, null, true);
+        YoutubeDLResponse response = execute(request, null);
 
         VideoInfo videoInfo;
 
@@ -136,14 +119,10 @@ public class YoutubeDL {
     }
 
     public YoutubeDLResponse execute(YoutubeDLRequest request) throws YoutubeDLException {
-        return execute(request, null, false);
+        return execute(request, null);
     }
 
     public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback) throws YoutubeDLException {
-        return execute(request, callback, false);
-    }
-
-    public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback, boolean ignoreGlobalOptions) throws YoutubeDLException {
         assertInit();
 
         YoutubeDLResponse youtubeDLResponse;
@@ -153,7 +132,7 @@ public class YoutubeDL {
         StringBuffer errBuffer = new StringBuffer(); //stderr
         long startTime = System.currentTimeMillis();
 
-        List<String> args = ignoreGlobalOptions ? request.buildCommand() : request.buildCommand(globalOptions);
+        List<String> args = request.buildCommand();
         List<String> command = new ArrayList<>();
         command.addAll(Arrays.asList(pythonPath.getAbsolutePath(), youtubeDLPath.getAbsolutePath()));
         command.addAll(args);
