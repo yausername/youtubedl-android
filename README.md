@@ -23,7 +23,14 @@ allprojects {
 Step 2: Add the dependency
 ```gradle
 dependencies {
-    implementation 'com.github.yausername:youtubedl-android:0.5.+'
+    implementation 'com.github.yausername.youtubedl-android:library:0.6.+'
+}
+```
+Optional FFmpeg dependency can also be added
+```gradle
+dependencies {
+    implementation 'com.github.yausername.youtubedl-android:library:0.6.+'
+    implementation 'com.github.yausername.youtubedl-android:ffmpeg:0.6.+'
 }
 ```
 
@@ -67,6 +74,16 @@ System.out.println(streamInfo.getTitle());
 YoutubeDL.getInstance().updateYoutubeDL(getApplication());
 ```
 
+## FFmpeg
+If you wish to use ffmpeg features of youtube-dl (e.g. --extract-audio), include and initialize the ffmpeg library.
+```java
+try {
+    YoutubeDL.getInstance().init(getApplication());
+    FFmpeg.getInstance().init(getApplication());
+} catch (YoutubeDLException e) {
+    Log.e(TAG, "failed to initialize youtubedl-android", e);
+}
+```
 
 <br/>
 
@@ -78,5 +95,5 @@ YoutubeDL.getInstance().updateYoutubeDL(getApplication());
 <br/>
 
 ## Docs
- *  Though not required for just using this library, documentation on building python for android can be seen [here](BUILD_PYTHON.md)
+ *  Though not required for just using this library, documentation on building python for android can be seen [here](BUILD_PYTHON.md). Same for ffmpeg [here](BUILD_PYTHON.md).
  * youtubedl-android uses lazy extractors based build of youtube-dl ([youtubedl-lazy](https://github.com/yausername/youtubedl-lazy/))
