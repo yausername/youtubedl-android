@@ -32,6 +32,7 @@ public class YoutubeDL {
     private boolean initialized = false;
     private File pythonPath;
     private File youtubeDLPath;
+    private File binDir;
     private String ENV_LD_LIBRARY_PATH;
     private String ENV_SSL_CERT_FILE;
 
@@ -53,6 +54,7 @@ public class YoutubeDL {
         if(!baseDir.exists()) baseDir.mkdir();
 
         File packagesDir = new File(baseDir, packagesRoot);
+        binDir = new File(packagesDir, "usr/bin");
         pythonPath = new File(packagesDir, pythonBin);
 
         File youtubeDLDir = new File(baseDir, youtubeDLName);
@@ -147,6 +149,7 @@ public class YoutubeDL {
         Map<String, String> env = processBuilder.environment();
         env.put("LD_LIBRARY_PATH", ENV_LD_LIBRARY_PATH);
         env.put("SSL_CERT_FILE", ENV_SSL_CERT_FILE);
+        env.put("PATH",  System.getenv("PATH") + ":" + binDir.getAbsolutePath());
 
         try {
             process = processBuilder.start();
