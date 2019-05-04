@@ -19,6 +19,7 @@ public class FFmpeg {
     private static final String ffmpegBin = "usr/bin/ffmpeg";
 
     private boolean initialized = false;
+    private File binDir;
     private File ffmpegPath;
 
     private FFmpeg(){
@@ -37,6 +38,7 @@ public class FFmpeg {
         if(!baseDir.exists()) baseDir.mkdir();
 
         File packagesDir = new File(baseDir, packagesRoot);
+        binDir = new File(packagesDir, "usr/bin");
         ffmpegPath = new File(packagesDir, ffmpegBin);
 
         initFFmpeg(application, packagesDir);
@@ -56,7 +58,7 @@ public class FFmpeg {
                 YoutubeDLUtils.delete(ffmpegPath);
                 throw new YoutubeDLException("failed to initialize", e);
             }
-            markExecutable(new File(packagesDir, "usr/bin"));
+            markExecutable(binDir);
         }
     }
 
