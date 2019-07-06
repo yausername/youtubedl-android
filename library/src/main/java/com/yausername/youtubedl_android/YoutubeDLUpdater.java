@@ -107,7 +107,11 @@ public class YoutubeDLUpdater {
             file = File.createTempFile("youtube_dl", "zip", application.getCacheDir());
             out = new FileOutputStream(file);
             outChannel = out.getChannel();
-            outChannel.transferFrom(inChannel, 0, Long.MAX_VALUE);
+            long bytesRead=0;
+            long transferPosition=0;
+            while ((bytesRead=outChannel.transferFrom(inChannel,transferPosition,1 << 24)) > 0) {
+                transferPosition+=bytesRead;
+            }
         } catch (Exception e) {
             // delete temp file if something went wrong
             if (null != file && file.exists()) {
