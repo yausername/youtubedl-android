@@ -4,6 +4,8 @@ import com.orhanobut.logger.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 
 public class StreamGobbler extends Thread {
 
@@ -18,8 +20,9 @@ public class StreamGobbler extends Thread {
 
     public void run() {
         try {
+            Reader in = new InputStreamReader(stream, "UTF-8");
             int nextChar;
-            while ((nextChar = this.stream.read()) != -1) {
+            while ((nextChar = in.read()) != -1) {
                 this.buffer.append((char) nextChar);
             }
         } catch (IOException e) {
