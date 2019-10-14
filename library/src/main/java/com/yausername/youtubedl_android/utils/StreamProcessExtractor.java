@@ -5,6 +5,8 @@ import com.yausername.youtubedl_android.DownloadProgressCallback;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,9 +29,10 @@ public class StreamProcessExtractor extends Thread {
 
     public void run() {
         try {
+            Reader in = new InputStreamReader(stream, "UTF-8");
             StringBuilder currentLine = new StringBuilder();
             int nextChar;
-            while ((nextChar = stream.read()) != -1) {
+            while ((nextChar = in.read()) != -1) {
                 buffer.append((char) nextChar);
                 if (nextChar == '\r' && callback != null) {
                     processOutputLine(currentLine.toString());
