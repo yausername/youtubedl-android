@@ -16,6 +16,9 @@ buildscript {
 }
 
 allprojects {
+    group = 'com.github.yausername'
+    version = '0.6.2'
+
     repositories {
         google()
         jcenter()
