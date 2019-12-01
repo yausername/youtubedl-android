@@ -39,29 +39,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initViews();
         initListeners();
-
-        initLibraries();
     }
 
     @Override
     protected void onDestroy() {
         compositeDisposable.dispose();
         super.onDestroy();
-    }
-
-    private void initLibraries() {
-        Logger.addLogAdapter(new AndroidLogAdapter() {
-            @Override
-            public boolean isLoggable(int priority, @Nullable String tag) {
-                return BuildConfig.DEBUG;
-            }
-        });
-
-        try {
-            YoutubeDL.getInstance().init(getApplication());
-        } catch (YoutubeDLException e) {
-            Logger.e(e, "failed to initialize youtubedl-android");
-        }
     }
 
     private void initListeners() {
