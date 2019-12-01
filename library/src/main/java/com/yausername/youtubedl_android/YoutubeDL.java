@@ -110,7 +110,7 @@ public class YoutubeDL {
         if (!initialized) throw new IllegalStateException("instance not initialized");
     }
 
-    public VideoInfo getInfo(String url) throws YoutubeDLException {
+    public VideoInfo getInfo(String url) throws YoutubeDLException, InterruptedException {
         YoutubeDLRequest request = new YoutubeDLRequest(url);
         request.setOption("--dump-json");
         YoutubeDLResponse response = execute(request, null);
@@ -126,11 +126,11 @@ public class YoutubeDL {
         return videoInfo;
     }
 
-    public YoutubeDLResponse execute(YoutubeDLRequest request) throws YoutubeDLException {
+    public YoutubeDLResponse execute(YoutubeDLRequest request) throws YoutubeDLException, InterruptedException {
         return execute(request, null);
     }
 
-    public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback) throws YoutubeDLException {
+    public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback) throws YoutubeDLException, InterruptedException {
         assertInit();
 
         YoutubeDLResponse youtubeDLResponse;
@@ -168,7 +168,8 @@ public class YoutubeDL {
             stdErrProcessor.join();
             exitCode = process.waitFor();
         } catch (InterruptedException e) {
-            throw new YoutubeDLException(e);
+            process.destroy();
+            throw e;
         }
 
         String out = outBuffer.toString();
