@@ -17,7 +17,7 @@ buildscript {
 
 allprojects {
     group = 'com.github.yausername'
-    version = '0.6.2'
+    version = '0.7.0'
 
     repositories {
         google()
