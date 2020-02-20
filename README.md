@@ -95,5 +95,5 @@ try {
 <br/>
 
 ## Docs
- *  Though not required for just using this library, documentation on building python for android can be seen [here](BUILD_PYTHON.md). Same for ffmpeg [here](BUILD_PYTHON.md).
+ *  Though not required for just using this library, documentation on building python for android can be seen [here](BUILD_PYTHON.md). Same for ffmpeg [here](BUILD_FFMPEG.md).
  * youtubedl-android uses lazy extractors based build of youtube-dl ([youtubedl-lazy](https://github.com/yausername/youtubedl-lazy/))
