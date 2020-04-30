@@ -1,7 +1,8 @@
 package com.yausername.ffmpeg;
 
 import android.app.Application;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.Nullable;
 
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
@@ -16,7 +17,8 @@ public class FFmpeg {
     private static final FFmpeg INSTANCE = new FFmpeg();
     protected static final String baseName = "youtubedl-android";
     private static final String packagesRoot = "packages";
-    private static final String ffmpegBin = "usr/bin/ffmpeg";
+    private static final String ffmpegBin = "libffmpeg.bin.so";
+    private static final String ffmpegLib = "libffmpeg.zip.so";
 
     private boolean initialized = false;
     private File binDir;
@@ -38,8 +40,8 @@ public class FFmpeg {
         if(!baseDir.exists()) baseDir.mkdir();
 
         File packagesDir = new File(baseDir, packagesRoot);
-        binDir = new File(packagesDir, "usr/bin");
-        ffmpegPath = new File(packagesDir, ffmpegBin);
+        binDir = new File(application.getApplicationInfo().nativeLibraryDir);
+        ffmpegPath = new File(binDir, ffmpegBin);
 
         initFFmpeg(application, packagesDir);
 
@@ -47,26 +49,16 @@ public class FFmpeg {
     }
 
     private void initFFmpeg(Application application, File packagesDir) throws YoutubeDLException {
-        if (!ffmpegPath.exists()) {
+       File exists = new File(packagesDir, ".ffmpeg");
+        if (!exists.exists()) {
             if (!packagesDir.exists()) {
                 packagesDir.mkdirs();
             }
             try {
-                YoutubeDLUtils.unzip(application.getResources().openRawResource(R.raw.ffmpeg_arm), packagesDir);
+                YoutubeDLUtils.unzip(new File(binDir, ffmpegLib), packagesDir);
+                exists.createNewFile();
             } catch (IOException e) {
-                // delete for recovery later
-                YoutubeDLUtils.delete(ffmpegPath);
                 throw new YoutubeDLException("failed to initialize", e);
-            }
-            markExecutable(binDir);
-        }
-    }
-
-    private void markExecutable(File binDir) {
-        File[] directoryListing = binDir.listFiles();
-        if (directoryListing != null) {
-            for (File child : directoryListing) {
-                if(!child.isDirectory()) child.setExecutable(true);
             }
         }
     }

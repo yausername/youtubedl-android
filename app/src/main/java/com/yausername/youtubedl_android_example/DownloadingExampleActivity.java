@@ -5,9 +5,9 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -37,6 +37,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
     private EditText etUrl;
     private ProgressBar progressBar;
     private TextView tvDownloadStatus;
+    private ProgressBar pbLoading;
 
     private boolean downloading = false;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -66,6 +67,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
         etUrl = findViewById(R.id.et_url);
         progressBar = findViewById(R.id.progress_bar);
         tvDownloadStatus = findViewById(R.id.tv_status);
+        pbLoading = findViewById(R.id.pb_status);
     }
 
     private void initListeners() {
@@ -101,7 +103,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
 
         YoutubeDLRequest request = new YoutubeDLRequest(url);
         File youtubeDLDir = getDownloadLocation();
-        request.setOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
+        request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
 
         showStart();
 
@@ -110,11 +112,13 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(youtubeDLResponse -> {
+                    pbLoading.setVisibility(View.GONE);
                     progressBar.setProgress(100);
                     tvDownloadStatus.setText(getString(R.string.download_complete));
                     Toast.makeText(DownloadingExampleActivity.this, "download successful", Toast.LENGTH_LONG).show();
                     downloading = false;
                 }, e -> {
+                    pbLoading.setVisibility(View.GONE);
                     tvDownloadStatus.setText(getString(R.string.download_failed));
                     Toast.makeText(DownloadingExampleActivity.this, "download failed", Toast.LENGTH_LONG).show();
                     Logger.e(e, "failed to download");
@@ -141,6 +145,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
     private void showStart() {
         tvDownloadStatus.setText(getString(R.string.download_start));
         progressBar.setProgress(0);
+        pbLoading.setVisibility(View.VISIBLE);
     }
 
     public boolean isStoragePermissionGranted() {
