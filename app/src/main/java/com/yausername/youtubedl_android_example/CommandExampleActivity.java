@@ -4,16 +4,15 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.orhanobut.logger.Logger;
 import com.yausername.youtubedl_android.DownloadProgressCallback;
@@ -22,7 +21,9 @@ import com.yausername.youtubedl_android.YoutubeDLRequest;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
+import java.util.Collections;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -31,15 +32,15 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 
-public class DownloadingExampleActivity extends AppCompatActivity implements View.OnClickListener {
+public class CommandExampleActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private Button btnStartDownload;
-    private EditText etUrl;
+    private Button btnRunCommand;
+    private EditText etCommand;
     private ProgressBar progressBar;
-    private TextView tvDownloadStatus;
+    private TextView tvCommandStatus;
     private ProgressBar pbLoading;
 
-    private boolean downloading = false;
+    private boolean running = false;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private DownloadProgressCallback callback = new DownloadProgressCallback() {
@@ -47,7 +48,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
         public void onProgressUpdate(float progress, long etaInSeconds) {
             runOnUiThread(() -> {
                         progressBar.setProgress((int) progress);
-                        tvDownloadStatus.setText(String.valueOf(progress) + "% (ETA " + String.valueOf(etaInSeconds) + " seconds)");
+                        tvCommandStatus.setText(String.valueOf(progress) + "% (ETA " + String.valueOf(etaInSeconds) + " seconds)");
                     }
             );
         }
@@ -56,73 +57,82 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_downloading_example);
+        setContentView(R.layout.activity_command_example);
 
         initViews();
         initListeners();
     }
 
     private void initViews() {
-        btnStartDownload = findViewById(R.id.btn_start_download);
-        etUrl = findViewById(R.id.et_url);
+        btnRunCommand = findViewById(R.id.btn_run_command);
+        etCommand = findViewById(R.id.et_command);
         progressBar = findViewById(R.id.progress_bar);
-        tvDownloadStatus = findViewById(R.id.tv_status);
+        tvCommandStatus = findViewById(R.id.tv_status);
         pbLoading = findViewById(R.id.pb_status);
     }
 
     private void initListeners() {
-        btnStartDownload.setOnClickListener(this);
+        btnRunCommand.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_start_download: {
-                startDownload();
+            case R.id.btn_run_command: {
+                runCommand();
                 break;
             }
         }
     }
 
-    private void startDownload() {
-        if (downloading) {
-            Toast.makeText(DownloadingExampleActivity.this, "cannot start download. a download is already in progress", Toast.LENGTH_LONG).show();
+    private void runCommand() {
+        if (running) {
+            Toast.makeText(CommandExampleActivity.this, "cannot start command. a command is already in progress", Toast.LENGTH_LONG).show();
             return;
         }
 
         if (!isStoragePermissionGranted()) {
-            Toast.makeText(DownloadingExampleActivity.this, "grant storage permission and retry", Toast.LENGTH_LONG).show();
+            Toast.makeText(CommandExampleActivity.this, "grant storage permission and retry", Toast.LENGTH_LONG).show();
             return;
         }
 
-        String url = etUrl.getText().toString();
-        if (StringUtils.isBlank(url)) {
-            etUrl.setError(getString(R.string.url_error));
+        String command = etCommand.getText().toString();
+        if (StringUtils.isBlank(command)) {
+            etCommand.setError(getString(R.string.command_error));
             return;
         }
 
-        YoutubeDLRequest request = new YoutubeDLRequest(url);
-        File youtubeDLDir = getDownloadLocation();
-        request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
+        // this is not the recommended way to add options/flags/url and might break in future
+        // use the constructor for url, addOption(key) for flags, addOption(key, value) for options
+        YoutubeDLRequest request = new YoutubeDLRequest(Collections.emptyList());
+        String commandRegex = "\"([^\"]*)\"|(\\S+)";
+        Matcher m = Pattern.compile(commandRegex).matcher(command);
+        while (m.find()) {
+            if (m.group(1) != null) {
+                request.addOption(m.group(1));
+            } else {
+                request.addOption(m.group(2));
+            }
+        }
 
         showStart();
 
-        downloading = true;
+        running = true;
         Disposable disposable = Observable.fromCallable(() -> YoutubeDL.getInstance().execute(request, callback))
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(youtubeDLResponse -> {
                     pbLoading.setVisibility(View.GONE);
                     progressBar.setProgress(100);
-                    tvDownloadStatus.setText(getString(R.string.download_complete));
-                    Toast.makeText(DownloadingExampleActivity.this, "download successful", Toast.LENGTH_LONG).show();
-                    downloading = false;
+                    tvCommandStatus.setText(getString(R.string.command_complete));
+                    Toast.makeText(CommandExampleActivity.this, "command successful", Toast.LENGTH_LONG).show();
+                    running = false;
                 }, e -> {
                     pbLoading.setVisibility(View.GONE);
-                    tvDownloadStatus.setText(getString(R.string.download_failed));
-                    Toast.makeText(DownloadingExampleActivity.this, "download failed", Toast.LENGTH_LONG).show();
-                    Logger.e(e, "failed to download");
-                    downloading = false;
+                    tvCommandStatus.setText(getString(R.string.command_failed));
+                    Toast.makeText(CommandExampleActivity.this, "command failed", Toast.LENGTH_LONG).show();
+                    Logger.e(e, "command failed");
+                    running = false;
                 });
         compositeDisposable.add(disposable);
 
@@ -134,16 +144,8 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
         super.onDestroy();
     }
 
-    @NonNull
-    private File getDownloadLocation() {
-        File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        File youtubeDLDir = new File(downloadsDir, "youtubedl-android");
-        if (!youtubeDLDir.exists()) youtubeDLDir.mkdir();
-        return youtubeDLDir;
-    }
-
     private void showStart() {
-        tvDownloadStatus.setText(getString(R.string.download_start));
+        tvCommandStatus.setText(getString(R.string.command_start));
         progressBar.setProgress(0);
         pbLoading.setVisibility(View.VISIBLE);
     }

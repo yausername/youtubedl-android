@@ -2,10 +2,11 @@ package com.yausername.youtubedl_android_example;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,7 +30,7 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
     private Button btnStartStream;
     private EditText etUrl;
     private VideoView videoView;
-    private TextView tvStreamStatus;
+    private ProgressBar pbLoading;
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
@@ -46,7 +47,7 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
         btnStartStream = findViewById(R.id.btn_start_streaming);
         etUrl = findViewById(R.id.et_url);
         videoView = findViewById(R.id.video_view);
-        tvStreamStatus = findViewById(R.id.tv_status);
+        pbLoading = findViewById(R.id.pb_status);
     }
 
     private void initListeners() {
@@ -82,21 +83,20 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
             return;
         }
 
-        tvStreamStatus.setText("Fetching Stream Info");
+        pbLoading.setVisibility(View.VISIBLE);
         Disposable disposable = Observable.fromCallable(() -> YoutubeDL.getInstance().getInfo(url))
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(streamInfo -> {
+                    pbLoading.setVisibility(View.GONE);
                     String videoUrl = getVideoUrl(streamInfo);
                     if(StringUtils.isBlank(videoUrl)){
-                        tvStreamStatus.setText("Failed to fetch Stream Info");
                         Toast.makeText(StreamingExampleActivity.this, "failed to get stream url", Toast.LENGTH_LONG).show();
                     }else{
-                        tvStreamStatus.setText("Streaming Now");
                         setupVideoView(videoUrl);
                     }
                 }, e -> {
-                    tvStreamStatus.setText("Failed to fetch Stream Info");
+                    pbLoading.setVisibility(View.GONE);
                     Toast.makeText(StreamingExampleActivity.this, "streaming failed. failed to get stream info", Toast.LENGTH_LONG).show();
                     Logger.e(e, "failed to get stream info");
                 });

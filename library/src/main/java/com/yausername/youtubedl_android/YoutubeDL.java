@@ -1,7 +1,9 @@
 package com.yausername.youtubedl_android;
 
 import android.app.Application;
-import android.support.annotation.Nullable;
+import android.os.Environment;
+
+import androidx.annotation.Nullable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orhanobut.logger.AndroidLogAdapter;
@@ -24,7 +26,8 @@ public class YoutubeDL {
     private static final YoutubeDL INSTANCE = new YoutubeDL();
     protected static final String baseName = "youtubedl-android";
     private static final String packagesRoot = "packages";
-    private static final String pythonBin = "usr/bin/python";
+    private static final String pythonBin = "libpython.bin.so";
+    private static final String pythonLib = "libpython.zip.so";
     protected static final String youtubeDLName = "youtube-dl";
     private static final String youtubeDLBin = "__main__.py";
     protected static final String youtubeDLFile = "youtube_dl.zip";
@@ -33,8 +36,11 @@ public class YoutubeDL {
     private File pythonPath;
     private File youtubeDLPath;
     private File binDir;
+    private File cacheDir;
+
     private String ENV_LD_LIBRARY_PATH;
     private String ENV_SSL_CERT_FILE;
+    private String ENV_PYTHONHOME;
 
     protected static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -54,14 +60,17 @@ public class YoutubeDL {
         if(!baseDir.exists()) baseDir.mkdir();
 
         File packagesDir = new File(baseDir, packagesRoot);
-        binDir = new File(packagesDir, "usr/bin");
-        pythonPath = new File(packagesDir, pythonBin);
+        binDir = new File(application.getApplicationInfo().nativeLibraryDir);
+        pythonPath = new File(binDir, pythonBin);
 
         File youtubeDLDir = new File(baseDir, youtubeDLName);
         youtubeDLPath = new File(youtubeDLDir, youtubeDLBin);
 
+        cacheDir = new File(application.getCacheDir(), "youtube-dl");
+
         ENV_LD_LIBRARY_PATH = packagesDir.getAbsolutePath() + "/usr/lib";
         ENV_SSL_CERT_FILE = packagesDir.getAbsolutePath() + "/usr/etc/tls/cert.pem";
+        ENV_PYTHONHOME = packagesDir.getAbsolutePath() + "/usr";
 
         initPython(application, packagesDir);
         initYoutubeDL(application, youtubeDLDir);
@@ -74,6 +83,8 @@ public class YoutubeDL {
             youtubeDLDir.mkdirs();
             try {
                 YoutubeDLUtils.unzip(application.getResources().openRawResource(R.raw.youtube_dl), youtubeDLDir);
+                //install ffmpeg patch
+                YoutubeDLUtils.copy(application.getResources().openRawResource(R.raw.ffmpeg), new File(youtubeDLDir, "youtube_dl/postprocessor/ffmpeg.py"));
             } catch (IOException e) {
                 YoutubeDLUtils.delete(youtubeDLDir);
                 throw new YoutubeDLException("failed to initialize", e);
@@ -82,18 +93,17 @@ public class YoutubeDL {
     }
 
     protected void initPython(Application application, File packagesDir) throws YoutubeDLException {
-        if (!pythonPath.exists()) {
+        File exists = new File(packagesDir, ".python");
+        if (!exists.exists()) {
             if (!packagesDir.exists()) {
                 packagesDir.mkdirs();
             }
             try {
-                YoutubeDLUtils.unzip(application.getResources().openRawResource(R.raw.python3_7_arm), packagesDir);
+                YoutubeDLUtils.unzip(new File(binDir, pythonLib), packagesDir);
+                exists.createNewFile();
             } catch (IOException e) {
-                // delete for recovery later
-                YoutubeDLUtils.delete(pythonPath);
                 throw new YoutubeDLException("failed to initialize", e);
             }
-            pythonPath.setExecutable(true);
         }
     }
 
@@ -112,7 +122,7 @@ public class YoutubeDL {
 
     public VideoInfo getInfo(String url) throws YoutubeDLException, InterruptedException {
         YoutubeDLRequest request = new YoutubeDLRequest(url);
-        request.setOption("--dump-json");
+        request.addOption("--dump-json");
         YoutubeDLResponse response = execute(request, null);
 
         VideoInfo videoInfo;
@@ -133,6 +143,10 @@ public class YoutubeDL {
     public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback) throws YoutubeDLException, InterruptedException {
         assertInit();
 
+        if(request.getOption("--cache-dir") == null){
+            request.addOption("--cache-dir", cacheDir.getAbsolutePath());
+        }
+
         YoutubeDLResponse youtubeDLResponse;
         Process process;
         int exitCode;
@@ -150,6 +164,7 @@ public class YoutubeDL {
         env.put("LD_LIBRARY_PATH", ENV_LD_LIBRARY_PATH);
         env.put("SSL_CERT_FILE", ENV_SSL_CERT_FILE);
         env.put("PATH",  System.getenv("PATH") + ":" + binDir.getAbsolutePath());
+        env.put("PYTHONHOME", ENV_PYTHONHOME);
 
         try {
             process = processBuilder.start();
@@ -187,6 +202,7 @@ public class YoutubeDL {
     }
 
     synchronized public YoutubeDLUpdater.UpdateStatus updateYoutubeDL(Application application) throws YoutubeDLException {
+        assertInit();
         try {
             return YoutubeDLUpdater.update(application);
         } catch (IOException e) {

@@ -11,6 +11,7 @@ Prerequisites : git, docker
 create a file `build-python.sh` with below content
 
     #!/bin/bash
+    # use i686 for x86
     export TERMUX_ARCH=arm
     export TERMUX_PREFIX=/data/youtubedl-android/usr
     export TERMUX_ANDROID_HOME=/data/youtubedl-android/home
@@ -22,6 +23,7 @@ Make file executable
     
 Build Package
 
+    ./scripts/run-docker.sh ./clean.sh
     ./scripts/run-docker.sh ./build-python.sh
     
 This will create several `.deb` files in `debs/` directory.  
@@ -44,5 +46,5 @@ The python zip archive as used in youtubedl-android can be created using the fol
     dpkg-deb -xv openssl_1.1.1a_arm.deb .
     dpkg-deb -xv ca-certificates_20180124_all.deb .
     cd data/youtubedl-android
-    zip -r /tmp/python3_7_arm.zip usr/
+    zip -r /tmp/python3_7_arm.zip usr/lib usr/etc
     

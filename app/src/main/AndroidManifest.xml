@@ -7,12 +7,13 @@
 
     <application
         android:name=".App"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:extractNativeLibs="true">
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,6 +26,9 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".DownloadingExampleActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".CommandExampleActivity"
             android:screenOrientation="portrait"></activity>
     </application>
 
