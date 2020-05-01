@@ -1,7 +1,6 @@
 package com.yausername.youtubedl_android;
 
 import android.app.Application;
-import android.os.Environment;
 
 import androidx.annotation.Nullable;
 
@@ -122,11 +121,14 @@ public class YoutubeDL {
 
     public VideoInfo getInfo(String url) throws YoutubeDLException, InterruptedException {
         YoutubeDLRequest request = new YoutubeDLRequest(url);
+        return getInfo(request);
+   }
+
+    public VideoInfo getInfo(YoutubeDLRequest request) throws YoutubeDLException, InterruptedException {
         request.addOption("--dump-json");
         YoutubeDLResponse response = execute(request, null);
 
         VideoInfo videoInfo;
-
         try {
             videoInfo = objectMapper.readValue(response.getOut(), VideoInfo.class);
         } catch (IOException e) {
@@ -142,10 +144,6 @@ public class YoutubeDL {
 
     public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback) throws YoutubeDLException, InterruptedException {
         assertInit();
-
-        if(request.getOption("--cache-dir") == null){
-            request.addOption("--cache-dir", cacheDir.getAbsolutePath());
-        }
 
         YoutubeDLResponse youtubeDLResponse;
         Process process;
