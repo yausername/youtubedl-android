@@ -36,4 +36,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
 
     implementation 'com.orhanobut:logger:2.2.0'
+    implementation 'net.lingala.zip4j:zip4j:2.5.2'
 }
