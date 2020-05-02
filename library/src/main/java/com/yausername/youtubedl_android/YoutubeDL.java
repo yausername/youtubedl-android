@@ -82,8 +82,6 @@ public class YoutubeDL {
             youtubeDLDir.mkdirs();
             try {
                 YoutubeDLUtils.unzip(application.getResources().openRawResource(R.raw.youtube_dl), youtubeDLDir);
-                //install ffmpeg patch
-                YoutubeDLUtils.copy(application.getResources().openRawResource(R.raw.ffmpeg), new File(youtubeDLDir, "youtube_dl/postprocessor/ffmpeg.py"));
             } catch (IOException e) {
                 YoutubeDLUtils.delete(youtubeDLDir);
                 throw new YoutubeDLException("failed to initialize", e);
