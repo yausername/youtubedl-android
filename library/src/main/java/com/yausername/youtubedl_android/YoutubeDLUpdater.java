@@ -131,7 +131,7 @@ public class YoutubeDLUpdater {
     @NonNull
     private static File getYoutubeDLDir(Application application) {
         File baseDir = new File(application.getFilesDir(), YoutubeDL.baseName);
-        return new File(baseDir, YoutubeDL.youtubeDLName);
+        return new File(baseDir, YoutubeDL.youtubeDLDirName);
     }
 
 }

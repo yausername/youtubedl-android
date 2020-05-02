@@ -37,5 +37,5 @@ The ffmpeg zip archive as used in youtubedl-android can be created using the fol
     cd debs
     find . -type f -exec dpkg-deb -xv {} . \;
     cd data/youtubedl-android
-    zip -r /tmp/ffmpeg_arm.zip usr/lib
+    zip --symlinks -r /tmp/ffmpeg_arm.zip usr/lib
     

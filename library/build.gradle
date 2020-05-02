@@ -35,4 +35,5 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.8'
     implementation 'com.orhanobut:logger:2.2.0'
+    implementation 'net.lingala.zip4j:zip4j:2.5.2'
 }
