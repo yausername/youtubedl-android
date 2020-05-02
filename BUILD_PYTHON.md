@@ -46,5 +46,5 @@ The python zip archive as used in youtubedl-android can be created using the fol
     dpkg-deb -xv openssl_1.1.1a_arm.deb .
     dpkg-deb -xv ca-certificates_20180124_all.deb .
     cd data/youtubedl-android
-    zip -r /tmp/python3_7_arm.zip usr/lib usr/etc
+    zip --symlinks -r /tmp/python3_7_arm.zip usr/lib usr/etc
     
