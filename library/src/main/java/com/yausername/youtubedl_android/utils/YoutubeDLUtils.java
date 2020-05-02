@@ -9,7 +9,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -66,15 +65,4 @@ public class YoutubeDLUtils {
         return true;
     }
 
-    public static void copy(InputStream inputStream, File target) throws IOException {
-        OutputStream outStream = new FileOutputStream(target);
-
-        byte[] buffer = new byte[8 * 1024];
-        int bytesRead;
-        while ((bytesRead = inputStream.read(buffer)) != -1) {
-            outStream.write(buffer, 0, bytesRead);
-        }
-        inputStream.close();
-        outStream.close();
-    }
 }
