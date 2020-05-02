@@ -3,6 +3,7 @@ package com.yausername.youtubedl_android;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+
 import androidx.annotation.NonNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -43,8 +44,6 @@ public class YoutubeDLUpdater {
             //install newer version
             youtubeDLDir.mkdirs();
             YoutubeDLUtils.unzip(file, youtubeDLDir);
-            //install ffmpeg patch
-            YoutubeDLUtils.copy(application.getResources().openRawResource(R.raw.ffmpeg), new File(youtubeDLDir, "youtube_dl/postprocessor/ffmpeg.py"));
         } catch (Exception e) {
             //if something went wrong restore default version
             YoutubeDLUtils.delete(youtubeDLDir);
