@@ -29,7 +29,7 @@ Build Package
 This will create several `.deb` files in `debs/` directory.
 `debs/*dev*.deb` debs can be safely removed as we don't need them.
 `debs/*static*.deb` debs can be safely removed as we don't need them.
-`libicu_66.1-1_arm.deb` can be removed
+`libicu_66.1-1_arm.deb` can be removed (?)
 
 
 The ffmpeg zip archive as used in youtubedl-android can be created using the following commands.
