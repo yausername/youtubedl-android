@@ -1,26 +1,30 @@
 package com.yausername.ffmpeg;
 
 import android.app.Application;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.Nullable;
 
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 import com.yausername.youtubedl_android.YoutubeDLException;
 import com.yausername.youtubedl_android.utils.YoutubeDLUtils;
 
+import net.lingala.zip4j.ZipFile;
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 public class FFmpeg {
 
     private static final FFmpeg INSTANCE = new FFmpeg();
     protected static final String baseName = "youtubedl-android";
     private static final String packagesRoot = "packages";
-    private static final String ffmpegBin = "usr/bin/ffmpeg";
+    private static final String ffmegDirName = "ffmpeg";
+    private static final String ffmpegLib = "libffmpeg.zip.so";
 
     private boolean initialized = false;
     private File binDir;
-    private File ffmpegPath;
 
     private FFmpeg(){
     }
@@ -37,36 +41,23 @@ public class FFmpeg {
         File baseDir = new File(application.getFilesDir(), baseName);
         if(!baseDir.exists()) baseDir.mkdir();
 
-        File packagesDir = new File(baseDir, packagesRoot);
-        binDir = new File(packagesDir, "usr/bin");
-        ffmpegPath = new File(packagesDir, ffmpegBin);
+        binDir = new File(application.getApplicationInfo().nativeLibraryDir);
 
-        initFFmpeg(application, packagesDir);
+        File packagesDir = new File(baseDir, packagesRoot);
+        File ffmpegDir = new File(packagesDir, ffmegDirName);
+        initFFmpeg(application, ffmpegDir);
 
         initialized = true;
     }
 
-    private void initFFmpeg(Application application, File packagesDir) throws YoutubeDLException {
-        if (!ffmpegPath.exists()) {
-            if (!packagesDir.exists()) {
-                packagesDir.mkdirs();
-            }
+    private void initFFmpeg(Application application, File ffmpegDir) throws YoutubeDLException {
+        if (!ffmpegDir.exists()) {
+            ffmpegDir.mkdirs();
             try {
-                YoutubeDLUtils.unzip(application.getResources().openRawResource(R.raw.ffmpeg_arm), packagesDir);
+                new ZipFile(new File(binDir, ffmpegLib)).extractAll(ffmpegDir.getAbsolutePath());
             } catch (IOException e) {
-                // delete for recovery later
-                YoutubeDLUtils.delete(ffmpegPath);
+                YoutubeDLUtils.delete(ffmpegDir);
                 throw new YoutubeDLException("failed to initialize", e);
-            }
-            markExecutable(binDir);
-        }
-    }
-
-    private void markExecutable(File binDir) {
-        File[] directoryListing = binDir.listFiles();
-        if (directoryListing != null) {
-            for (File child : directoryListing) {
-                if(!child.isDirectory()) child.setExecutable(true);
             }
         }
     }

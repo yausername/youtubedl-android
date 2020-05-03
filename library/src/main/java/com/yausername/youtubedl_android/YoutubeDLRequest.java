@@ -1,6 +1,6 @@
 package com.yausername.youtubedl_android;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,19 +19,23 @@ public class YoutubeDLRequest {
         this.urls = urls;
     }
 
-    public YoutubeDLRequest setOption(@NonNull String key, @NonNull String value){
-        options.setOption(key, value);
+    public YoutubeDLRequest addOption(@NonNull String key, @NonNull String value){
+        options.addOption(key, value);
         return this;
     }
 
-    public YoutubeDLRequest setOption(@NonNull String key, @NonNull Number value){
-        options.setOption(key, value);
+    public YoutubeDLRequest addOption(@NonNull String key, @NonNull Number value){
+        options.addOption(key, value);
         return this;
     }
 
-    public YoutubeDLRequest setOption(String key){
-        options.setOption(key);
+    public YoutubeDLRequest addOption(String key){
+        options.addOption(key);
         return this;
+    }
+
+    public Object getOption(String key){
+        return options.getOption(key);
     }
 
     public List<String> buildCommand(){

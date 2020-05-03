@@ -3,7 +3,8 @@ package com.yausername.youtubedl_android;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -130,7 +131,7 @@ public class YoutubeDLUpdater {
     @NonNull
     private static File getYoutubeDLDir(Application application) {
         File baseDir = new File(application.getFilesDir(), YoutubeDL.baseName);
-        return new File(baseDir, YoutubeDL.youtubeDLName);
+        return new File(baseDir, YoutubeDL.youtubeDLDirName);
     }
 
 }
