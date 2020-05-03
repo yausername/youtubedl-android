@@ -33,12 +33,18 @@ dependencies {
     implementation 'com.github.yausername.youtubedl-android:ffmpeg:0.8.+'
 }
 ```
+<br/>
+
+* Set `android:extractNativeLibs="true"` in your app's manifest.
+* Use `abiFilters 'x86', 'armeabi'` in app/build.gradle, see [sample app](https://github.com/yausername/youtubedl-android/blob/master/app/build.gradle).
+* Use abi splits to reduce apk size, see [sample app](https://github.com/yausername/youtubedl-android/blob/master/app/build.gradle).
+* On android 10 set `android:requestLegacyExternalStorage="true"`. I haven't tested with scoped storage, feel free to do so.
 
 <br/>
 
 ## Usage
 
-* youtube-dl executable and python 3.7 are bundled in the library.
+* youtube-dl executable and python 3.8 are bundled in the library.
 * Initialize library, preferably in `onCreate`.
 
 ```java
@@ -54,7 +60,7 @@ try {
 ```java
 File youtubeDLDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "youtubedl-android");
 YoutubeDLRequest request = new YoutubeDLRequest("https://vimeo.com/22439234");
-request.setOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
+request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
 YoutubeDL.getInstance().execute(request, (progress, etaInSeconds) -> {
     System.out.println(String.valueOf(progress) + "% (ETA " + String.valueOf(etaInSeconds) + " seconds)");
 });
