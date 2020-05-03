@@ -38,7 +38,7 @@ public class FFmpeg {
 
         initLogger();
 
-        File baseDir = new File(application.getFilesDir(), baseName);
+        File baseDir = new File(application.getNoBackupFilesDir(), baseName);
         if(!baseDir.exists()) baseDir.mkdir();
 
         binDir = new File(application.getApplicationInfo().nativeLibraryDir);

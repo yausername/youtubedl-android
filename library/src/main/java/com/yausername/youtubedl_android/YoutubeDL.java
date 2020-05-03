@@ -58,7 +58,7 @@ public class YoutubeDL {
 
         initLogger();
 
-        File baseDir = new File(application.getFilesDir(), baseName);
+        File baseDir = new File(application.getNoBackupFilesDir(), baseName);
         if(!baseDir.exists()) baseDir.mkdir();
 
         File packagesDir = new File(baseDir, packagesRoot);
