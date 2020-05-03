@@ -15,9 +15,19 @@ buildscript {
     }
 }
 
+def versionMajor = 0
+def versionMinor = 8
+def versionPatch = 0
+def versionBuild = 0 // bump for dogfood builds, public betas, etc.
+
+ext {
+    versionCode = versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
+    versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
+}
+
 allprojects {
     group = 'com.github.yausername'
-    version = '0.7.0'
+    version = versionName
 
     repositories {
         google()
