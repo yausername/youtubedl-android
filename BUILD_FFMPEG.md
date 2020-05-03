@@ -11,6 +11,7 @@ Prerequisites : git, docker
 create a file `build-ffmpeg.sh` with below content
 
     #!/bin/bash
+    # use i686 for x86
     export TERMUX_ARCH=arm
     export TERMUX_PREFIX=/data/youtubedl-android/usr
     export TERMUX_ANDROID_HOME=/data/youtubedl-android/home
@@ -22,10 +23,13 @@ Make file executable
     
 Build Package
 
+    ./scripts/run-docker.sh ./clean.sh
     ./scripts/run-docker.sh ./build-ffmpeg.sh
     
 This will create several `.deb` files in `debs/` directory.
 `debs/*dev*.deb` debs can be safely removed as we don't need them.
+`debs/*static*.deb` debs can be safely removed as we don't need them.
+`libicu_66.1-1_arm.deb` can be removed (?)
 
 
 The ffmpeg zip archive as used in youtubedl-android can be created using the following commands.
@@ -33,7 +37,5 @@ The ffmpeg zip archive as used in youtubedl-android can be created using the fol
     cd debs
     find . -type f -exec dpkg-deb -xv {} . \;
     cd data/youtubedl-android
-    # fix broken symlinks if exists in usr/bin/
-    rm -rf usr/share/man
-    zip -r /tmp/ffmpeg_arm.zip usr/
+    zip --symlinks -r /tmp/ffmpeg_arm.zip usr/lib
     

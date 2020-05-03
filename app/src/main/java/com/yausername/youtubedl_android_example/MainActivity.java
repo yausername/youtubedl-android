@@ -2,18 +2,15 @@ package com.yausername.youtubedl_android_example;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.orhanobut.logger.AndroidLogAdapter;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.orhanobut.logger.Logger;
-import com.yausername.youtubedl_android.BuildConfig;
 import com.yausername.youtubedl_android.YoutubeDL;
-import com.yausername.youtubedl_android.YoutubeDLException;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -26,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Button btnStreamingExample;
     private Button btnDownloadingExample;
+    private Button btnCommandExample;
     private Button btnUpdate;
     private ProgressBar progressBar;
 
@@ -50,12 +48,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initListeners() {
         btnStreamingExample.setOnClickListener(this);
         btnDownloadingExample.setOnClickListener(this);
+        btnCommandExample.setOnClickListener(this);
         btnUpdate.setOnClickListener(this);
     }
 
     private void initViews() {
         btnStreamingExample = findViewById(R.id.btn_streaming_example);
         btnDownloadingExample = findViewById(R.id.btn_downloading_example);
+        btnCommandExample = findViewById(R.id.btn_command_example);
         btnUpdate = findViewById(R.id.btn_update);
         progressBar = findViewById(R.id.progress_bar);
     }
@@ -70,6 +70,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             case R.id.btn_downloading_example: {
                 Intent i = new Intent(MainActivity.this, DownloadingExampleActivity.class);
+                startActivity(i);
+                break;
+            }
+            case R.id.btn_command_example: {
+                Intent i = new Intent(MainActivity.this, CommandExampleActivity.class);
                 startActivity(i);
                 break;
             }
