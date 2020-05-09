@@ -2,18 +2,12 @@ package com.yausername.ffmpeg;
 
 import android.app.Application;
 
-import androidx.annotation.Nullable;
-
-import com.orhanobut.logger.AndroidLogAdapter;
-import com.orhanobut.logger.Logger;
 import com.yausername.youtubedl_android.YoutubeDLException;
 import com.yausername.youtubedl_android.utils.YoutubeDLUtils;
 
-import net.lingala.zip4j.ZipFile;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
 
 public class FFmpeg {
 
@@ -36,8 +30,6 @@ public class FFmpeg {
     synchronized public void init(Application application) throws YoutubeDLException {
         if (initialized) return;
 
-        initLogger();
-
         File baseDir = new File(application.getNoBackupFilesDir(), baseName);
         if(!baseDir.exists()) baseDir.mkdir();
 
@@ -54,20 +46,11 @@ public class FFmpeg {
         if (!ffmpegDir.exists()) {
             ffmpegDir.mkdirs();
             try {
-                new ZipFile(new File(binDir, ffmpegLib)).extractAll(ffmpegDir.getAbsolutePath());
-            } catch (IOException e) {
-                YoutubeDLUtils.delete(ffmpegDir);
+                YoutubeDLUtils.unzip(new File(binDir, ffmpegLib), ffmpegDir);
+            } catch (Exception e) {
+                FileUtils.deleteQuietly(ffmpegDir);
                 throw new YoutubeDLException("failed to initialize", e);
             }
         }
-    }
-
-    private void initLogger() {
-        Logger.addLogAdapter(new AndroidLogAdapter() {
-            @Override
-            public boolean isLoggable(int priority, @Nullable String tag) {
-                return BuildConfig.DEBUG;
-            }
-        });
     }
 }
