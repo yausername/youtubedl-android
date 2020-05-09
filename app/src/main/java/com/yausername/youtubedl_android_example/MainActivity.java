@@ -2,6 +2,7 @@ package com.yausername.youtubedl_android_example;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -9,7 +10,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.orhanobut.logger.Logger;
 import com.yausername.youtubedl_android.YoutubeDL;
 
 import io.reactivex.Observable;
@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean updating = false;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
+
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,9 +113,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     updating = false;
                 }, e -> {
+                    if(BuildConfig.DEBUG) Log.e(TAG, "failed to update", e);
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(MainActivity.this, "download failed", Toast.LENGTH_LONG).show();
-                    Logger.e(e, "failed to download");
+                    Toast.makeText(MainActivity.this, "update failed", Toast.LENGTH_LONG).show();
                     updating = false;
                 });
         compositeDisposable.add(disposable);

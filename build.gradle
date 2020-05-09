@@ -29,7 +29,6 @@ ext {
     androidJunitVer = '1.1.1'
     espressoVer = '3.2.0'
     jacksonVer = '2.9.8'
-    orhanobutLoggerVer = '2.2.0'
     // supports java 1.6
     commonsIoVer = '2.5'
     // supports java 1.6

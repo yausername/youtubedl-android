@@ -1,6 +1,8 @@
 package com.yausername.youtubedl_android.utils;
 
-import com.orhanobut.logger.Logger;
+import android.util.Log;
+
+import com.yausername.youtubedl_android.BuildConfig;
 import com.yausername.youtubedl_android.DownloadProgressCallback;
 
 import java.io.IOException;
@@ -19,6 +21,8 @@ public class StreamProcessExtractor extends Thread {
     private final DownloadProgressCallback callback;
 
     private Pattern p = Pattern.compile("\\[download\\]\\s+(\\d+\\.\\d)% .* ETA (\\d+):(\\d+)");
+
+    private static final String TAG = "StreamProcessExtractor";
 
     public StreamProcessExtractor(StringBuffer buffer, InputStream stream, DownloadProgressCallback callback) {
         this.stream = stream;
@@ -42,7 +46,7 @@ public class StreamProcessExtractor extends Thread {
                 currentLine.append((char) nextChar);
             }
         } catch (IOException e) {
-            Logger.e(e, "failed to read stream");
+            if(BuildConfig.DEBUG) Log.e(TAG, "failed to read stream", e);
         }
     }
 

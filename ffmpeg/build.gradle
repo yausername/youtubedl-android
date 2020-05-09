@@ -35,7 +35,6 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidJunitVer"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVer"
 
-    implementation "com.orhanobut:logger:$orhanobutLoggerVer"
     implementation group: 'commons-io', name: 'commons-io', version: "$commonsIoVer"
     implementation group: 'org.apache.commons', name: 'commons-compress', version: "$commonsCompressVer"
 }
