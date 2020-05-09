@@ -10,14 +10,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.yausername.youtubedl_android.utils.YoutubeDLUtils;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
 
 public class YoutubeDLUpdater {
 
@@ -40,15 +37,15 @@ public class YoutubeDLUpdater {
         try {
             youtubeDLDir = getYoutubeDLDir(application);
             //purge older version
-            YoutubeDLUtils.delete(youtubeDLDir);
+            FileUtils.deleteDirectory(youtubeDLDir);
             //install newer version
             youtubeDLDir.mkdirs();
             YoutubeDLUtils.unzip(file, youtubeDLDir);
         } catch (Exception e) {
             //if something went wrong restore default version
-            YoutubeDLUtils.delete(youtubeDLDir);
+            FileUtils.deleteQuietly(youtubeDLDir);
             YoutubeDL.getInstance().initYoutubeDL(application, youtubeDLDir);
-            throw e;
+            throw new YoutubeDLException(e);
         } finally {
             file.delete();
         }
@@ -95,36 +92,10 @@ public class YoutubeDLUpdater {
     }
 
     @NonNull
-    private static File download(Application application, String url) throws YoutubeDLException, IOException {
-        File file = null;
-        InputStream in = null;
-        FileOutputStream out = null;
-        ReadableByteChannel inChannel = null;
-        FileChannel outChannel = null;
-        try {
-            URL downloadUrl = new URL(url);
-            in = downloadUrl.openStream();
-            inChannel = Channels.newChannel(in);
-            file = File.createTempFile("youtube_dl", "zip", application.getCacheDir());
-            out = new FileOutputStream(file);
-            outChannel = out.getChannel();
-            long bytesRead=0;
-            long transferPosition=0;
-            while ((bytesRead=outChannel.transferFrom(inChannel,transferPosition,1 << 24)) > 0) {
-                transferPosition+=bytesRead;
-            }
-        } catch (Exception e) {
-            // delete temp file if something went wrong
-            if (null != file && file.exists()) {
-                file.delete();
-            }
-            throw e;
-        } finally {
-            if (null != in) in.close();
-            if (null != inChannel) inChannel.close();
-            if (null != out) out.close();
-            if (null != outChannel) outChannel.close();
-        }
+    private static File download(Application application, String url) throws IOException {
+        URL downloadUrl = new URL(url);
+        File file = File.createTempFile("youtube_dl", "zip", application.getCacheDir());
+        FileUtils.copyURLToFile(downloadUrl, file, 5000, 10000);
         return file;
     }
 
