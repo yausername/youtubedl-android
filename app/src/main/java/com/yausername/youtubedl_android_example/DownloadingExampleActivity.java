@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,7 +18,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import com.orhanobut.logger.Logger;
 import com.yausername.youtubedl_android.DownloadProgressCallback;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.YoutubeDLRequest;
@@ -52,6 +52,8 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
             );
         }
     };
+
+    private static final String TAG = "DownloadingExample";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,10 +120,10 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
                     Toast.makeText(DownloadingExampleActivity.this, "download successful", Toast.LENGTH_LONG).show();
                     downloading = false;
                 }, e -> {
+                    if(BuildConfig.DEBUG) Log.e(TAG,  "failed to download", e);
                     pbLoading.setVisibility(View.GONE);
                     tvDownloadStatus.setText(getString(R.string.download_failed));
                     Toast.makeText(DownloadingExampleActivity.this, "download failed", Toast.LENGTH_LONG).show();
-                    Logger.e(e, "failed to download");
                     downloading = false;
                 });
         compositeDisposable.add(disposable);

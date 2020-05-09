@@ -34,7 +34,6 @@ dependencies {
 
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "$jacksonVer"
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: "$jacksonVer"
-    implementation "com.orhanobut:logger:$orhanobutLoggerVer"
     implementation group: 'commons-io', name: 'commons-io', version: "$commonsIoVer"
     implementation group: 'org.apache.commons', name: 'commons-compress', version: "$commonsCompressVer"
 }

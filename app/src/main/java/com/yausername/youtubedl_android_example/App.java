@@ -4,7 +4,6 @@ import android.app.Application;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.orhanobut.logger.Logger;
 import com.yausername.ffmpeg.FFmpeg;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.YoutubeDLException;
@@ -12,6 +11,7 @@ import com.yausername.youtubedl_android.YoutubeDLException;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.exceptions.UndeliverableException;
+import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.schedulers.Schedulers;
 
@@ -24,12 +24,17 @@ public class App extends Application {
         super.onCreate();
 
         configureRxJavaErrorHandler();
+        Completable.fromAction(this::initLibraries).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new DisposableCompletableObserver() {
+            @Override
+            public void onComplete() {
+                // it worked
+            }
 
-        Completable.fromAction(this::initLibraries).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(() -> {
-            Toast.makeText(this, "initialization success", Toast.LENGTH_SHORT);
-        }, (e) -> {
-            Logger.e(e, "failed to initialize youtubedl-android");
-            Toast.makeText(this, "initialization failed: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT);
+            @Override
+            public void onError(Throwable e) {
+                if(BuildConfig.DEBUG) Log.e(TAG, "failed to initialize youtubedl-android", e);
+                Toast.makeText(getApplicationContext(), "initialization failed: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -54,5 +59,4 @@ public class App extends Application {
         YoutubeDL.getInstance().init(this);
         FFmpeg.getInstance().init(this);
     }
-
 }
