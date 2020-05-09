@@ -9,6 +9,14 @@ Android library wrapper for [youtube-dl](https://github.com/rg3/youtube-dl) exec
 
 <br/>
 
+## Sample app
+
+![Download Example](https://media.giphy.com/media/LpDmy1nS4JjERk39xS/giphy.gif)
+![Streaming Example](https://media.giphy.com/media/1qXGlSPB3pqRQ7dLxx/giphy.gif)
+
+Debug apk for testing can be downloaded from the [releases page](https://github.com/yausername/youtubedl-android/releases)
+<br/>
+
 ## Installation
 
 ### Gradle
@@ -90,15 +98,6 @@ try {
     Log.e(TAG, "failed to initialize youtubedl-android", e);
 }
 ```
-
-<br/>
-
-## Sample app
-
-![Download Example](https://media.giphy.com/media/LpDmy1nS4JjERk39xS/giphy.gif)
-![Streaming Example](https://media.giphy.com/media/1qXGlSPB3pqRQ7dLxx/giphy.gif)
-
-<br/>
 
 ## Docs
  *  Though not required for just using this library, documentation on building python for android can be seen [here](BUILD_PYTHON.md). Same for ffmpeg [here](BUILD_FFMPEG.md). Alternatively, you can use pre-built packages from [here (android5+)](http://termux.net/dists/stable/) or [here (android7+)](https://bintray.com/termux/termux-packages-24).
