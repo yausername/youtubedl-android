@@ -1,6 +1,8 @@
 package com.yausername.youtubedl_android.utils;
 
-import com.orhanobut.logger.Logger;
+import android.util.Log;
+
+import com.yausername.youtubedl_android.BuildConfig;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +13,8 @@ public class StreamGobbler extends Thread {
 
     private InputStream stream;
     private StringBuffer buffer;
+
+    private static final String TAG = "StreamGobbler";
 
     public StreamGobbler(StringBuffer buffer, InputStream stream) {
         this.stream = stream;
@@ -26,7 +30,7 @@ public class StreamGobbler extends Thread {
                 this.buffer.append((char) nextChar);
             }
         } catch (IOException e) {
-            Logger.e(e, "failed to read stream");
+            if(BuildConfig.DEBUG) Log.e(TAG, "failed to read stream", e);
         }
     }
 }

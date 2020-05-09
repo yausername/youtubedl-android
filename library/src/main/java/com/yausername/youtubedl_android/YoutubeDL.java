@@ -5,8 +5,6 @@ import android.app.Application;
 import androidx.annotation.Nullable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.orhanobut.logger.AndroidLogAdapter;
-import com.orhanobut.logger.Logger;
 import com.yausername.youtubedl_android.mapper.VideoInfo;
 import com.yausername.youtubedl_android.utils.StreamGobbler;
 import com.yausername.youtubedl_android.utils.StreamProcessExtractor;
@@ -56,8 +54,6 @@ public class YoutubeDL {
     synchronized public void init(Application application) throws YoutubeDLException {
         if (initialized) return;
 
-        initLogger();
-
         File baseDir = new File(application.getNoBackupFilesDir(), baseName);
         if(!baseDir.exists()) baseDir.mkdir();
 
@@ -102,15 +98,6 @@ public class YoutubeDL {
                 throw new YoutubeDLException("failed to initialize", e);
             }
         }
-    }
-
-    private void initLogger() {
-        Logger.addLogAdapter(new AndroidLogAdapter() {
-            @Override
-            public boolean isLoggable(int priority, @Nullable String tag) {
-                return BuildConfig.DEBUG;
-            }
-        });
     }
 
     private void assertInit() {
