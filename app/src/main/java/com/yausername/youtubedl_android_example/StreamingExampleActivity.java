@@ -2,23 +2,22 @@ package com.yausername.youtubedl_android_example;
 
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.devbrackets.android.exomedia.listener.OnPreparedListener;
 import com.devbrackets.android.exomedia.ui.widget.VideoView;
-import com.orhanobut.logger.Logger;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.YoutubeDLRequest;
 import com.yausername.youtubedl_android.mapper.VideoFormat;
 import com.yausername.youtubedl_android.mapper.VideoInfo;
-
-import org.apache.commons.lang3.StringUtils;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -34,6 +33,8 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
     private ProgressBar pbLoading;
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
+
+    private static final String TAG = "StreamingExample";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +79,8 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
     }
 
     private void startStream() {
-        String url = etUrl.getText().toString();
-        if (StringUtils.isBlank(url)) {
+        String url = etUrl.getText().toString().trim();
+        if (TextUtils.isEmpty(url)) {
             etUrl.setError(getString(R.string.url_error));
             return;
         }
@@ -95,15 +96,15 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
                 .subscribe(streamInfo -> {
                     pbLoading.setVisibility(View.GONE);
                     String videoUrl = getVideoUrl(streamInfo);
-                    if (StringUtils.isBlank(videoUrl)) {
+                    if (TextUtils.isEmpty(videoUrl)) {
                         Toast.makeText(StreamingExampleActivity.this, "failed to get stream url", Toast.LENGTH_LONG).show();
                     } else {
                         setupVideoView(videoUrl);
                     }
                 }, e -> {
+                    if(BuildConfig.DEBUG) Log.e(TAG,  "failed to get stream info", e);
                     pbLoading.setVisibility(View.GONE);
                     Toast.makeText(StreamingExampleActivity.this, "streaming failed. failed to get stream info", Toast.LENGTH_LONG).show();
-                    Logger.e(e, "failed to get stream info");
                 });
         compositeDisposable.add(disposable);
     }

@@ -5,14 +5,12 @@ import android.app.Application;
 import androidx.annotation.Nullable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.orhanobut.logger.AndroidLogAdapter;
-import com.orhanobut.logger.Logger;
 import com.yausername.youtubedl_android.mapper.VideoInfo;
 import com.yausername.youtubedl_android.utils.StreamGobbler;
 import com.yausername.youtubedl_android.utils.StreamProcessExtractor;
 import com.yausername.youtubedl_android.utils.YoutubeDLUtils;
 
-import net.lingala.zip4j.ZipFile;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,8 +54,6 @@ public class YoutubeDL {
     synchronized public void init(Application application) throws YoutubeDLException {
         if (initialized) return;
 
-        initLogger();
-
         File baseDir = new File(application.getNoBackupFilesDir(), baseName);
         if(!baseDir.exists()) baseDir.mkdir();
 
@@ -84,10 +80,9 @@ public class YoutubeDL {
         if (!youtubeDLDir.exists()) {
             youtubeDLDir.mkdirs();
             try {
-                // todo use zip4j
                 YoutubeDLUtils.unzip(application.getResources().openRawResource(R.raw.youtube_dl), youtubeDLDir);
-            } catch (IOException e) {
-                YoutubeDLUtils.delete(youtubeDLDir);
+            } catch (Exception e) {
+                FileUtils.deleteQuietly(youtubeDLDir);
                 throw new YoutubeDLException("failed to initialize", e);
             }
         }
@@ -97,21 +92,12 @@ public class YoutubeDL {
         if (!pythonDir.exists()) {
             pythonDir.mkdirs();
             try {
-                new ZipFile(new File(binDir, pythonLib)).extractAll(pythonDir.getAbsolutePath());
-            } catch (IOException e) {
-                YoutubeDLUtils.delete(pythonDir);
+                YoutubeDLUtils.unzip(new File(binDir, pythonLib), pythonDir);
+            } catch (Exception e) {
+                FileUtils.deleteQuietly(pythonDir);
                 throw new YoutubeDLException("failed to initialize", e);
             }
         }
-    }
-
-    private void initLogger() {
-        Logger.addLogAdapter(new AndroidLogAdapter() {
-            @Override
-            public boolean isLoggable(int priority, @Nullable String tag) {
-                return BuildConfig.DEBUG;
-            }
-        });
     }
 
     private void assertInit() {

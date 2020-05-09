@@ -5,9 +5,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.appcompat.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,12 +14,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.orhanobut.logger.Logger;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
 import com.yausername.youtubedl_android.DownloadProgressCallback;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.YoutubeDLRequest;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 
@@ -52,6 +52,8 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
             );
         }
     };
+
+    private static final String TAG = "DownloadingExample";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,8 +97,8 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
             return;
         }
 
-        String url = etUrl.getText().toString();
-        if (StringUtils.isBlank(url)) {
+        String url = etUrl.getText().toString().trim();
+        if (TextUtils.isEmpty(url)) {
             etUrl.setError(getString(R.string.url_error));
             return;
         }
@@ -118,10 +120,10 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
                     Toast.makeText(DownloadingExampleActivity.this, "download successful", Toast.LENGTH_LONG).show();
                     downloading = false;
                 }, e -> {
+                    if(BuildConfig.DEBUG) Log.e(TAG,  "failed to download", e);
                     pbLoading.setVisibility(View.GONE);
                     tvDownloadStatus.setText(getString(R.string.download_failed));
                     Toast.makeText(DownloadingExampleActivity.this, "download failed", Toast.LENGTH_LONG).show();
-                    Logger.e(e, "failed to download");
                     downloading = false;
                 });
         compositeDisposable.add(disposable);
