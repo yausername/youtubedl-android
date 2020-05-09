@@ -1,68 +1,73 @@
 package com.yausername.youtubedl_android.utils;
 
-import com.orhanobut.logger.Logger;
+import android.system.ErrnoException;
+import android.system.Os;
+
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
+
 
 public class YoutubeDLUtils {
 
-    public static void unzip(File zipFile, File targetDirectory) throws IOException {
-        unzip(new FileInputStream(zipFile), targetDirectory);
-    }
-
-    public static void unzip(InputStream inputStream, File targetDirectory) throws IOException {
-        ZipInputStream zis = new ZipInputStream(
-                new BufferedInputStream(inputStream));
-        try {
-            ZipEntry ze;
-            int count;
-            byte[] buffer = new byte[8192];
-            while ((ze = zis.getNextEntry()) != null) {
-                File file = new File(targetDirectory, ze.getName());
-                File dir = ze.isDirectory() ? file : file.getParentFile();
-                if (!dir.isDirectory() && !dir.mkdirs())
-                    throw new FileNotFoundException("Failed to ensure directory: " +
-                            dir.getAbsolutePath());
-                if (ze.isDirectory())
-                    continue;
-                FileOutputStream fout = new FileOutputStream(file);
-                try {
-                    while ((count = zis.read(buffer)) != -1)
-                        fout.write(buffer, 0, count);
-                } finally {
-                    fout.close();
+    public static void unzip(File sourceFile, File targetDirectory) throws IOException, ErrnoException, IllegalAccessException {
+        try (ZipFile zipFile = new ZipFile(sourceFile)) {
+            Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
+            while (entries.hasMoreElements()) {
+                ZipArchiveEntry entry = entries.nextElement();
+                File entryDestination = new File(targetDirectory, entry.getName());
+                // prevent zipSlip
+                if (!entryDestination.getCanonicalPath().startsWith(targetDirectory.getCanonicalPath() + File.separator)) {
+                    throw new IllegalAccessException("Entry is outside of the target dir: " + entry.getName());
+                }
+                if (entry.isDirectory()) {
+                    entryDestination.mkdirs();
+                } else if (entry.isUnixSymlink()) {
+                    try (InputStream in = zipFile.getInputStream(entry)) {
+                        String symlink = IOUtils.toString(in, StandardCharsets.UTF_8);
+                        Os.symlink(symlink, entryDestination.getAbsolutePath());
+                    }
+                } else {
+                    entryDestination.getParentFile().mkdirs();
+                    try (InputStream in = zipFile.getInputStream(entry);
+                         OutputStream out = new FileOutputStream(entryDestination)) {
+                        IOUtils.copy(in, out);
+                    }
                 }
             }
-        } finally {
-            zis.close();
         }
     }
 
-    public static void deleteIfExists(File file) throws FileNotFoundException {
-        if (file.isDirectory()) {
-            for (File c : file.listFiles())
-                deleteIfExists(c);
-        }
-        if (!file.delete())
-            throw new FileNotFoundException("Failed to delete file: " + file);
-    }
+    public static void unzip(InputStream inputStream, File targetDirectory) throws IOException, IllegalAccessException {
+        try (ZipArchiveInputStream zis = new ZipArchiveInputStream(new BufferedInputStream(inputStream))) {
+            ZipArchiveEntry entry = null;
+            while ((entry = zis.getNextZipEntry()) != null) {
+                File entryDestination = new File(targetDirectory, entry.getName());
+                // prevent zipSlip
+                if (!entryDestination.getCanonicalPath().startsWith(targetDirectory.getCanonicalPath() + File.separator)) {
+                    throw new IllegalAccessException("Entry is outside of the target dir: " + entry.getName());
+                }
+                if (entry.isDirectory()) {
+                    entryDestination.mkdirs();
+                } else {
+                    entryDestination.getParentFile().mkdirs();
+                    try (OutputStream out = new FileOutputStream(entryDestination)) {
+                        IOUtils.copy(zis, out);
+                    }
+                }
 
-    public static boolean delete(File file){
-        try {
-            deleteIfExists(file);
-        } catch (FileNotFoundException e) {
-            Logger.e(e, "unable to delete file");
-            return false;
+            }
         }
-        return true;
     }
 
 }

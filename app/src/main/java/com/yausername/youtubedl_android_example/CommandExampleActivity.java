@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,12 +16,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import com.orhanobut.logger.Logger;
 import com.yausername.youtubedl_android.DownloadProgressCallback;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.YoutubeDLRequest;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.regex.Matcher;
@@ -53,6 +52,8 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
             );
         }
     };
+
+    private static final String TAG = "CommandExample";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,8 +97,8 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
             return;
         }
 
-        String command = etCommand.getText().toString();
-        if (StringUtils.isBlank(command)) {
+        String command = etCommand.getText().toString().trim();
+        if (TextUtils.isEmpty(command)) {
             etCommand.setError(getString(R.string.command_error));
             return;
         }
@@ -128,10 +129,10 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
                     Toast.makeText(CommandExampleActivity.this, "command successful", Toast.LENGTH_LONG).show();
                     running = false;
                 }, e -> {
+                    if(BuildConfig.DEBUG) Log.e(TAG,  "command failed", e);
                     pbLoading.setVisibility(View.GONE);
                     tvCommandStatus.setText(getString(R.string.command_failed));
                     Toast.makeText(CommandExampleActivity.this, "command failed", Toast.LENGTH_LONG).show();
-                    Logger.e(e, "command failed");
                     running = false;
                 });
         compositeDisposable.add(disposable);

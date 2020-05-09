@@ -30,11 +30,11 @@ dependencies {
 
     compileOnly project(':library')
 
-    implementation 'androidx.appcompat:appcompat:1.0.0'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    implementation "androidx.appcompat:appcompat:$appCompatVer"
+    testImplementation "junit:junit:$junitVer"
+    androidTestImplementation "androidx.test.ext:junit:$androidJunitVer"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVer"
 
-    implementation 'com.orhanobut:logger:2.2.0'
-    implementation 'net.lingala.zip4j:zip4j:2.5.2'
+    implementation group: 'commons-io', name: 'commons-io', version: "$commonsIoVer"
+    implementation group: 'org.apache.commons', name: 'commons-compress', version: "$commonsCompressVer"
 }
