@@ -10,12 +10,17 @@ Android library wrapper for [youtube-dl](https://github.com/rg3/youtube-dl) exec
 <br/>
 
 ## Sample app
-
+Debug apk for testing can be downloaded from the [releases page](https://github.com/yausername/youtubedl-android/releases)
+<br/>
+<br/>
 ![Download Example](https://media.giphy.com/media/fvI9yytF4rxmH7pGHu/giphy.gif)
 ![Streaming Example](https://media.giphy.com/media/UoqecxgY9IWbUs5tSR/giphy.gif)
 
-Debug apk for testing can be downloaded from the [releases page](https://github.com/yausername/youtubedl-android/releases)
-<br/>
+
+
+Checkout [dvd](https://github.com/yausername/dvd), a video downloader app based on this library.
+
+![dvd](https://imgur.com/download/DdhdBuc)
 
 ## Installation
 
