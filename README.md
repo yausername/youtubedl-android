@@ -36,20 +36,20 @@ allprojects {
 Step 2: Add the dependency
 ```gradle
 dependencies {
-    implementation 'com.github.yausername.youtubedl-android:library:0.9.+'
+    implementation 'com.github.yausername.youtubedl-android:library:0.10.+'
 }
 ```
 Optional FFmpeg dependency can also be added
 ```gradle
 dependencies {
-    implementation 'com.github.yausername.youtubedl-android:library:0.9.+'
-    implementation 'com.github.yausername.youtubedl-android:ffmpeg:0.9.+'
+    implementation 'com.github.yausername.youtubedl-android:library:0.10.+'
+    implementation 'com.github.yausername.youtubedl-android:ffmpeg:0.10.+'
 }
 ```
 <br/>
 
 * Set `android:extractNativeLibs="true"` in your app's manifest.
-* Use `abiFilters 'x86', 'armeabi-v7a'` in app/build.gradle, see [sample app](https://github.com/yausername/youtubedl-android/blob/master/app/build.gradle).
+* Use `abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'` in app/build.gradle, see [sample app](https://github.com/yausername/youtubedl-android/blob/master/app/build.gradle).
 * Use abi splits to reduce apk size, see [sample app](https://github.com/yausername/youtubedl-android/blob/master/app/build.gradle).
 * On android 10 set `android:requestLegacyExternalStorage="true"`. I haven't tested with scoped storage, feel free to do so.
 

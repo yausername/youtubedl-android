@@ -16,12 +16,12 @@ buildscript {
 }
 
 def versionMajor = 0
-def versionMinor = 9
+def versionMinor = 10
 def versionPatch = 0
 def versionBuild = 0 // bump for dogfood builds, public betas, etc.
 
 ext {
-    versionCode = versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
+    versionCode = versionMajor * 100000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
     versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
     // dependency versions
     appCompatVer = '1.1.0'
