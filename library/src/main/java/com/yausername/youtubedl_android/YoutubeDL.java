@@ -197,4 +197,9 @@ public class YoutubeDL {
             throw new YoutubeDLException("failed to update youtube-dl", e);
         }
     }
+
+    @Nullable
+    public String version(Application application) {
+        return YoutubeDLUpdater.version(application);
+    }
 }
