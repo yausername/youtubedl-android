@@ -1,6 +1,7 @@
 package com.yausername.youtubedl_android;
 
 import android.app.Application;
+import android.content.Context;
 
 import androidx.annotation.Nullable;
 
@@ -51,14 +52,14 @@ public class YoutubeDL {
         return INSTANCE;
     }
 
-    synchronized public void init(Application application) throws YoutubeDLException {
+    synchronized public void init(Context appContext) throws YoutubeDLException {
         if (initialized) return;
 
-        File baseDir = new File(application.getNoBackupFilesDir(), baseName);
+        File baseDir = new File(appContext.getNoBackupFilesDir(), baseName);
         if(!baseDir.exists()) baseDir.mkdir();
 
         File packagesDir = new File(baseDir, packagesRoot);
-        binDir = new File(application.getApplicationInfo().nativeLibraryDir);
+        binDir = new File(appContext.getApplicationInfo().nativeLibraryDir);
         pythonPath = new File(binDir, pythonBin);
         File pythonDir = new File(packagesDir, pythonDirName);
         File ffmpegDir = new File(packagesDir, ffmpegDirName);
@@ -70,17 +71,17 @@ public class YoutubeDL {
         ENV_SSL_CERT_FILE = pythonDir.getAbsolutePath() + "/usr/etc/tls/cert.pem";
         ENV_PYTHONHOME = pythonDir.getAbsolutePath() + "/usr";
 
-        initPython(application, pythonDir);
-        initYoutubeDL(application, youtubeDLDir);
+        initPython(appContext, pythonDir);
+        initYoutubeDL(appContext, youtubeDLDir);
 
         initialized = true;
     }
 
-    protected void initYoutubeDL(Application application, File youtubeDLDir) throws YoutubeDLException {
+    protected void initYoutubeDL(Context appContext, File youtubeDLDir) throws YoutubeDLException {
         if (!youtubeDLDir.exists()) {
             youtubeDLDir.mkdirs();
             try {
-                YoutubeDLUtils.unzip(application.getResources().openRawResource(R.raw.youtube_dl), youtubeDLDir);
+                YoutubeDLUtils.unzip(appContext.getResources().openRawResource(R.raw.youtube_dl), youtubeDLDir);
             } catch (Exception e) {
                 FileUtils.deleteQuietly(youtubeDLDir);
                 throw new YoutubeDLException("failed to initialize", e);
@@ -88,7 +89,7 @@ public class YoutubeDL {
         }
     }
 
-    protected void initPython(Application application, File pythonDir) throws YoutubeDLException {
+    protected void initPython(Context appContext, File pythonDir) throws YoutubeDLException {
         if (!pythonDir.exists()) {
             pythonDir.mkdirs();
             try {
@@ -189,17 +190,17 @@ public class YoutubeDL {
         return youtubeDLResponse;
     }
 
-    synchronized public YoutubeDLUpdater.UpdateStatus updateYoutubeDL(Application application) throws YoutubeDLException {
+    synchronized public YoutubeDLUpdater.UpdateStatus updateYoutubeDL(Context appContext) throws YoutubeDLException {
         assertInit();
         try {
-            return YoutubeDLUpdater.update(application);
+            return YoutubeDLUpdater.update(appContext);
         } catch (IOException e) {
             throw new YoutubeDLException("failed to update youtube-dl", e);
         }
     }
 
     @Nullable
-    public String version(Application application) {
-        return YoutubeDLUpdater.version(application);
+    public String version(Context appContext) {
+        return YoutubeDLUpdater.version(appContext);
     }
 }
