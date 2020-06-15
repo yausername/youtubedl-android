@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -103,6 +104,12 @@ public class YoutubeDLUpdater {
     private static File getYoutubeDLDir(Application application) {
         File baseDir = new File(application.getNoBackupFilesDir(), YoutubeDL.baseName);
         return new File(baseDir, YoutubeDL.youtubeDLDirName);
+    }
+
+    @Nullable
+    static String version(Application application) {
+        SharedPreferences pref = application.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE);
+        return pref.getString(youtubeDLVersionKey, null);
     }
 
 }
