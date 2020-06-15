@@ -27,16 +27,16 @@ public class YoutubeDLUpdater {
         DONE, ALREADY_UP_TO_DATE;
     }
 
-    protected static UpdateStatus update(Application application) throws IOException, YoutubeDLException {
-        JsonNode json = checkForUpdate(application);
+    protected static UpdateStatus update(Context appContext) throws IOException, YoutubeDLException {
+        JsonNode json = checkForUpdate(appContext);
         if(null == json) return UpdateStatus.ALREADY_UP_TO_DATE;
 
         String downloadUrl = getDownloadUrl(json);
-        File file = download(application, downloadUrl);
+        File file = download(appContext, downloadUrl);
 
         File youtubeDLDir = null;
         try {
-            youtubeDLDir = getYoutubeDLDir(application);
+            youtubeDLDir = getYoutubeDLDir(appContext);
             //purge older version
             FileUtils.deleteDirectory(youtubeDLDir);
             //install newer version
@@ -45,28 +45,28 @@ public class YoutubeDLUpdater {
         } catch (Exception e) {
             //if something went wrong restore default version
             FileUtils.deleteQuietly(youtubeDLDir);
-            YoutubeDL.getInstance().initYoutubeDL(application, youtubeDLDir);
+            YoutubeDL.getInstance().initYoutubeDL(appContext, youtubeDLDir);
             throw new YoutubeDLException(e);
         } finally {
             file.delete();
         }
 
-        updateSharedPrefs(application, getTag(json));
+        updateSharedPrefs(appContext, getTag(json));
         return UpdateStatus.DONE;
     }
 
-    private static void updateSharedPrefs(Application application, String tag) {
-        SharedPreferences pref = application.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE);
+    private static void updateSharedPrefs(Context appContext, String tag) {
+        SharedPreferences pref = appContext.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putString(youtubeDLVersionKey, tag);
         editor.apply();
     }
 
-    private static JsonNode checkForUpdate(Application application) throws IOException {
+    private static JsonNode checkForUpdate(Context appContext) throws IOException {
         URL url = new URL(releasesUrl);
         JsonNode json = YoutubeDL.objectMapper.readTree(url);
         String newVersion = getTag(json);
-        SharedPreferences pref = application.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE);
+        SharedPreferences pref = appContext.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE);
         String oldVersion = pref.getString(youtubeDLVersionKey, null);
         if(newVersion.equals(oldVersion)){
             return null;
@@ -93,22 +93,22 @@ public class YoutubeDLUpdater {
     }
 
     @NonNull
-    private static File download(Application application, String url) throws IOException {
+    private static File download(Context appContext, String url) throws IOException {
         URL downloadUrl = new URL(url);
-        File file = File.createTempFile("youtube_dl", "zip", application.getCacheDir());
+        File file = File.createTempFile("youtube_dl", "zip", appContext.getCacheDir());
         FileUtils.copyURLToFile(downloadUrl, file, 5000, 10000);
         return file;
     }
 
     @NonNull
-    private static File getYoutubeDLDir(Application application) {
-        File baseDir = new File(application.getNoBackupFilesDir(), YoutubeDL.baseName);
+    private static File getYoutubeDLDir(Context appContext) {
+        File baseDir = new File(appContext.getNoBackupFilesDir(), YoutubeDL.baseName);
         return new File(baseDir, YoutubeDL.youtubeDLDirName);
     }
 
     @Nullable
-    static String version(Application application) {
-        SharedPreferences pref = application.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE);
+    static String version(Context appContext) {
+        SharedPreferences pref = appContext.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE);
         return pref.getString(youtubeDLVersionKey, null);
     }
 
