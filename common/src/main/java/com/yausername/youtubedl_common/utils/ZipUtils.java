@@ -1,4 +1,4 @@
-package com.yausername.youtubedl_android.utils;
+package com.yausername.youtubedl_common.utils;
 
 import android.system.ErrnoException;
 import android.system.Os;
@@ -18,7 +18,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 
 
-public class YoutubeDLUtils {
+public class ZipUtils {
+
+    private ZipUtils() {
+    }
 
     public static void unzip(File sourceFile, File targetDirectory) throws IOException, ErrnoException, IllegalAccessException {
         try (ZipFile zipFile = new ZipFile(sourceFile)) {
