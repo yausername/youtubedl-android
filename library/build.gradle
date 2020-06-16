@@ -27,6 +27,8 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    implementation project(':common')
+
     implementation "androidx.appcompat:appcompat:$appCompatVer"
     testImplementation "junit:junit:$junitVer"
     androidTestImplementation "androidx.test.ext:junit:$androidJunitVer"
@@ -35,5 +37,4 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "$jacksonVer"
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: "$jacksonVer"
     implementation group: 'commons-io', name: 'commons-io', version: "$commonsIoVer"
-    implementation group: 'org.apache.commons', name: 'commons-compress', version: "$commonsCompressVer"
 }

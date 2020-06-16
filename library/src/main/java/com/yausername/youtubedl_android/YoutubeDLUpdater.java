@@ -1,15 +1,15 @@
 package com.yausername.youtubedl_android;
 
-import android.app.Application;
 import android.content.Context;
-import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.yausername.youtubedl_android.utils.YoutubeDLUtils;
+import com.yausername.youtubedl_android.YoutubeDL.UpdateStatus;
+import com.yausername.youtubedl_common.SharedPrefsHelper;
+import com.yausername.youtubedl_common.utils.ZipUtils;
 
 import org.apache.commons.io.FileUtils;
 
@@ -17,17 +17,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-public class YoutubeDLUpdater {
+class YoutubeDLUpdater {
 
-    private static final String releasesUrl = "https://api.github.com/repos/yausername/youtubedl-lazy/releases/latest";
-    private static final String sharedPrefsName = "youtubedl-android";
-    private static final String youtubeDLVersionKey = "youtubeDLVersion";
-
-    public enum UpdateStatus {
-        DONE, ALREADY_UP_TO_DATE;
+    private YoutubeDLUpdater() {
     }
 
-    protected static UpdateStatus update(Context appContext) throws IOException, YoutubeDLException {
+    private static final String releasesUrl = "https://api.github.com/repos/yausername/youtubedl-lazy/releases/latest";
+    private static final String youtubeDLVersionKey = "youtubeDLVersion";
+
+    static UpdateStatus update(Context appContext) throws IOException, YoutubeDLException {
         JsonNode json = checkForUpdate(appContext);
         if(null == json) return UpdateStatus.ALREADY_UP_TO_DATE;
 
@@ -41,7 +39,7 @@ public class YoutubeDLUpdater {
             FileUtils.deleteDirectory(youtubeDLDir);
             //install newer version
             youtubeDLDir.mkdirs();
-            YoutubeDLUtils.unzip(file, youtubeDLDir);
+            ZipUtils.unzip(file, youtubeDLDir);
         } catch (Exception e) {
             //if something went wrong restore default version
             FileUtils.deleteQuietly(youtubeDLDir);
@@ -56,18 +54,14 @@ public class YoutubeDLUpdater {
     }
 
     private static void updateSharedPrefs(Context appContext, String tag) {
-        SharedPreferences pref = appContext.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putString(youtubeDLVersionKey, tag);
-        editor.apply();
+        SharedPrefsHelper.update(appContext, youtubeDLVersionKey, tag);
     }
 
     private static JsonNode checkForUpdate(Context appContext) throws IOException {
         URL url = new URL(releasesUrl);
         JsonNode json = YoutubeDL.objectMapper.readTree(url);
         String newVersion = getTag(json);
-        SharedPreferences pref = appContext.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE);
-        String oldVersion = pref.getString(youtubeDLVersionKey, null);
+        String oldVersion = SharedPrefsHelper.get(appContext, youtubeDLVersionKey);
         if(newVersion.equals(oldVersion)){
             return null;
         }
@@ -108,8 +102,7 @@ public class YoutubeDLUpdater {
 
     @Nullable
     static String version(Context appContext) {
-        SharedPreferences pref = appContext.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE);
-        return pref.getString(youtubeDLVersionKey, null);
+        return SharedPrefsHelper.get(appContext, youtubeDLVersionKey);
     }
 
 }

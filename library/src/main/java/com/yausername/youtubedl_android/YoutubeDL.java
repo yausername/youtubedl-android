@@ -1,15 +1,14 @@
 package com.yausername.youtubedl_android;
 
-import android.app.Application;
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yausername.youtubedl_android.mapper.VideoInfo;
-import com.yausername.youtubedl_android.utils.StreamGobbler;
-import com.yausername.youtubedl_android.utils.StreamProcessExtractor;
-import com.yausername.youtubedl_android.utils.YoutubeDLUtils;
+import com.yausername.youtubedl_common.SharedPrefsHelper;
+import com.yausername.youtubedl_common.utils.ZipUtils;
 
 import org.apache.commons.io.FileUtils;
 
@@ -26,13 +25,14 @@ public class YoutubeDL {
     private static final YoutubeDL INSTANCE = new YoutubeDL();
     protected static final String baseName = "youtubedl-android";
     private static final String packagesRoot = "packages";
-    private static final String pythonBin = "libpython.bin.so";
-    private static final String pythonLib = "libpython.zip.so";
+    private static final String pythonBinName = "libpython.bin.so";
+    private static final String pythonLibName = "libpython.zip.so";
     private static final String pythonDirName = "python";
     private static final String ffmpegDirName = "ffmpeg";
     protected static final String youtubeDLDirName = "youtube-dl";
     private static final String youtubeDLBin = "__main__.py";
     protected static final String youtubeDLFile = "youtube_dl.zip";
+    private static final String pythonLibVersion = "pythonLibVersion";
 
     private boolean initialized = false;
     private File pythonPath;
@@ -60,7 +60,7 @@ public class YoutubeDL {
 
         File packagesDir = new File(baseDir, packagesRoot);
         binDir = new File(appContext.getApplicationInfo().nativeLibraryDir);
-        pythonPath = new File(binDir, pythonBin);
+        pythonPath = new File(binDir, pythonBinName);
         File pythonDir = new File(packagesDir, pythonDirName);
         File ffmpegDir = new File(packagesDir, ffmpegDirName);
 
@@ -81,7 +81,7 @@ public class YoutubeDL {
         if (!youtubeDLDir.exists()) {
             youtubeDLDir.mkdirs();
             try {
-                YoutubeDLUtils.unzip(appContext.getResources().openRawResource(R.raw.youtube_dl), youtubeDLDir);
+                ZipUtils.unzip(appContext.getResources().openRawResource(R.raw.youtube_dl), youtubeDLDir);
             } catch (Exception e) {
                 FileUtils.deleteQuietly(youtubeDLDir);
                 throw new YoutubeDLException("failed to initialize", e);
@@ -90,15 +90,28 @@ public class YoutubeDL {
     }
 
     protected void initPython(Context appContext, File pythonDir) throws YoutubeDLException {
-        if (!pythonDir.exists()) {
+        File pythonLib = new File(binDir, pythonLibName);
+        // using size of lib as version
+        String pythonSize = String.valueOf(pythonLib.length());
+        if (!pythonDir.exists() || shouldUpdatePython(appContext, pythonSize)) {
+            FileUtils.deleteQuietly(pythonDir);
             pythonDir.mkdirs();
             try {
-                YoutubeDLUtils.unzip(new File(binDir, pythonLib), pythonDir);
+                ZipUtils.unzip(pythonLib, pythonDir);
             } catch (Exception e) {
                 FileUtils.deleteQuietly(pythonDir);
                 throw new YoutubeDLException("failed to initialize", e);
             }
+            updatePython(appContext, pythonSize);
         }
+    }
+
+    private boolean shouldUpdatePython(@NonNull Context appContext, @NonNull String version) {
+        return !version.equals(SharedPrefsHelper.get(appContext, pythonLibVersion));
+    }
+
+    private void updatePython(@NonNull Context appContext, @NonNull String version) {
+        SharedPrefsHelper.update(appContext, pythonLibVersion, version);
     }
 
     private void assertInit() {
@@ -190,7 +203,7 @@ public class YoutubeDL {
         return youtubeDLResponse;
     }
 
-    synchronized public YoutubeDLUpdater.UpdateStatus updateYoutubeDL(Context appContext) throws YoutubeDLException {
+    synchronized public UpdateStatus updateYoutubeDL(Context appContext) throws YoutubeDLException {
         assertInit();
         try {
             return YoutubeDLUpdater.update(appContext);
@@ -202,5 +215,9 @@ public class YoutubeDL {
     @Nullable
     public String version(Context appContext) {
         return YoutubeDLUpdater.version(appContext);
+    }
+
+    public enum UpdateStatus {
+        DONE, ALREADY_UP_TO_DATE;
     }
 }

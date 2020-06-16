@@ -1,9 +1,12 @@
 package com.yausername.ffmpeg;
 
-import android.app.Application;
+import android.content.Context;
+
+import androidx.annotation.NonNull;
 
 import com.yausername.youtubedl_android.YoutubeDLException;
-import com.yausername.youtubedl_android.utils.YoutubeDLUtils;
+import com.yausername.youtubedl_common.SharedPrefsHelper;
+import com.yausername.youtubedl_common.utils.ZipUtils;
 
 import org.apache.commons.io.FileUtils;
 
@@ -15,7 +18,8 @@ public class FFmpeg {
     protected static final String baseName = "youtubedl-android";
     private static final String packagesRoot = "packages";
     private static final String ffmegDirName = "ffmpeg";
-    private static final String ffmpegLib = "libffmpeg.zip.so";
+    private static final String ffmpegLibName = "libffmpeg.zip.so";
+    private static final String ffmpegLibVersion = "ffmpegLibVersion";
 
     private boolean initialized = false;
     private File binDir;
@@ -27,30 +31,43 @@ public class FFmpeg {
         return INSTANCE;
     }
 
-    synchronized public void init(Application application) throws YoutubeDLException {
+    synchronized public void init(Context appContext) throws YoutubeDLException {
         if (initialized) return;
 
-        File baseDir = new File(application.getNoBackupFilesDir(), baseName);
+        File baseDir = new File(appContext.getNoBackupFilesDir(), baseName);
         if(!baseDir.exists()) baseDir.mkdir();
 
-        binDir = new File(application.getApplicationInfo().nativeLibraryDir);
+        binDir = new File(appContext.getApplicationInfo().nativeLibraryDir);
 
         File packagesDir = new File(baseDir, packagesRoot);
         File ffmpegDir = new File(packagesDir, ffmegDirName);
-        initFFmpeg(application, ffmpegDir);
+        initFFmpeg(appContext, ffmpegDir);
 
         initialized = true;
     }
 
-    private void initFFmpeg(Application application, File ffmpegDir) throws YoutubeDLException {
-        if (!ffmpegDir.exists()) {
+    private void initFFmpeg(Context appContext, File ffmpegDir) throws YoutubeDLException {
+        File ffmpegLib = new File(binDir, ffmpegLibName);
+        // using size of lib as version
+        String ffmpegSize = String.valueOf(ffmpegLib.length());
+        if (!ffmpegDir.exists() || shouldUpdateFFmpeg(appContext, ffmpegSize)) {
+            FileUtils.deleteQuietly(ffmpegDir);
             ffmpegDir.mkdirs();
             try {
-                YoutubeDLUtils.unzip(new File(binDir, ffmpegLib), ffmpegDir);
+                ZipUtils.unzip(ffmpegLib, ffmpegDir);
             } catch (Exception e) {
                 FileUtils.deleteQuietly(ffmpegDir);
                 throw new YoutubeDLException("failed to initialize", e);
             }
+            updateFFmpeg(appContext, ffmpegSize);
         }
+    }
+
+    private boolean shouldUpdateFFmpeg(@NonNull Context appContext, @NonNull String version) {
+        return !version.equals(SharedPrefsHelper.get(appContext, ffmpegLibVersion));
+    }
+
+    private void updateFFmpeg(@NonNull Context appContext, @NonNull String version) {
+        SharedPrefsHelper.update(appContext, ffmpegLibVersion, version);
     }
 }
