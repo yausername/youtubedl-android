@@ -16,8 +16,8 @@ buildscript {
 }
 
 def versionMajor = 0
-def versionMinor = 10
-def versionPatch = 2
+def versionMinor = 11
+def versionPatch = 0
 def versionBuild = 0 // bump for dogfood builds, public betas, etc.
 
 ext {
