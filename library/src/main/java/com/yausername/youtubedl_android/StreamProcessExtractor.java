@@ -1,9 +1,6 @@
-package com.yausername.youtubedl_android.utils;
+package com.yausername.youtubedl_android;
 
 import android.util.Log;
-
-import com.yausername.youtubedl_android.BuildConfig;
-import com.yausername.youtubedl_android.DownloadProgressCallback;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +9,7 @@ import java.io.Reader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class StreamProcessExtractor extends Thread {
+class StreamProcessExtractor extends Thread {
     private static final int GROUP_PERCENT = 1;
     private static final int GROUP_MINUTES = 2;
     private static final int GROUP_SECONDS = 3;

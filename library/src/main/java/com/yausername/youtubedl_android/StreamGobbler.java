@@ -1,15 +1,13 @@
-package com.yausername.youtubedl_android.utils;
+package com.yausername.youtubedl_android;
 
 import android.util.Log;
-
-import com.yausername.youtubedl_android.BuildConfig;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-public class StreamGobbler extends Thread {
+class StreamGobbler extends Thread {
 
     private InputStream stream;
     private StringBuffer buffer;
