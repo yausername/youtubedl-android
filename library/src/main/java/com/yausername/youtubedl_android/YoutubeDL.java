@@ -121,8 +121,9 @@ public class YoutubeDL {
     public VideoInfo getInfo(String url) throws YoutubeDLException, InterruptedException {
         YoutubeDLRequest request = new YoutubeDLRequest(url);
         return getInfo(request);
-   }
+    }
 
+    @NonNull
     public VideoInfo getInfo(YoutubeDLRequest request) throws YoutubeDLException, InterruptedException {
         request.addOption("--dump-json");
         YoutubeDLResponse response = execute(request, null);
@@ -132,6 +133,10 @@ public class YoutubeDL {
             videoInfo = objectMapper.readValue(response.getOut(), VideoInfo.class);
         } catch (IOException e) {
             throw new YoutubeDLException("Unable to parse video information", e);
+        }
+
+        if(videoInfo == null){
+            throw new YoutubeDLException("Failed to fetch video information");
         }
 
         return videoInfo;

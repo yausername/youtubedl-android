@@ -7,13 +7,33 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class HttpHeader {
 
     @JsonProperty("Accept-Charset")
-    public String acceptCharset;
+    private String acceptCharset;
     @JsonProperty("Accept-Language")
-    public String acceptLanguage;
+    private String acceptLanguage;
     @JsonProperty("Accept-Encoding")
-    public String acceptEncoding;
+    private String acceptEncoding;
     @JsonProperty("Accept")
-    public String accept;
+    private String accept;
     @JsonProperty("User-Agent")
-    public String userAgent;
+    private String userAgent;
+
+    public String getAcceptCharset() {
+        return acceptCharset;
+    }
+
+    public String getAcceptLanguage() {
+        return acceptLanguage;
+    }
+
+    public String getAcceptEncoding() {
+        return acceptEncoding;
+    }
+
+    public String getAccept() {
+        return accept;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
 }

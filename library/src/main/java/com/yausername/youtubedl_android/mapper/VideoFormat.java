@@ -6,23 +6,87 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VideoFormat {
 
-    public int asr;
-    public int tbr;
-    public int abr;
-    public String format;
+    private int asr;
+    private int tbr;
+    private int abr;
+    private String format;
     @JsonProperty("format_id")
-    public String formatId;
+    private String formatId;
     @JsonProperty("format_note")
-    public String formatNote;
-    public String ext;
-    public int preference;
-    public String vcodec;
-    public String acodec;
-    public int width;
-    public int height;
-    public long filesize;
-    public int fps;
-    public String url;
+    private String formatNote;
+    private String ext;
+    private int preference;
+    private String vcodec;
+    private String acodec;
+    private int width;
+    private int height;
+    private long filesize;
+    private int fps;
+    private String url;
     @JsonProperty("manifest_url")
-    public String manifestUrl;
+    private String manifestUrl;
+
+    public int getAsr() {
+        return asr;
+    }
+
+    public int getTbr() {
+        return tbr;
+    }
+
+    public int getAbr() {
+        return abr;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public String getFormatId() {
+        return formatId;
+    }
+
+    public String getFormatNote() {
+        return formatNote;
+    }
+
+    public String getExt() {
+        return ext;
+    }
+
+    public int getPreference() {
+        return preference;
+    }
+
+    public String getVcodec() {
+        return vcodec;
+    }
+
+    public String getAcodec() {
+        return acodec;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public long getFilesize() {
+        return filesize;
+    }
+
+    public int getFps() {
+        return fps;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getManifestUrl() {
+        return manifestUrl;
+    }
 }

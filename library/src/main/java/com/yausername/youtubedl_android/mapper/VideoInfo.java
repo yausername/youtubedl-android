@@ -8,62 +8,98 @@ import java.util.ArrayList;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VideoInfo {
 
-    public String id;
-    public String fulltitle;
-    public String title;
+    private String id;
+    private String fulltitle;
+    private String title;
     @JsonProperty("upload_date")
-    public String uploadDate;
+    private String uploadDate;
     @JsonProperty("display_id")
-    public String displayId;
-    public int duration;
-    public String description;
-    public String thumbnail;
-    public String license;
+    private String displayId;
+    private int duration;
+    private String description;
+    private String thumbnail;
+    private String license;
 
     @JsonProperty("view_count")
-    public String viewCount;
+    private String viewCount;
     @JsonProperty("like_count")
-    public String likeCount;
+    private String likeCount;
     @JsonProperty("dislike_count")
-    public String dislikeCount;
+    private String dislikeCount;
     @JsonProperty("repost_count")
-    public String repostCount;
+    private String repostCount;
     @JsonProperty("average_rating")
-    public String averageRating;
+    private String averageRating;
 
 
     @JsonProperty("uploader_id")
-    public String uploaderId;
-    public String uploader;
+    private String uploaderId;
+    private String uploader;
 
     @JsonProperty("player_url")
-    public String playerUrl;
+    private String playerUrl;
     @JsonProperty("webpage_url")
-    public String webpageUrl;
+    private String webpageUrl;
     @JsonProperty("webpage_url_basename")
-    public String webpageUrlBasename;
+    private String webpageUrlBasename;
 
-    public String resolution;
-    public int width;
-    public int height;
-    public String format;
+    private String resolution;
+    private int width;
+    private int height;
+    private String format;
     @JsonProperty("format_id")
-    public String formatId;
-    public String ext;
+    private String formatId;
+    private String ext;
 
     @JsonProperty("http_headers")
-    public HttpHeader httpHeader;
-    public ArrayList<String> categories;
-    public ArrayList<String> tags;
+    private HttpHeader httpHeader;
+    private ArrayList<String> categories;
+    private ArrayList<String> tags;
     @JsonProperty("requested_formats")
-    public ArrayList<VideoFormat> requestedFormats;
-    public ArrayList<VideoFormat> formats;
-    public ArrayList<VideoThumbnail> thumbnails;
-    //public ArrayList<VideoSubtitle> subtitles;
+    private ArrayList<VideoFormat> requestedFormats;
+    private ArrayList<VideoFormat> formats;
+    private ArrayList<VideoThumbnail> thumbnails;
+    //private ArrayList<VideoSubtitle> subtitles;
     @JsonProperty("manifest_url")
-    public String manifestUrl;
+    private String manifestUrl;
+    private String url;
 
-    //some useful getters
+    public String getId() {
+        return id;
+    }
+
+    public String getFulltitle() {
+        return fulltitle;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getUploadDate() {
+        return uploadDate;
+    }
+
+    public String getDisplayId() {
+        return displayId;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public String getLicense() {
+        return license;
+    }
+
     public String getViewCount() {
         return viewCount;
     }
@@ -84,34 +120,6 @@ public class VideoInfo {
         return averageRating;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getFulltitle() {
-        return fulltitle;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getUploadDate() {
-        return uploadDate;
-    }
-
-    public int getDuration() {
-        return duration;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getThumbnail() {
-        return thumbnail;
-    }
-
     public String getUploaderId() {
         return uploaderId;
     }
@@ -120,18 +128,71 @@ public class VideoInfo {
         return uploader;
     }
 
-    @Override
-    public String toString() {
-        return "VideoInfo [id=" + id + ", fulltitle=" + fulltitle + ", title=" + title + ", uploadDate=" + uploadDate
-                + ", displayId=" + displayId + ", duration=" + duration + ", description=" + description
-                + ", thumbnail=" + thumbnail + ", license=" + license + ", viewCount=" + viewCount + ", likeCount="
-                + likeCount + ", dislikeCount=" + dislikeCount + ", repostCount=" + repostCount + ", averageRating="
-                + averageRating + ", uploaderId=" + uploaderId + ", uploader=" + uploader + ", playerUrl=" + playerUrl
-                + ", webpageUrl=" + webpageUrl + ", webpageUrlBasename=" + webpageUrlBasename + ", resolution="
-                + resolution + ", width=" + width + ", height=" + height + ", format=" + format + ", ext=" + ext
-                + ", httpHeader=" + httpHeader + ", categories=" + categories + ", tags=" + tags + ", formats="
-                + formats + ", thumbnails=" + thumbnails + "]";
+    public String getPlayerUrl() {
+        return playerUrl;
     }
 
+    public String getWebpageUrl() {
+        return webpageUrl;
+    }
 
+    public String getWebpageUrlBasename() {
+        return webpageUrlBasename;
+    }
+
+    public String getResolution() {
+        return resolution;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public String getFormatId() {
+        return formatId;
+    }
+
+    public String getExt() {
+        return ext;
+    }
+
+    public HttpHeader getHttpHeader() {
+        return httpHeader;
+    }
+
+    public ArrayList<String> getCategories() {
+        return categories;
+    }
+
+    public ArrayList<String> getTags() {
+        return tags;
+    }
+
+    public ArrayList<VideoFormat> getRequestedFormats() {
+        return requestedFormats;
+    }
+
+    public ArrayList<VideoFormat> getFormats() {
+        return formats;
+    }
+
+    public ArrayList<VideoThumbnail> getThumbnails() {
+        return thumbnails;
+    }
+
+    public String getManifestUrl() {
+        return manifestUrl;
+    }
+
+    public String getUrl() {
+        return url;
+    }
 }
