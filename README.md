@@ -36,14 +36,14 @@ allprojects {
 Step 2: Add the dependency
 ```gradle
 dependencies {
-    implementation 'com.github.yausername.youtubedl-android:library:0.11.+'
+    implementation 'com.github.yausername.youtubedl-android:library:0.12.+'
 }
 ```
 Optional FFmpeg dependency can also be added
 ```gradle
 dependencies {
-    implementation 'com.github.yausername.youtubedl-android:library:0.11.+'
-    implementation 'com.github.yausername.youtubedl-android:ffmpeg:0.11.+'
+    implementation 'com.github.yausername.youtubedl-android:library:0.12.+'
+    implementation 'com.github.yausername.youtubedl-android:ffmpeg:0.12.+'
 }
 ```
 <br/>
