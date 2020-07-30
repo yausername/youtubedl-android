@@ -16,8 +16,6 @@ import com.devbrackets.android.exomedia.listener.OnPreparedListener;
 import com.devbrackets.android.exomedia.ui.widget.VideoView;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.YoutubeDLRequest;
-import com.yausername.youtubedl_android.mapper.VideoFormat;
-import com.yausername.youtubedl_android.mapper.VideoInfo;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -88,6 +86,7 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
         pbLoading.setVisibility(View.VISIBLE);
         Disposable disposable = Observable.fromCallable(() -> {
             YoutubeDLRequest request = new YoutubeDLRequest(url);
+            // best stream containing video+audio
             request.addOption("-f", "best");
             return YoutubeDL.getInstance().getInfo(request);
         })
@@ -95,7 +94,7 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(streamInfo -> {
                     pbLoading.setVisibility(View.GONE);
-                    String videoUrl = getVideoUrl(streamInfo);
+                    String videoUrl = streamInfo.getUrl();
                     if (TextUtils.isEmpty(videoUrl)) {
                         Toast.makeText(StreamingExampleActivity.this, "failed to get stream url", Toast.LENGTH_LONG).show();
                     } else {
@@ -111,24 +110,5 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
 
     private void setupVideoView(String videoUrl) {
         videoView.setVideoURI(Uri.parse(videoUrl));
-    }
-
-    private String getVideoUrl(VideoInfo streamInfo) {
-        if(null == streamInfo || null == streamInfo.formats){
-            Toast.makeText(StreamingExampleActivity.this, "failed to get stream url", Toast.LENGTH_LONG).show();
-            return null;
-        }
-        for(VideoFormat f: streamInfo.formats){
-            if(f.formatId != null && f.formatId.equals(streamInfo.formatId)){
-                return f.url;
-            }
-        }
-        //fallback return first mp4 link
-        for(VideoFormat f: streamInfo.formats){
-            if("mp4".equals(f.ext)){
-                return f.url;
-            }
-        }
-        return null;
     }
 }
