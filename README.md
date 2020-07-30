@@ -86,6 +86,15 @@ VideoInfo streamInfo = YoutubeDL.getInstance().getInfo("https://vimeo.com/224392
 System.out.println(streamInfo.getTitle());
 ```
 
+
+* Get a single playable link containing video+audio
+```java
+YoutubeDLRequest request = new YoutubeDLRequest("https://youtu.be/Pv61yEcOqpw");
+request.addOption("-f", "best");
+VideoInfo streamInfo = YoutubeDL.getInstance().getInfo(request);
+System.out.println(streamInfo.getUrl());
+```
+
 * youtube-dl supports myriad different options which be seen [here](https://github.com/rg3/youtube-dl)
 
 * youtube-dl binary can be updated from within the library
