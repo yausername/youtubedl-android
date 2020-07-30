@@ -91,6 +91,7 @@
             android:layout_marginBottom="10dp"
             android:nestedScrollingEnabled="true"
             android:scrollbars="vertical"
+            android:fadeScrollbars="false"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
