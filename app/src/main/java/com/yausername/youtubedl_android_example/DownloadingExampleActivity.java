@@ -37,6 +37,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
     private EditText etUrl;
     private ProgressBar progressBar;
     private TextView tvDownloadStatus;
+    private TextView tvCommandOutput;
     private ProgressBar pbLoading;
 
     private boolean downloading = false;
@@ -70,6 +71,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
         progressBar = findViewById(R.id.progress_bar);
         tvDownloadStatus = findViewById(R.id.tv_status);
         pbLoading = findViewById(R.id.pb_status);
+        tvCommandOutput = findViewById(R.id.tv_command_output);
     }
 
     private void initListeners() {
@@ -117,12 +119,14 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
                     pbLoading.setVisibility(View.GONE);
                     progressBar.setProgress(100);
                     tvDownloadStatus.setText(getString(R.string.download_complete));
+                    tvCommandOutput.setText(youtubeDLResponse.getOut());
                     Toast.makeText(DownloadingExampleActivity.this, "download successful", Toast.LENGTH_LONG).show();
                     downloading = false;
                 }, e -> {
                     if(BuildConfig.DEBUG) Log.e(TAG,  "failed to download", e);
                     pbLoading.setVisibility(View.GONE);
                     tvDownloadStatus.setText(getString(R.string.download_failed));
+                    tvCommandOutput.setText(e.getMessage());
                     Toast.makeText(DownloadingExampleActivity.this, "download failed", Toast.LENGTH_LONG).show();
                     downloading = false;
                 });
