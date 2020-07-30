@@ -37,6 +37,7 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
     private EditText etCommand;
     private ProgressBar progressBar;
     private TextView tvCommandStatus;
+    private TextView tvCommandOutput;
     private ProgressBar pbLoading;
 
     private boolean running = false;
@@ -70,6 +71,7 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
         progressBar = findViewById(R.id.progress_bar);
         tvCommandStatus = findViewById(R.id.tv_status);
         pbLoading = findViewById(R.id.pb_status);
+        tvCommandOutput = findViewById(R.id.tv_command_output);
     }
 
     private void initListeners() {
@@ -126,12 +128,14 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
                     pbLoading.setVisibility(View.GONE);
                     progressBar.setProgress(100);
                     tvCommandStatus.setText(getString(R.string.command_complete));
+                    tvCommandOutput.setText(youtubeDLResponse.getOut());
                     Toast.makeText(CommandExampleActivity.this, "command successful", Toast.LENGTH_LONG).show();
                     running = false;
                 }, e -> {
                     if(BuildConfig.DEBUG) Log.e(TAG,  "command failed", e);
                     pbLoading.setVisibility(View.GONE);
                     tvCommandStatus.setText(getString(R.string.command_failed));
+                    tvCommandOutput.setText(e.getMessage());
                     Toast.makeText(CommandExampleActivity.this, "command failed", Toast.LENGTH_LONG).show();
                     running = false;
                 });
