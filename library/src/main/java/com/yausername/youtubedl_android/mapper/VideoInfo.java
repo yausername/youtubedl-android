@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VideoInfo {
@@ -52,7 +53,7 @@ public class VideoInfo {
     private String ext;
 
     @JsonProperty("http_headers")
-    private HttpHeader httpHeader;
+    private Map<String, String> httpHeaders;
     private ArrayList<String> categories;
     private ArrayList<String> tags;
     @JsonProperty("requested_formats")
@@ -164,8 +165,8 @@ public class VideoInfo {
         return ext;
     }
 
-    public HttpHeader getHttpHeader() {
-        return httpHeader;
+    public Map<String, String> getHttpHeaders() {
+        return httpHeaders;
     }
 
     public ArrayList<String> getCategories() {
