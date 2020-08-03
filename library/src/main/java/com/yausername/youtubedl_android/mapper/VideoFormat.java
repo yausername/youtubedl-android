@@ -3,6 +3,8 @@ package com.yausername.youtubedl_android.mapper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Map;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VideoFormat {
 
@@ -25,6 +27,8 @@ public class VideoFormat {
     private String url;
     @JsonProperty("manifest_url")
     private String manifestUrl;
+    @JsonProperty("http_headers")
+    private Map<String, String> httpHeaders;
 
     public int getAsr() {
         return asr;
@@ -88,5 +92,9 @@ public class VideoFormat {
 
     public String getManifestUrl() {
         return manifestUrl;
+    }
+
+    public Map<String, String> getHttpHeaders() {
+        return httpHeaders;
     }
 }
