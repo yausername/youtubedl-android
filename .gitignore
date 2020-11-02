@@ -8,6 +8,7 @@
 /.idea/tasks.xml
 /.idea/gradle.xml
 /.idea/dictionaries
+.idea
 .DS_Store
 /build
 /captures
