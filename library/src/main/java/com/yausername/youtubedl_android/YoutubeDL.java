@@ -29,7 +29,7 @@ public class YoutubeDL {
     private static final String pythonLibName = "libpython.zip.so";
     private static final String pythonDirName = "python";
     private static final String ffmpegDirName = "ffmpeg";
-    protected static final String youtubeDLDirName = "youtube-dl";
+    protected static final String youtubeDLDirName = "youtube-dlc";
     private static final String youtubeDLBin = "__main__.py";
     protected static final String youtubeDLFile = "youtube_dl.zip";
     private static final String pythonLibVersion = "pythonLibVersion";
