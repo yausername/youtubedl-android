@@ -83,11 +83,8 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_start_download: {
-                startDownload();
-                break;
-            }
+        if (v.getId() == R.id.btn_start_download) {
+            startDownload();
         }
     }
 
