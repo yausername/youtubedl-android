@@ -20,4 +20,5 @@
     <string name="command_start">Starting Command</string>
     <string name="command_complete">Command Complete</string>
     <string name="command_failed">Command Failed</string>
+    <string name="use_config_file">Use Config File?</string>
 </resources>
