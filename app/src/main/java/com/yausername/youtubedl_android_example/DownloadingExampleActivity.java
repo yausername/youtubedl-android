@@ -43,9 +43,9 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
     private ProgressBar pbLoading;
 
     private boolean downloading = false;
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
-    private DownloadProgressCallback callback = new DownloadProgressCallback() {
+    private final DownloadProgressCallback callback = new DownloadProgressCallback() {
         @Override
         public void onProgressUpdate(float progress, long etaInSeconds) {
             runOnUiThread(() -> {
