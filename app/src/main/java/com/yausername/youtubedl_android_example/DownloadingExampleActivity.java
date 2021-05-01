@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +36,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
 
     private Button btnStartDownload;
     private EditText etUrl;
+    private Switch useConfigFile;
     private ProgressBar progressBar;
     private TextView tvDownloadStatus;
     private TextView tvCommandOutput;
@@ -68,6 +70,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
     private void initViews() {
         btnStartDownload = findViewById(R.id.btn_start_download);
         etUrl = findViewById(R.id.et_url);
+        useConfigFile = findViewById(R.id.use_config_file);
         progressBar = findViewById(R.id.progress_bar);
         tvDownloadStatus = findViewById(R.id.tv_status);
         pbLoading = findViewById(R.id.pb_status);
@@ -107,7 +110,13 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
 
         YoutubeDLRequest request = new YoutubeDLRequest(url);
         File youtubeDLDir = getDownloadLocation();
-        request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
+        File config = new File(youtubeDLDir, "config.txt");
+
+        if (useConfigFile.isChecked() && config.exists()) {
+            request.addOption("--config-location", config.getAbsolutePath());
+        } else {
+            request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
+        }
 
         showStart();
 
