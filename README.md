@@ -18,6 +18,20 @@ Debug apk for testing can be downloaded from the [releases page](https://github.
 
 
 
+If you wish to use config file in the download option by using this command `--config-location` you must create a file named `config.txt` inside `youtubedl-android` directory and add the commands for example.
+
+```
+--no-mtime
+
+-o /sdcard/Download/youtubedl-android/%(title)s.%(ext)s
+
+-f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"
+```
+
+
+<br/>
+
+
 Checkout [dvd](https://github.com/yausername/dvd), a video downloader app based on this library.
 
 ![dvd](https://imgur.com/download/DdhdBuc)
