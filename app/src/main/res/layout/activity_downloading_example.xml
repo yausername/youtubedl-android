@@ -15,9 +15,20 @@
             android:id="@+id/btn_start_download"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="30dp"
             android:text="@string/btn_start_download"
-            app:layout_constraintTop_toBottomOf="@id/et_url"
+            app:layout_constraintTop_toBottomOf="@id/use_config_file"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Switch
+            android:id="@+id/use_config_file"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:padding="10dp"
+            android:text="@string/use_config_file"
+            app:layout_constraintTop_toBottomOf="@+id/et_url"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
