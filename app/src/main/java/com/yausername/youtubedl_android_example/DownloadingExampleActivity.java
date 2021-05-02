@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,15 +36,16 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
 
     private Button btnStartDownload;
     private EditText etUrl;
+    private Switch useConfigFile;
     private ProgressBar progressBar;
     private TextView tvDownloadStatus;
     private TextView tvCommandOutput;
     private ProgressBar pbLoading;
 
     private boolean downloading = false;
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
-    private DownloadProgressCallback callback = new DownloadProgressCallback() {
+    private final DownloadProgressCallback callback = new DownloadProgressCallback() {
         @Override
         public void onProgressUpdate(float progress, long etaInSeconds) {
             runOnUiThread(() -> {
@@ -68,6 +70,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
     private void initViews() {
         btnStartDownload = findViewById(R.id.btn_start_download);
         etUrl = findViewById(R.id.et_url);
+        useConfigFile = findViewById(R.id.use_config_file);
         progressBar = findViewById(R.id.progress_bar);
         tvDownloadStatus = findViewById(R.id.tv_status);
         pbLoading = findViewById(R.id.pb_status);
@@ -80,11 +83,8 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_start_download: {
-                startDownload();
-                break;
-            }
+        if (v.getId() == R.id.btn_start_download) {
+            startDownload();
         }
     }
 
@@ -107,7 +107,13 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
 
         YoutubeDLRequest request = new YoutubeDLRequest(url);
         File youtubeDLDir = getDownloadLocation();
-        request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
+        File config = new File(youtubeDLDir, "config.txt");
+
+        if (useConfigFile.isChecked() && config.exists()) {
+            request.addOption("--config-location", config.getAbsolutePath());
+        } else {
+            request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
+        }
 
         showStart();
 
