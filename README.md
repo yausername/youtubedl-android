@@ -1,7 +1,7 @@
 # youtubedl-android
-Android library wrapper for [youtube-dl](https://github.com/rg3/youtube-dl) executable
+Android library wrapper for [yt-dlp](https://github.com/yt-dlp/yt-dlp) executable
 
-[![](https://jitpack.io/v/yausername/youtubedl-android.svg)](https://jitpack.io/#yausername/youtubedl-android)
+[![](https://jitpack.io/v/xibr/youtubedl-android.svg)](https://jitpack.io/#xibr/youtubedl-android)
 
 
 ## Credits
