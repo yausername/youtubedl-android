@@ -60,6 +60,18 @@ dependencies {
     implementation 'com.github.yausername.youtubedl-android:ffmpeg:0.12.+'
 }
 ```
+
+ * if you want to use [yt-dlp](https://github.com/yt-dlp/yt-dlp) instead of youtube-dl use the [yt-dlp branch](https://github.com/yausername/youtubedl-android/tree/yt-dlp)
+```gradle
+dependencies {
+    implementation 'com.github.yausername.youtubedl-android:library:13a5502c80'
+    implementation 'com.github.yausername.youtubedl-android:ffmpeg:13a5502c80'
+}
+```
+
+ * [yt-dlp branch](https://github.com/yausername/youtubedl-android/tree/yt-dlp) uses lazy extractors based build of yt-dlp ([ytdlp-lazy](https://github.com/xibr/ytdlp-lazy))
+
+
 <br/>
 
 * Set `android:extractNativeLibs="true"` in your app's manifest.
