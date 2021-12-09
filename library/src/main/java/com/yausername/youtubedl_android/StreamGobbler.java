@@ -28,7 +28,8 @@ class StreamGobbler extends Thread {
                 this.buffer.append((char) nextChar);
             }
         } catch (IOException e) {
-            if(BuildConfig.DEBUG) Log.e(TAG, "failed to read stream", e);
+            if (BuildConfig.DEBUG)
+                Log.e(TAG, "failed to read stream", e);
         }
     }
 }
