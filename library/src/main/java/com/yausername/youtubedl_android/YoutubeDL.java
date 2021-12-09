@@ -29,9 +29,9 @@ public class YoutubeDL {
     private static final String pythonLibName = "libpython.zip.so";
     private static final String pythonDirName = "python";
     private static final String ffmpegDirName = "ffmpeg";
-    protected static final String youtubeDLDirName = "youtube-dl";
+    protected static final String youtubeDLDirName = "yt-dlp";
     private static final String youtubeDLBin = "__main__.py";
-    protected static final String youtubeDLFile = "youtube_dl.zip";
+    protected static final String youtubeDLFile = "yt_dlp.zip";
     private static final String pythonLibVersion = "pythonLibVersion";
 
     private boolean initialized = false;
@@ -81,7 +81,7 @@ public class YoutubeDL {
         if (!youtubeDLDir.exists()) {
             youtubeDLDir.mkdirs();
             try {
-                ZipUtils.unzip(appContext.getResources().openRawResource(R.raw.youtube_dl), youtubeDLDir);
+                ZipUtils.unzip(appContext.getResources().openRawResource(R.raw.yt_dlp), youtubeDLDir);
             } catch (Exception e) {
                 FileUtils.deleteQuietly(youtubeDLDir);
                 throw new YoutubeDLException("failed to initialize", e);
