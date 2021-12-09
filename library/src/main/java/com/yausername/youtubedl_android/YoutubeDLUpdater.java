@@ -22,7 +22,7 @@ class YoutubeDLUpdater {
     private YoutubeDLUpdater() {
     }
 
-    private static final String releasesUrl = "https://api.github.com/repos/yausername/youtubedl-lazy/releases/latest";
+    private static final String releasesUrl = "https://api.github.com/repos/xibr/ytdlp-lazy/releases/latest";
     private static final String youtubeDLVersionKey = "youtubeDLVersion";
 
     static UpdateStatus update(Context appContext) throws IOException, YoutubeDLException {
@@ -73,7 +73,7 @@ class YoutubeDLUpdater {
     }
 
     @NonNull
-    private static String getDownloadUrl(@NonNull JsonNode json) throws IOException, YoutubeDLException {
+    private static String getDownloadUrl(@NonNull JsonNode json) throws YoutubeDLException {
         ArrayNode assets = (ArrayNode) json.get("assets");
         String downloadUrl = "";
         for (JsonNode asset : assets) {
@@ -89,7 +89,7 @@ class YoutubeDLUpdater {
     @NonNull
     private static File download(Context appContext, String url) throws IOException {
         URL downloadUrl = new URL(url);
-        File file = File.createTempFile("youtube_dl", "zip", appContext.getCacheDir());
+        File file = File.createTempFile("yt_dlp", "zip", appContext.getCacheDir());
         FileUtils.copyURLToFile(downloadUrl, file, 5000, 10000);
         return file;
     }
