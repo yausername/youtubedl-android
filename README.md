@@ -1,5 +1,5 @@
 # youtubedl-android
-Android library wrapper for [youtube-dl](https://github.com/rg3/youtube-dl) executable
+Android library wrapper for [yt-dlp](https://github.com/yt-dlp/yt-dlp) (formerly [youtube-dl](https://github.com/rg3/youtube-dl)) executable
 
 [![](https://jitpack.io/v/yausername/youtubedl-android.svg)](https://jitpack.io/#yausername/youtubedl-android)
 
@@ -61,17 +61,6 @@ dependencies {
 }
 ```
 
- * if you want to use [yt-dlp](https://github.com/yt-dlp/yt-dlp) instead of youtube-dl use the [yt-dlp branch](https://github.com/yausername/youtubedl-android/tree/yt-dlp)
-```gradle
-dependencies {
-    implementation 'com.github.yausername.youtubedl-android:library:13a5502c80'
-    implementation 'com.github.yausername.youtubedl-android:ffmpeg:13a5502c80'
-}
-```
-
- * [yt-dlp branch](https://github.com/yausername/youtubedl-android/tree/yt-dlp) uses lazy extractors based build of yt-dlp ([ytdlp-lazy](https://github.com/xibr/ytdlp-lazy))
-
-
 <br/>
 
 * Set `android:extractNativeLibs="true"` in your app's manifest.
@@ -121,9 +110,9 @@ VideoInfo streamInfo = YoutubeDL.getInstance().getInfo(request);
 System.out.println(streamInfo.getUrl());
 ```
 
-* youtube-dl supports myriad different options which be seen [here](https://github.com/rg3/youtube-dl)
+* yt-dlp supports myriad different options which be seen [here](https://github.com/yt-dlp/yt-dlp)
 
-* youtube-dl binary can be updated from within the library
+* yt-dlp binary can be updated from within the library
 ```java
 YoutubeDL.getInstance().updateYoutubeDL(getApplication());
 ```
@@ -141,4 +130,4 @@ try {
 
 ## Docs
  *  Though not required for just using this library, documentation on building python for android can be seen [here](BUILD_PYTHON.md). Same for ffmpeg [here](BUILD_FFMPEG.md). Alternatively, you can use pre-built packages from [here (android5+)](http://termux.net/dists/stable/) or [here (android7+)](https://bintray.com/termux/termux-packages-24).
- * youtubedl-android uses lazy extractors based build of youtube-dl ([youtubedl-lazy](https://github.com/yausername/youtubedl-lazy/))
+ * youtubedl-android uses lazy extractors based build of yt-dlp - [ytdlp-lazy](https://github.com/xibr/ytdlp-lazy) (formerly [youtubedl-lazy](https://github.com/yausername/youtubedl-lazy/))
