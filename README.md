@@ -1,5 +1,5 @@
 # youtubedl-android
-Android library wrapper for [yt-dlp](https://github.com/yt-dlp/yt-dlp) executable
+Android library wrapper for [yt-dlp](https://github.com/yt-dlp/yt-dlp) (formerly [youtube-dl](https://github.com/rg3/youtube-dl)) executable
 
 [![](https://jitpack.io/v/yausername/youtubedl-android.svg)](https://jitpack.io/#yausername/youtubedl-android)
 
@@ -130,5 +130,4 @@ try {
 
 ## Docs
  *  Though not required for just using this library, documentation on building python for android can be seen [here](BUILD_PYTHON.md). Same for ffmpeg [here](BUILD_FFMPEG.md). Alternatively, you can use pre-built packages from [here (android5+)](http://termux.net/dists/stable/) or [here (android7+)](https://bintray.com/termux/termux-packages-24).
- * youtubedl-android uses lazy extractors based build of youtube-dl ([youtubedl-lazy](https://github.com/yausername/youtubedl-lazy/))
- * the new versions of youtubedl-android uses lazy extractors based build of yt-dlp ([ytdlp-lazy](https://github.com/xibr/ytdlp-lazy))
+ * youtubedl-android uses lazy extractors based build of yt-dlp - [ytdlp-lazy](https://github.com/xibr/ytdlp-lazy) (formerly [youtubedl-lazy](https://github.com/yausername/youtubedl-lazy/))
