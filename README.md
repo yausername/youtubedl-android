@@ -72,7 +72,7 @@ dependencies {
 
 ## Usage
 
-* youtube-dl executable and python 3.8 are bundled in the library.
+* yt-dlp executable and python 3.8 are bundled in the library.
 * Initialize library, preferably in `onCreate`.
 
 ```java
@@ -95,7 +95,7 @@ YoutubeDL.getInstance().execute(request, (progress, etaInSeconds) -> {
 ```
 
 
-* Get stream info (equivalent to `--dump-json` of youtube-dl)
+* Get stream info (equivalent to `--dump-json` of yt-dlp)
 ```java
 VideoInfo streamInfo = YoutubeDL.getInstance().getInfo("https://vimeo.com/22439234");
 System.out.println(streamInfo.getTitle());
@@ -118,7 +118,7 @@ YoutubeDL.getInstance().updateYoutubeDL(getApplication());
 ```
 
 ## FFmpeg
-If you wish to use ffmpeg features of youtube-dl (e.g. --extract-audio), include and initialize the ffmpeg library.
+If you wish to use ffmpeg features of yt-dlp (e.g. --extract-audio), include and initialize the ffmpeg library.
 ```java
 try {
     YoutubeDL.getInstance().init(getApplication());
