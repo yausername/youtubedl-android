@@ -47,10 +47,10 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
 
     private final DownloadProgressCallback callback = new DownloadProgressCallback() {
         @Override
-        public void onProgressUpdate(float progress, long etaInSeconds) {
+        public void onProgressUpdate(float progress, long etaInSeconds, String line) {
             runOnUiThread(() -> {
                         progressBar.setProgress((int) progress);
-                        tvDownloadStatus.setText(String.valueOf(progress) + "% (ETA " + String.valueOf(etaInSeconds) + " seconds)");
+                        tvDownloadStatus.setText(line);
                     }
             );
         }

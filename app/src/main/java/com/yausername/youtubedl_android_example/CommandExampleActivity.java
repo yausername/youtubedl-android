@@ -41,14 +41,14 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
     private ProgressBar pbLoading;
 
     private boolean running = false;
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
-    private DownloadProgressCallback callback = new DownloadProgressCallback() {
+    private final DownloadProgressCallback callback = new DownloadProgressCallback() {
         @Override
-        public void onProgressUpdate(float progress, long etaInSeconds) {
+        public void onProgressUpdate(float progress, long etaInSeconds, String line) {
             runOnUiThread(() -> {
                         progressBar.setProgress((int) progress);
-                        tvCommandStatus.setText(String.valueOf(progress) + "% (ETA " + String.valueOf(etaInSeconds) + " seconds)");
+                        tvCommandStatus.setText(line);
                     }
             );
         }
