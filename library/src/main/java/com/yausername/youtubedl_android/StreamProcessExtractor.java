@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,11 +14,11 @@ class StreamProcessExtractor extends Thread {
     private static final int GROUP_PERCENT = 1;
     private static final int GROUP_MINUTES = 2;
     private static final int GROUP_SECONDS = 3;
-    private InputStream stream;
-    private StringBuffer buffer;
+    private final InputStream stream;
+    private final StringBuffer buffer;
     private final DownloadProgressCallback callback;
 
-    private Pattern p = Pattern.compile("\\[download\\]\\s+(\\d+\\.\\d)% .* ETA (\\d+):(\\d+)");
+    private final Pattern p = Pattern.compile("\\[download\\]\\s+(\\d+\\.\\d)% .* ETA (\\d+):(\\d+)");
 
     private static final String TAG = "StreamProcessExtractor";
 
@@ -30,7 +31,7 @@ class StreamProcessExtractor extends Thread {
 
     public void run() {
         try {
-            Reader in = new InputStreamReader(stream, "UTF-8");
+            Reader in = new InputStreamReader(stream, StandardCharsets.UTF_8);
             StringBuilder currentLine = new StringBuilder();
             int nextChar;
             while ((nextChar = in.read()) != -1) {
@@ -53,7 +54,7 @@ class StreamProcessExtractor extends Thread {
         if (m.matches()) {
             float progress = Float.parseFloat(m.group(GROUP_PERCENT));
             long eta = convertToSeconds(m.group(GROUP_MINUTES), m.group(GROUP_SECONDS));
-            callback.onProgressUpdate(progress, eta);
+            callback.onProgressUpdate(progress, eta, line);
         }
     }
 
