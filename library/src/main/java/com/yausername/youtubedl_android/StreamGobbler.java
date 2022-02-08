@@ -6,11 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 
 class StreamGobbler extends Thread {
 
-    private InputStream stream;
-    private StringBuffer buffer;
+    private final InputStream stream;
+    private final StringBuffer buffer;
 
     private static final String TAG = "StreamGobbler";
 
@@ -22,7 +23,7 @@ class StreamGobbler extends Thread {
 
     public void run() {
         try {
-            Reader in = new InputStreamReader(stream, "UTF-8");
+            Reader in = new InputStreamReader(stream, StandardCharsets.UTF_8);
             int nextChar;
             while ((nextChar = in.read()) != -1) {
                 this.buffer.append((char) nextChar);
