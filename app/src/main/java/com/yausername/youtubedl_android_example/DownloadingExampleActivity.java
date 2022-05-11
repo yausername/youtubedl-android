@@ -112,6 +112,8 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
         if (useConfigFile.isChecked() && config.exists()) {
             request.addOption("--config-location", config.getAbsolutePath());
         } else {
+            request.addOption("--no-mtime");
+            request.addOption("-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best");
             request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
         }
 
