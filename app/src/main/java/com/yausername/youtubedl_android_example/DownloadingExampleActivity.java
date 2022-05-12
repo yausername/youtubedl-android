@@ -22,6 +22,7 @@ import androidx.core.app.ActivityCompat;
 import com.yausername.youtubedl_android.DownloadProgressCallback;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.YoutubeDLRequest;
+import com.yausername.youtubedl_android.utils.Utils;
 
 import java.io.File;
 
@@ -47,9 +48,9 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
 
     private final DownloadProgressCallback callback = new DownloadProgressCallback() {
         @Override
-        public void onProgressUpdate(float progress, long etaInSeconds, String line) {
+        public void onProgressUpdate(String line) {
             runOnUiThread(() -> {
-                        progressBar.setProgress((int) progress);
+                        progressBar.setProgress((int) Utils.getProgress(line));
                         tvDownloadStatus.setText(line);
                     }
             );
@@ -131,7 +132,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
                     Toast.makeText(DownloadingExampleActivity.this, "download successful", Toast.LENGTH_LONG).show();
                     downloading = false;
                 }, e -> {
-                    if(BuildConfig.DEBUG) Log.e(TAG,  "failed to download", e);
+                    if (BuildConfig.DEBUG) Log.e(TAG, "failed to download", e);
                     pbLoading.setVisibility(View.GONE);
                     tvDownloadStatus.setText(getString(R.string.download_failed));
                     tvCommandOutput.setText(e.getMessage());
