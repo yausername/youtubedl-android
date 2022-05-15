@@ -19,7 +19,6 @@ import androidx.core.app.ActivityCompat;
 import com.yausername.youtubedl_android.DownloadProgressCallback;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.YoutubeDLRequest;
-import com.yausername.youtubedl_android.utils.Utils;
 
 import java.util.Collections;
 import java.util.regex.Matcher;
@@ -46,9 +45,9 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
 
     private final DownloadProgressCallback callback = new DownloadProgressCallback() {
         @Override
-        public void onProgressUpdate(String line) {
+        public void onProgressUpdate(float progress, long etaInSeconds, String line) {
             runOnUiThread(() -> {
-                        progressBar.setProgress((int) Utils.getProgress(line));
+                        progressBar.setProgress((int) progress);
                         tvCommandStatus.setText(line);
                     }
             );
@@ -81,8 +80,11 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.btn_run_command) {
-            runCommand();
+        switch (v.getId()) {
+            case R.id.btn_run_command: {
+                runCommand();
+                break;
+            }
         }
     }
 
@@ -130,7 +132,7 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
                     Toast.makeText(CommandExampleActivity.this, "command successful", Toast.LENGTH_LONG).show();
                     running = false;
                 }, e -> {
-                    if (BuildConfig.DEBUG) Log.e(TAG, "command failed", e);
+                    if(BuildConfig.DEBUG) Log.e(TAG,  "command failed", e);
                     pbLoading.setVisibility(View.GONE);
                     tvCommandStatus.setText(getString(R.string.command_failed));
                     tvCommandOutput.setText(e.getMessage());
