@@ -11,6 +11,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class StreamProcessExtractor extends Thread {
+
+    private static final String TAG = StreamProcessExtractor.class.getSimpleName();
+
+    private static final long ETA = 0;
+    private static final float PERCENT = 0.0f;
     private static final int GROUP_PERCENT = 1;
     private static final int GROUP_MINUTES = 2;
     private static final int GROUP_SECONDS = 3;
@@ -19,8 +24,6 @@ class StreamProcessExtractor extends Thread {
     private final DownloadProgressCallback callback;
 
     private final Pattern p = Pattern.compile("\\[download\\]\\s+(\\d+\\.\\d)% .* ETA (\\d+):(\\d+)");
-
-    private static final String TAG = "StreamProcessExtractor";
 
     public StreamProcessExtractor(StringBuffer buffer, InputStream stream, DownloadProgressCallback callback) {
         this.stream = stream;
@@ -36,29 +39,39 @@ class StreamProcessExtractor extends Thread {
             int nextChar;
             while ((nextChar = in.read()) != -1) {
                 buffer.append((char) nextChar);
-                if (nextChar == '\r' && callback != null) {
+                if (nextChar == '\r' || nextChar == '\n' && callback != null) {
                     processOutputLine(currentLine.toString());
                     currentLine.setLength(0);
                     continue;
                 }
                 currentLine.append((char) nextChar);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             if (BuildConfig.DEBUG)
                 Log.e(TAG, "failed to read stream", e);
         }
     }
 
     private void processOutputLine(String line) {
-        Matcher m = p.matcher(line);
-        if (m.matches()) {
-            float progress = Float.parseFloat(m.group(GROUP_PERCENT));
-            long eta = convertToSeconds(m.group(GROUP_MINUTES), m.group(GROUP_SECONDS));
-            callback.onProgressUpdate(progress, eta, line);
-        }
+        callback.onProgressUpdate(getProgress(line), getEta(line), line);
+    }
+
+    private float getProgress(String line) {
+        final Matcher matcher = p.matcher(line);
+        if (matcher.find())
+            return Float.parseFloat(matcher.group(GROUP_PERCENT));
+        return PERCENT;
+    }
+
+    private long getEta(String line) {
+        final Matcher matcher = p.matcher(line);
+        if (matcher.find())
+            return convertToSeconds(matcher.group(GROUP_MINUTES), matcher.group(GROUP_SECONDS));
+        return ETA;
     }
 
     private int convertToSeconds(String minutes, String seconds) {
         return Integer.parseInt(minutes) * 60 + Integer.parseInt(seconds);
     }
+
 }

@@ -54,7 +54,7 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
         }
     };
 
-    private static final String TAG = "CommandExample";
+    private static final String TAG = CommandExampleActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,11 +80,8 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_run_command: {
-                runCommand();
-                break;
-            }
+        if (v.getId() == R.id.btn_run_command) {
+            runCommand();
         }
     }
 
@@ -132,7 +129,7 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
                     Toast.makeText(CommandExampleActivity.this, "command successful", Toast.LENGTH_LONG).show();
                     running = false;
                 }, e -> {
-                    if(BuildConfig.DEBUG) Log.e(TAG,  "command failed", e);
+                    if (BuildConfig.DEBUG) Log.e(TAG, "command failed", e);
                     pbLoading.setVisibility(View.GONE);
                     tvCommandStatus.setText(getString(R.string.command_failed));
                     tvCommandOutput.setText(e.getMessage());
