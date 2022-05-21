@@ -14,8 +14,8 @@ class StreamProcessExtractor extends Thread {
 
     private static final String TAG = StreamProcessExtractor.class.getSimpleName();
 
-    private static final long ETA = 0;
-    private static final float PERCENT = 0.0f;
+    private static final long ETA = -1;
+    private static final float PERCENT = -1.0f;
     private static final int GROUP_PERCENT = 1;
     private static final int GROUP_MINUTES = 2;
     private static final int GROUP_SECONDS = 3;
