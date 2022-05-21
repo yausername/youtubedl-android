@@ -13,7 +13,7 @@ class StreamGobbler extends Thread {
     private final InputStream stream;
     private final StringBuffer buffer;
 
-    private static final String TAG = "StreamGobbler";
+    private static final String TAG = StreamGobbler.class.getSimpleName();
 
     public StreamGobbler(StringBuffer buffer, InputStream stream) {
         this.stream = stream;
