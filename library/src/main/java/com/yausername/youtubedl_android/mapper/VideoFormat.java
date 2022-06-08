@@ -23,6 +23,8 @@ public class VideoFormat {
     private int width;
     private int height;
     private long filesize;
+    @JsonProperty("filesize_approx")
+    private long fileSizeApproximate;
     private int fps;
     private String url;
     @JsonProperty("manifest_url")
@@ -80,6 +82,10 @@ public class VideoFormat {
 
     public long getFilesize() {
         return filesize;
+    }
+
+    public long getFileSizeApproximate() {
+        return fileSizeApproximate;
     }
 
     public int getFps() {
