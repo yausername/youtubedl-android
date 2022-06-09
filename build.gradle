@@ -16,23 +16,22 @@ buildscript {
 }
 
 def versionMajor = 0
-def versionMinor = 14
-def versionPatch = 0
+def versionMinor = 13
+def versionPatch = 2
 def versionBuild = 0 // bump for dogfood builds, public betas, etc.
 
 ext {
     versionCode = versionMajor * 100000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
     versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
-    // dependency versions
-    appCompatVer = '1.1.0'
-    junitVer = '4.12'
-    androidJunitVer = '1.1.1'
-    espressoVer = '3.2.0'
-    jacksonVer = '2.9.8'
+    appCompatVer = '1.4.2'
+    junitVer = '4.13.2'
+    androidJunitVer = '1.1.3'
+    espressoVer = '3.4.0'
+    jacksonVer = '2.11.1'
     // supports java 1.6
     commonsIoVer = '2.5'
     // supports java 1.6
-    commonsCompressVer = '1.12'
+    commonsCompressVer = '1.20'
 
 }
 
