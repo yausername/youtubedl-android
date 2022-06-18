@@ -22,7 +22,7 @@ buildscript {
 def versionMajor = 0
 def versionMinor = 13
 def versionPatch = 2
-def versionBuild = 0 // bump for dogfood builds, public betas, etc.
+def versionBuild = 1 // bump for dogfood builds, public betas, etc.
 
 ext {
     versionCode = versionMajor * 100000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
@@ -42,11 +42,6 @@ ext {
 allprojects {
     group = 'com.github.yausername'
     version = versionName
-
-    repositories {
-        google()
-        jcenter()
-    }
 }
 
 task clean(type: Delete) {
