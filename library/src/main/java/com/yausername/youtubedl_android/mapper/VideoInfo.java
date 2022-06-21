@@ -20,11 +20,9 @@ public class VideoInfo {
     private String description;
     private String thumbnail;
     private String license;
-
     private String extractor;
     @JsonProperty("extractor_key")
     private String extractorKey;
-
     @JsonProperty("view_count")
     private String viewCount;
     @JsonProperty("like_count")
@@ -35,19 +33,15 @@ public class VideoInfo {
     private String repostCount;
     @JsonProperty("average_rating")
     private String averageRating;
-
-
     @JsonProperty("uploader_id")
     private String uploaderId;
     private String uploader;
-
     @JsonProperty("player_url")
     private String playerUrl;
     @JsonProperty("webpage_url")
     private String webpageUrl;
     @JsonProperty("webpage_url_basename")
     private String webpageUrlBasename;
-
     private String resolution;
     private int width;
     private int height;
@@ -59,7 +53,6 @@ public class VideoInfo {
     private long fileSize;
     @JsonProperty("filesize_approx")
     private long fileSizeApproximate;
-
     @JsonProperty("http_headers")
     private Map<String, String> httpHeaders;
     private ArrayList<String> categories;
@@ -213,11 +206,11 @@ public class VideoInfo {
         return url;
     }
 
-    public String getExtractorKey() {
-        return extractorKey;
-    }
-
     public String getExtractor() {
         return extractor;
+    }
+
+    public String getExtractorKey() {
+        return extractorKey;
     }
 }
