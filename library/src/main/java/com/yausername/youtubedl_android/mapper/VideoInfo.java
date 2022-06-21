@@ -55,7 +55,8 @@ public class VideoInfo {
     @JsonProperty("format_id")
     private String formatId;
     private String ext;
-    private long filesize;
+    @JsonProperty("filesize")
+    private long fileSize;
     @JsonProperty("filesize_approx")
     private long fileSizeApproximate;
 
@@ -172,8 +173,8 @@ public class VideoInfo {
         return ext;
     }
 
-    public long getFilesize() {
-        return filesize;
+    public long getFileSize() {
+        return fileSize;
     }
 
     public long getFileSizeApproximate() {

@@ -22,7 +22,8 @@ public class VideoFormat {
     private String acodec;
     private int width;
     private int height;
-    private long filesize;
+    @JsonProperty("filesize")
+    private long fileSize;
     @JsonProperty("filesize_approx")
     private long fileSizeApproximate;
     private int fps;
@@ -80,8 +81,8 @@ public class VideoFormat {
         return height;
     }
 
-    public long getFilesize() {
-        return filesize;
+    public long getFileSize() {
+        return fileSize;
     }
 
     public long getFileSizeApproximate() {
