@@ -150,7 +150,7 @@ public class YoutubeDL {
         assertInit();
 
         // disable caching unless explicitly requested
-        if(request.getOption("--cache-dir") == null){
+        if(!request.hasOption("--cache-dir") || request.getOption("--cache-dir") == null){
             request.addOption("--no-cache-dir");
         }
 
@@ -196,8 +196,9 @@ public class YoutubeDL {
 
         String out = outBuffer.toString();
         String err = errBuffer.toString();
+        boolean json = request.hasOption("--dump-json");
 
-        if (exitCode > 0) {
+        if (exitCode > 0 && (!json || (json && out.isEmpty()))) {
             throw new YoutubeDLException(err);
         }
 
