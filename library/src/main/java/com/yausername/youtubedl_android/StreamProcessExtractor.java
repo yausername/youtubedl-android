@@ -24,6 +24,8 @@ class StreamProcessExtractor extends Thread {
     private final DownloadProgressCallback callback;
 
     private final Pattern p = Pattern.compile("\\[download\\]\\s+(\\d+\\.\\d)% .* ETA (\\d+):(\\d+)");
+    private float progress = PERCENT;
+    private long eta = ETA;
 
     public StreamProcessExtractor(StringBuffer buffer, InputStream stream, DownloadProgressCallback callback) {
         this.stream = stream;
@@ -59,15 +61,15 @@ class StreamProcessExtractor extends Thread {
     private float getProgress(String line) {
         final Matcher matcher = p.matcher(line);
         if (matcher.find())
-            return Float.parseFloat(matcher.group(GROUP_PERCENT));
-        return PERCENT;
+            return progress = Float.parseFloat(matcher.group(GROUP_PERCENT));
+        return progress;
     }
 
     private long getEta(String line) {
         final Matcher matcher = p.matcher(line);
         if (matcher.find())
-            return convertToSeconds(matcher.group(GROUP_MINUTES), matcher.group(GROUP_SECONDS));
-        return ETA;
+            return eta = convertToSeconds(matcher.group(GROUP_MINUTES), matcher.group(GROUP_SECONDS));
+        return eta;
     }
 
     private int convertToSeconds(String minutes, String seconds) {

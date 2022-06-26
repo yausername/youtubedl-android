@@ -30,6 +30,10 @@ public class YoutubeDLOptions {
         return options.get(key);
     }
 
+    public boolean hasOption(String key){
+        return options.containsKey(key);
+    }
+
     public List<String> buildOptions(){
         List<String> optionsList = new ArrayList<>();
         for (Map.Entry<String, String> entry : options.entrySet()) {
