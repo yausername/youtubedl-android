@@ -146,6 +146,10 @@ public class YoutubeDL {
         return execute(request, null);
     }
 
+    private boolean ignoreErrors(YoutubeDLRequest request, String out) {
+        return request.hasOption("--dump-json") && !out.isEmpty() && request.hasOption("--ignore-errors");
+    }
+
     public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback) throws YoutubeDLException, InterruptedException {
         assertInit();
 
@@ -196,9 +200,8 @@ public class YoutubeDL {
 
         String out = outBuffer.toString();
         String err = errBuffer.toString();
-        boolean json = request.hasOption("--dump-json");
 
-        if (exitCode > 0 && (!json || (json && out.isEmpty()))) {
+        if (exitCode > 0 && !ignoreErrors(request, out)) {
             throw new YoutubeDLException(err);
         }
 
