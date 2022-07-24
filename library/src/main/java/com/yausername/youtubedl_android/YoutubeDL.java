@@ -146,11 +146,15 @@ public class YoutubeDL {
         return execute(request, null);
     }
 
+    private boolean ignoreErrors(YoutubeDLRequest request, String out) {
+        return request.hasOption("--dump-json") && !out.isEmpty() && request.hasOption("--ignore-errors");
+    }
+
     public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback) throws YoutubeDLException, InterruptedException {
         assertInit();
 
         // disable caching unless explicitly requested
-        if(request.getOption("--cache-dir") == null){
+        if(!request.hasOption("--cache-dir") || request.getOption("--cache-dir") == null){
             request.addOption("--no-cache-dir");
         }
 
@@ -197,7 +201,7 @@ public class YoutubeDL {
         String out = outBuffer.toString();
         String err = errBuffer.toString();
 
-        if (exitCode > 0) {
+        if (exitCode > 0 && !ignoreErrors(request, out)) {
             throw new YoutubeDLException(err);
         }
 

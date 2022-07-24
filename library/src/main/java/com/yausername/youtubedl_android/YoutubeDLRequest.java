@@ -38,6 +38,10 @@ public class YoutubeDLRequest {
         return options.getOption(key);
     }
 
+    public boolean hasOption(String key){
+        return options.hasOption(key);
+    }
+
     public List<String> buildCommand(){
         List<String> command = new ArrayList<>();
         command.addAll(options.buildOptions());
