@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.yausername.youtubedl_android.DownloadProgressCallback;
+import com.yausername.youtubedl_android.ProcessPidCallback;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.YoutubeDLRequest;
 
@@ -34,6 +35,7 @@ import io.reactivex.schedulers.Schedulers;
 public class CommandExampleActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button btnRunCommand;
+    private Button btnStopDownload;
     private EditText etCommand;
     private ProgressBar progressBar;
     private TextView tvCommandStatus;
@@ -42,6 +44,7 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
 
     private boolean running = false;
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private String processId = "";
 
     private final DownloadProgressCallback callback = new DownloadProgressCallback() {
         @Override
@@ -51,6 +54,13 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
                         tvCommandStatus.setText(line);
                     }
             );
+        }
+    };
+
+    private final ProcessPidCallback pidCallback = new ProcessPidCallback() {
+        @Override
+        public void onProcessRun(String pid) {
+            processId = pid;
         }
     };
 
@@ -67,6 +77,7 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
 
     private void initViews() {
         btnRunCommand = findViewById(R.id.btn_run_command);
+        btnStopDownload = findViewById(R.id.btn_stop_download);
         etCommand = findViewById(R.id.et_command);
         progressBar = findViewById(R.id.progress_bar);
         tvCommandStatus = findViewById(R.id.tv_status);
@@ -76,12 +87,25 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
 
     private void initListeners() {
         btnRunCommand.setOnClickListener(this);
+        btnStopDownload.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.btn_run_command) {
-            runCommand();
+        switch (v.getId()) {
+            case R.id.btn_run_command:
+                runCommand();
+                break;
+            case R.id.btn_stop_download:
+                if (running) {
+                    try {
+                        android.os.Process.killProcess(Integer.parseInt(processId));
+                        running = false;
+                    } catch (Exception e) {
+                        Log.e(TAG, e.toString());
+                    }
+                }
+                break;
         }
     }
 
@@ -118,7 +142,7 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
         showStart();
 
         running = true;
-        Disposable disposable = Observable.fromCallable(() -> YoutubeDL.getInstance().execute(request, callback))
+        Disposable disposable = Observable.fromCallable(() -> YoutubeDL.getInstance().execute(request, callback, pidCallback))
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(youtubeDLResponse -> {

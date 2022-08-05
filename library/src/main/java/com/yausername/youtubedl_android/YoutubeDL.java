@@ -15,10 +15,9 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class YoutubeDL {
 
@@ -126,7 +125,7 @@ public class YoutubeDL {
     @NonNull
     public VideoInfo getInfo(YoutubeDLRequest request) throws YoutubeDLException, InterruptedException {
         request.addOption("--dump-json");
-        YoutubeDLResponse response = execute(request, null);
+        YoutubeDLResponse response = execute(request, null, null);
 
         VideoInfo videoInfo;
         try {
@@ -143,14 +142,14 @@ public class YoutubeDL {
     }
 
     public YoutubeDLResponse execute(YoutubeDLRequest request) throws YoutubeDLException, InterruptedException {
-        return execute(request, null);
+        return execute(request, null, null);
     }
 
     private boolean ignoreErrors(YoutubeDLRequest request, String out) {
         return request.hasOption("--dump-json") && !out.isEmpty() && request.hasOption("--ignore-errors");
     }
 
-    public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback) throws YoutubeDLException, InterruptedException {
+    public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback, @Nullable ProcessPidCallback pidCallback) throws YoutubeDLException, InterruptedException {
         assertInit();
 
         // disable caching unless explicitly requested
@@ -179,6 +178,13 @@ public class YoutubeDL {
 
         try {
             process = processBuilder.start();
+            Pattern pattern = Pattern.compile("(?<=\\[)(?:[^\\[\\]]+|\\[[^\\[\\]]+\\])+");
+            Matcher matcher = pattern.matcher(process.toString());
+            if (matcher.find()) {
+                String pidInfo[] = matcher.group().split(",\\s+");
+                String pidPair[] = pidInfo[0].split("=");
+                pidCallback.onProcessRun(pidPair[1]);
+            }
         } catch (IOException e) {
             throw new YoutubeDLException(e);
         }

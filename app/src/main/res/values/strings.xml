@@ -8,6 +8,7 @@
     <string name="btn_start_download">Start Download</string>
     <string name="url_hint">enter url here</string>
     <string name="btn_run_command">Run Command</string>
+    <string name="btn_stop_download">Stop Command</string>
     <string name="command_hint">enter command here</string>
     <string name="url_error">enter a valid url</string>
     <string name="command_error">enter a valid command</string>
