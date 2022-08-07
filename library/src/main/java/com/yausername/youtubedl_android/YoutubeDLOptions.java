@@ -9,40 +9,71 @@ import java.util.Map;
 
 public class YoutubeDLOptions {
 
-    private Map<String, String> options = new LinkedHashMap<>();
+    private final Map<String, List<String>> options = new LinkedHashMap<>();
 
-    public YoutubeDLOptions addOption(@NonNull String key, @NonNull String value){
-        options.put(key, value);
-        return this;
-    }
-
-    public YoutubeDLOptions addOption(@NonNull String key, @NonNull Number value){
-        options.put(key, value.toString());
-        return this;
-    }
-
-    public YoutubeDLOptions addOption(String key){
-        options.put(key, null);
-        return this;
-    }
-
-    public Object getOption(String key){
-        return options.get(key);
-    }
-
-    public boolean hasOption(String key){
-        return options.containsKey(key);
-    }
-
-    public List<String> buildOptions(){
-        List<String> optionsList = new ArrayList<>();
-        for (Map.Entry<String, String> entry : options.entrySet()) {
-            String name = entry.getKey();
-            String value = entry.getValue();
-            optionsList.add(name);
-            if(null != value) optionsList.add(value);
+    public YoutubeDLOptions addOption(@NonNull String option, @NonNull String argument) {
+        if (!options.containsKey(option)) {
+            List<String> arguments = new ArrayList<>();
+            arguments.add(argument);
+            options.put(option, arguments);
+        } else {
+            options.get(option).add(argument);
         }
-        return optionsList;
+        return this;
+    }
+
+    public YoutubeDLOptions addOption(@NonNull String option, @NonNull Number argument) {
+        if (!options.containsKey(option)) {
+            List<String> arguments = new ArrayList<>();
+            arguments.add(argument.toString());
+            options.put(option, arguments);
+        } else {
+            options.get(option).add(argument.toString());
+        }
+        return this;
+    }
+
+    public YoutubeDLOptions addOption(String option) {
+        if (!options.containsKey(option)) {
+            List<String> arguments = new ArrayList<>();
+            arguments.add("");
+            options.put(option, arguments);
+        } else {
+            options.get(option).add("");
+        }
+        return this;
+    }
+
+    public String getArgument(String option) {
+        if (!options.containsKey(option))
+            return null;
+        String argument = options.get(option).get(0);
+        if (argument.isEmpty())
+            return null;
+        else return argument;
+    }
+
+    public List<String> getArguments(String option) {
+        if (!options.containsKey(option))
+            return null;
+        return options.get(option);
+    }
+
+    public boolean hasOption(String option) {
+        return options.containsKey(option);
+    }
+
+    public List<String> buildOptions() {
+        List<String> commandList = new ArrayList<>();
+        for (Map.Entry<String, List<String>> entry : options.entrySet()) {
+            String option = entry.getKey();
+            for (String argument : entry.getValue()) {
+                commandList.add(option);
+                if (!argument.isEmpty())
+                    commandList.add(argument);
+            }
+        }
+        return commandList;
     }
 
 }
