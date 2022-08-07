@@ -4,49 +4,60 @@ import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class YoutubeDLRequest {
 
-    private List<String> urls;
-    private YoutubeDLOptions options = new YoutubeDLOptions();
+    private final List<String> urls;
+    private final YoutubeDLOptions options = new YoutubeDLOptions();
+
+    private final List<String> commandList = new ArrayList<>();
 
     public YoutubeDLRequest(String url) {
-        this.urls = Arrays.asList(url);
+        this.urls = Collections.singletonList(url);
     }
 
-    public YoutubeDLRequest(@NonNull  List<String> urls) {
+    public YoutubeDLRequest(@NonNull List<String> urls) {
         this.urls = urls;
     }
 
-    public YoutubeDLRequest addOption(@NonNull String key, @NonNull String value){
-        options.addOption(key, value);
+    public YoutubeDLRequest addOption(@NonNull String option, @NonNull String argument) {
+        options.addOption(option, argument);
         return this;
     }
 
-    public YoutubeDLRequest addOption(@NonNull String key, @NonNull Number value){
-        options.addOption(key, value);
+    public YoutubeDLRequest addOption(@NonNull String option, @NonNull Number argument) {
+        options.addOption(option, argument);
         return this;
     }
 
-    public YoutubeDLRequest addOption(String key){
-        options.addOption(key);
+    public YoutubeDLRequest addOption(String option) {
+        options.addOption(option);
         return this;
     }
 
-    public Object getOption(String key){
-        return options.getOption(key);
+    public YoutubeDLRequest addCommands(List<String> commands) {
+        commandList.addAll(commands);
+        return this;
     }
 
-    public boolean hasOption(String key){
-        return options.hasOption(key);
+    public String getOption(String option) {
+        return options.getArgument(option);
     }
 
-    public List<String> buildCommand(){
-        List<String> command = new ArrayList<>();
-        command.addAll(options.buildOptions());
-        command.addAll(urls);
-        return command;
+    public List<String> getArguments(String option) {
+        return options.getArguments(option);
+    }
+
+    public boolean hasOption(String option) {
+        return options.hasOption(option);
+    }
+
+    public List<String> buildCommand() {
+        commandList.addAll(options.buildOptions());
+        commandList.addAll(urls);
+        return commandList;
     }
 
 }
