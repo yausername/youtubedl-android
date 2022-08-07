@@ -45,6 +45,8 @@ public class YoutubeDLOptions {
     }
 
     public String getArgument(String option) {
+        if (!options.containsKey(option))
+            return null;
         String argument = options.get(option).get(0);
         if (argument.isEmpty())
             return null;
@@ -52,6 +54,8 @@ public class YoutubeDLOptions {
     }
 
     public List<String> getArguments(String option) {
+        if (!options.containsKey(option))
+            return null;
         return options.get(option);
     }
 
