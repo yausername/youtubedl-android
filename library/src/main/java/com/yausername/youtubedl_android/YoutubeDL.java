@@ -1,6 +1,7 @@
 package com.yausername.youtubedl_android;
 
 import android.content.Context;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -160,17 +161,29 @@ public class YoutubeDL {
 
     public boolean destroyProcessById(@NonNull String id) {
         if (id2Process.containsKey(id)) {
-            id2Process.get(id).destroy();
-            return true;
+            Process p = id2Process.get(id);
+            boolean alive = true;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!p.isAlive()) {
+                    alive = false;
+                }
+            }
+            if (alive) {
+                try {
+                    p.destroy();
+                    return true;
+                }
+                catch (Exception ex) {
+                }
+            }
         }
-        else
-            return false;
+        return false;
     }
 
     public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback, @Nullable String processId) throws YoutubeDLException, InterruptedException {
         assertInit();
         if (processId != null && id2Process.containsKey(processId))
-            return null;
+            throw new YoutubeDLException("Process ID already exists");
         // disable caching unless explicitly requested
         if(!request.hasOption("--cache-dir") || request.getOption("--cache-dir") == null){
             request.addOption("--no-cache-dir");
