@@ -213,7 +213,7 @@ public class YoutubeDL {
         } catch (IOException e) {
             throw new YoutubeDLException(e);
         }
-        if (processId!= null) {
+        if (processId != null) {
             id2Process.put(processId, process);
         }
 
