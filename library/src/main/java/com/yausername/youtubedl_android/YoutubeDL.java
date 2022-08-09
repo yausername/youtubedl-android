@@ -46,7 +46,7 @@ public class YoutubeDL {
     private String ENV_SSL_CERT_FILE;
     private String ENV_PYTHONHOME;
 
-    private Map<String, Process> id2Process = Collections.synchronizedMap(new HashMap<String, Process>());
+    private final Map<String, Process> id2Process = Collections.synchronizedMap(new HashMap<String, Process>());
 
     protected static final ObjectMapper objectMapper = new ObjectMapper();
 
