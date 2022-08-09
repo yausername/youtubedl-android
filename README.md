@@ -94,6 +94,17 @@ YoutubeDL.getInstance().execute(request, (progress, etaInSeconds) -> {
 });
 ```
 
+* Stopping a previously started download process
+```java
+YoutubeDLRequest request = new YoutubeDLRequest("https://vimeo.com/22439234");
+final String processId = "MyProcessDownloadId";
+YoutubeDL.getInstance().execute(request, (progress, etaInSeconds) -> {
+    System.out.println(String.valueOf(progress) + "% (ETA " + String.valueOf(etaInSeconds) + " seconds)");
+}, processId);
+...
+YoutubeDL.getInstance().destroyProcessById(processId);
+```
+
 
 * Get stream info (equivalent to `--dump-json` of yt-dlp)
 ```java
