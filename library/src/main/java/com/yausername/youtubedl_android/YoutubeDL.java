@@ -161,7 +161,7 @@ public class YoutubeDL {
 
     public boolean destroyProcessById(@NonNull final String id) {
         if (id2Process.containsKey(id)) {
-            Process p = id2Process.get(id);
+            final Process p = id2Process.get(id);
             boolean alive = true;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (!p.isAlive()) {
