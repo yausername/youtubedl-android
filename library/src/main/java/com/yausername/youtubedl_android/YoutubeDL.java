@@ -32,6 +32,7 @@ public class YoutubeDL {
     private static final String pythonLibName = "libpython.zip.so";
     private static final String pythonDirName = "python";
     private static final String ffmpegDirName = "ffmpeg";
+    private static final String ffmpegBinName = "libffmpeg.bin.so";
     protected static final String youtubeDLDirName = "yt-dlp";
     private static final String youtubeDLBin = "__main__.py";
     protected static final String youtubeDLFile = "yt_dlp.zip";
@@ -39,6 +40,7 @@ public class YoutubeDL {
 
     private boolean initialized = false;
     private File pythonPath;
+    private File ffmpegPath;
     private File youtubeDLPath;
     private File binDir;
 
@@ -66,6 +68,7 @@ public class YoutubeDL {
         File packagesDir = new File(baseDir, packagesRoot);
         binDir = new File(appContext.getApplicationInfo().nativeLibraryDir);
         pythonPath = new File(binDir, pythonBinName);
+        ffmpegPath = new File(binDir, ffmpegBinName);
         File pythonDir = new File(packagesDir, pythonDirName);
         File ffmpegDir = new File(packagesDir, ffmpegDirName);
 
@@ -187,6 +190,9 @@ public class YoutubeDL {
         if (!request.hasOption("--cache-dir") || request.getOption("--cache-dir") == null) {
             request.addOption("--no-cache-dir");
         }
+
+        /* Set ffmpeg location, See https://github.com/xibr/ytdlp-lazy/issues/1 */
+        request.addOption("--ffmpeg-location", ffmpegPath.getAbsolutePath());
 
         YoutubeDLResponse youtubeDLResponse;
         Process process;
