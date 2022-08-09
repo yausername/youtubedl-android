@@ -173,7 +173,7 @@ public class YoutubeDL {
                     p.destroy();
                     return true;
                 }
-                catch (Exception ex) {
+                catch (Exception ignored) {
                 }
             }
         }
