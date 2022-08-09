@@ -231,7 +231,7 @@ public class YoutubeDL {
             try {
                 process.destroy();
             }
-            catch (Exception e2) {
+            catch (Exception ignored) {
 
             }
             if (processId != null)
