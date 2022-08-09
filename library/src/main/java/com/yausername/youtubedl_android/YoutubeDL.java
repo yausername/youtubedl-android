@@ -159,7 +159,7 @@ public class YoutubeDL {
         return execute(request, callback, null);
     }
 
-    public boolean destroyProcessById(@NonNull String id) {
+    public boolean destroyProcessById(@NonNull final String id) {
         if (id2Process.containsKey(id)) {
             Process p = id2Process.get(id);
             boolean alive = true;
