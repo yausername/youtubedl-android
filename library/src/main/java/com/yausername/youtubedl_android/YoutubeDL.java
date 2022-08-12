@@ -50,7 +50,7 @@ public class YoutubeDL {
 
     protected static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private YoutubeDL(){
+    private YoutubeDL() {
     }
 
     public static YoutubeDL getInstance() {
@@ -61,7 +61,7 @@ public class YoutubeDL {
         if (initialized) return;
 
         File baseDir = new File(appContext.getNoBackupFilesDir(), baseName);
-        if(!baseDir.exists()) baseDir.mkdir();
+        if (!baseDir.exists()) baseDir.mkdir();
 
         File packagesDir = new File(baseDir, packagesRoot);
         binDir = new File(appContext.getApplicationInfo().nativeLibraryDir);
@@ -140,7 +140,7 @@ public class YoutubeDL {
             throw new YoutubeDLException("Unable to parse video information", e);
         }
 
-        if(videoInfo == null){
+        if (videoInfo == null) {
             throw new YoutubeDLException("Failed to fetch video information");
         }
 
@@ -156,7 +156,7 @@ public class YoutubeDL {
     }
 
     public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback) throws YoutubeDLException, InterruptedException {
-        return execute(request, callback, null);
+        return execute(request, null, callback);
     }
 
     public boolean destroyProcessById(@NonNull final String id) {
@@ -172,20 +172,19 @@ public class YoutubeDL {
                 try {
                     p.destroy();
                     return true;
-                }
-                catch (Exception ignored) {
+                } catch (Exception ignored) {
                 }
             }
         }
         return false;
     }
 
-    public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback, @Nullable String processId) throws YoutubeDLException, InterruptedException {
+    public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable String processId, @Nullable DownloadProgressCallback callback) throws YoutubeDLException, InterruptedException {
         assertInit();
         if (processId != null && id2Process.containsKey(processId))
             throw new YoutubeDLException("Process ID already exists");
         // disable caching unless explicitly requested
-        if(!request.hasOption("--cache-dir") || request.getOption("--cache-dir") == null){
+        if (!request.hasOption("--cache-dir") || request.getOption("--cache-dir") == null) {
             request.addOption("--no-cache-dir");
         }
 
@@ -205,7 +204,7 @@ public class YoutubeDL {
         Map<String, String> env = processBuilder.environment();
         env.put("LD_LIBRARY_PATH", ENV_LD_LIBRARY_PATH);
         env.put("SSL_CERT_FILE", ENV_SSL_CERT_FILE);
-        env.put("PATH",  System.getenv("PATH") + ":" + binDir.getAbsolutePath());
+        env.put("PATH", System.getenv("PATH") + ":" + binDir.getAbsolutePath());
         env.put("PYTHONHOME", ENV_PYTHONHOME);
 
         try {
@@ -230,8 +229,7 @@ public class YoutubeDL {
         } catch (InterruptedException e) {
             try {
                 process.destroy();
-            }
-            catch (Exception ignored) {
+            } catch (Exception ignored) {
 
             }
             if (processId != null)
