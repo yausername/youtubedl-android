@@ -32,14 +32,15 @@ public class YoutubeDL {
     private static final String pythonLibName = "libpython.zip.so";
     private static final String pythonDirName = "python";
     private static final String ffmpegDirName = "ffmpeg";
-    protected static final String youtubeDLDirName = "yt-dlp";
-    private static final String youtubeDLBin = "__main__.py";
-    protected static final String youtubeDLFile = "yt_dlp.zip";
+    private static final String ffmpegBinName = "libffmpeg.bin.so";
+    protected static final String ytdlpDirName = "yt-dlp";
+    protected static final String ytdlpBin = "yt-dlp";
     private static final String pythonLibVersion = "pythonLibVersion";
 
     private boolean initialized = false;
     private File pythonPath;
-    private File youtubeDLPath;
+    private File ffmpegPath;
+    private File ytdlpPath;
     private File binDir;
 
     private String ENV_LD_LIBRARY_PATH;
@@ -66,29 +67,34 @@ public class YoutubeDL {
         File packagesDir = new File(baseDir, packagesRoot);
         binDir = new File(appContext.getApplicationInfo().nativeLibraryDir);
         pythonPath = new File(binDir, pythonBinName);
+        ffmpegPath = new File(binDir, ffmpegBinName);
         File pythonDir = new File(packagesDir, pythonDirName);
         File ffmpegDir = new File(packagesDir, ffmpegDirName);
 
-        File youtubeDLDir = new File(baseDir, youtubeDLDirName);
-        youtubeDLPath = new File(youtubeDLDir, youtubeDLBin);
+        File ytdlpDir = new File(baseDir, ytdlpDirName);
+        ytdlpPath = new File(ytdlpDir, ytdlpBin);
 
         ENV_LD_LIBRARY_PATH = pythonDir.getAbsolutePath() + "/usr/lib" + ":" + ffmpegDir.getAbsolutePath() + "/usr/lib";
         ENV_SSL_CERT_FILE = pythonDir.getAbsolutePath() + "/usr/etc/tls/cert.pem";
         ENV_PYTHONHOME = pythonDir.getAbsolutePath() + "/usr";
 
         initPython(appContext, pythonDir);
-        initYoutubeDL(appContext, youtubeDLDir);
+        init_ytdlp(appContext, ytdlpDir);
 
         initialized = true;
     }
 
-    protected void initYoutubeDL(Context appContext, File youtubeDLDir) throws YoutubeDLException {
-        if (!youtubeDLDir.exists()) {
-            youtubeDLDir.mkdirs();
+    protected void init_ytdlp(@NonNull final Context appContext, @NonNull final File ytdlpDir) throws YoutubeDLException {
+        if (!ytdlpDir.exists())
+            ytdlpDir.mkdirs();
+
+        final File ytdlpBinary = new File(ytdlpDir, ytdlpBin);
+        if (!ytdlpBinary.exists()) {
             try {
-                ZipUtils.unzip(appContext.getResources().openRawResource(R.raw.yt_dlp), youtubeDLDir);
-            } catch (Exception e) {
-                FileUtils.deleteQuietly(youtubeDLDir);
+                final InputStream inputStream = appContext.getResources().openRawResource(R.raw.ytdlp); /* will be renamed to yt-dlp */
+                FileUtils.copyInputStreamToFile(inputStream, ytdlpBinary);
+            } catch (final Exception e) {
+                FileUtils.deleteQuietly(ytdlpDir);
                 throw new YoutubeDLException("failed to initialize", e);
             }
         }
@@ -188,6 +194,9 @@ public class YoutubeDL {
             request.addOption("--no-cache-dir");
         }
 
+        /* Set ffmpeg location, See https://github.com/xibr/ytdlp-lazy/issues/1 */
+        request.addOption("--ffmpeg-location", ffmpegPath.getAbsolutePath());
+
         YoutubeDLResponse youtubeDLResponse;
         Process process;
         int exitCode;
@@ -197,7 +206,7 @@ public class YoutubeDL {
 
         List<String> args = request.buildCommand();
         List<String> command = new ArrayList<>();
-        command.addAll(Arrays.asList(pythonPath.getAbsolutePath(), youtubeDLPath.getAbsolutePath()));
+        command.addAll(Arrays.asList(pythonPath.getAbsolutePath(), ytdlpPath.getAbsolutePath()));
         command.addAll(args);
 
         ProcessBuilder processBuilder = new ProcessBuilder(command);
@@ -268,6 +277,6 @@ public class YoutubeDL {
     }
 
     public enum UpdateStatus {
-        DONE, ALREADY_UP_TO_DATE;
+        DONE, ALREADY_UP_TO_DATE
     }
 }
