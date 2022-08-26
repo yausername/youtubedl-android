@@ -3,7 +3,6 @@ package com.yausername.youtubedl_android;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,7 +11,7 @@ public class YoutubeDLRequest {
     private final List<String> urls;
     private final YoutubeDLOptions options = new YoutubeDLOptions();
 
-    private final List<String> commandList = new ArrayList<>();
+    private final List<String> customCommandList = new ArrayList<>();
 
     public YoutubeDLRequest(String url) {
         this.urls = Collections.singletonList(url);
@@ -38,7 +37,7 @@ public class YoutubeDLRequest {
     }
 
     public YoutubeDLRequest addCommands(List<String> commands) {
-        commandList.addAll(commands);
+        customCommandList.addAll(commands);
         return this;
     }
 
@@ -55,7 +54,9 @@ public class YoutubeDLRequest {
     }
 
     public List<String> buildCommand() {
+        List<String> commandList = new ArrayList<>();
         commandList.addAll(options.buildOptions());
+        commandList.addAll(customCommandList);
         commandList.addAll(urls);
         return commandList;
     }
