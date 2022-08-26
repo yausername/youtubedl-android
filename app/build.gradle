@@ -43,6 +43,7 @@ dependencies {
 
     implementation project(":library")
     implementation project(":ffmpeg")
+    implementation project(":aria2c")
 
     implementation "androidx.appcompat:appcompat:$appCompatVer"
     implementation "androidx.constraintlayout:constraintlayout:1.1.3"
