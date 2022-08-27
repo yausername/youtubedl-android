@@ -54,6 +54,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
             runOnUiThread(() -> {
                         progressBar.setProgress((int) progress);
                         tvDownloadStatus.setText(line);
+                        Log.d(TAG, "ETA: " + etaInSeconds);
                     }
             );
         }

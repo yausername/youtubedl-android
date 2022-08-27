@@ -23,8 +23,9 @@ class StreamProcessExtractor extends Thread {
     private final StringBuffer buffer;
     private final DownloadProgressCallback callback;
 
-    private final Pattern a = Pattern.compile("\\((.*?)%\\)");
     private final Pattern p = Pattern.compile("\\[download\\]\\s+(\\d+\\.\\d)% .* ETA (\\d+):(\\d+)");
+
+    private final Pattern aria2Pattern = Pattern.compile("\\[#\\w{6}.*\\((\\d*\\.*\\d+)%\\).*?((\\d+)m)*((\\d+)s)*]");
     private float progress = PERCENT;
     private long eta = ETA;
 
@@ -62,15 +63,15 @@ class StreamProcessExtractor extends Thread {
     }
 
     private float getProgress(String line) {
+        Log.d(TAG, line);
         final Matcher matcher = p.matcher(line);
-        final Matcher matcher2 = a.matcher(line);
         if (matcher.find())
             return progress = Float.parseFloat(matcher.group(GROUP_PERCENT));
-
-        if (line.startsWith("[#"))
-            if (matcher2.find())
-                return progress = Float.parseFloat(matcher2.group(GROUP_PERCENT));
-
+        else {
+            final Matcher matcherAria2 = aria2Pattern.matcher(line);
+            if (matcherAria2.find())
+                return progress = Float.parseFloat(matcherAria2.group(1));
+        }
         return progress;
     }
 
@@ -78,10 +79,19 @@ class StreamProcessExtractor extends Thread {
         final Matcher matcher = p.matcher(line);
         if (matcher.find())
             return eta = convertToSeconds(matcher.group(GROUP_MINUTES), matcher.group(GROUP_SECONDS));
+        else {
+            final Matcher matcherAria2 = aria2Pattern.matcher(line);
+            if (matcherAria2.find())
+                return eta = convertToSeconds(matcherAria2.group(3), matcherAria2.group(5));
+        }
         return eta;
     }
 
     private int convertToSeconds(String minutes, String seconds) {
+        if (seconds == null)
+            return 0;
+        else if (minutes == null)
+            return Integer.parseInt(seconds);
         return Integer.parseInt(minutes) * 60 + Integer.parseInt(seconds);
     }
 
