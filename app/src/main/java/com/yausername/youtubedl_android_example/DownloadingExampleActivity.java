@@ -128,6 +128,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
         } else {
             request.addOption("--no-mtime");
             request.addOption("--downloader", "libaria2c.so");
+            request.addOption("--external-downloader-args", "libaria2c:\"--summary-interval=1\"");
             request.addOption("-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best");
             request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
         }

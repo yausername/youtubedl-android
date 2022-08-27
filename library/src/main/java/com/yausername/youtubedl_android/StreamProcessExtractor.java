@@ -23,6 +23,7 @@ class StreamProcessExtractor extends Thread {
     private final StringBuffer buffer;
     private final DownloadProgressCallback callback;
 
+    private final Pattern a = Pattern.compile("\\((.*?)%\\)");
     private final Pattern p = Pattern.compile("\\[download\\]\\s+(\\d+\\.\\d)% .* ETA (\\d+):(\\d+)");
     private float progress = PERCENT;
     private long eta = ETA;
@@ -42,7 +43,9 @@ class StreamProcessExtractor extends Thread {
             while ((nextChar = in.read()) != -1) {
                 buffer.append((char) nextChar);
                 if (nextChar == '\r' || nextChar == '\n' && callback != null) {
-                    processOutputLine(currentLine.toString());
+                    final String line = currentLine.toString();
+                    if (line.startsWith("["))
+                        processOutputLine(line);
                     currentLine.setLength(0);
                     continue;
                 }
@@ -60,8 +63,14 @@ class StreamProcessExtractor extends Thread {
 
     private float getProgress(String line) {
         final Matcher matcher = p.matcher(line);
+        final Matcher matcher2 = a.matcher(line);
         if (matcher.find())
             return progress = Float.parseFloat(matcher.group(GROUP_PERCENT));
+
+        if (line.startsWith("[#"))
+            if (matcher2.find())
+                return progress = Float.parseFloat(matcher2.group(GROUP_PERCENT));
+
         return progress;
     }
 
