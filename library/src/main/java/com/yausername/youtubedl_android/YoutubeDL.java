@@ -28,11 +28,11 @@ public class YoutubeDL {
     private static final YoutubeDL INSTANCE = new YoutubeDL();
     protected static final String baseName = "youtubedl-android";
     private static final String packagesRoot = "packages";
-    private static final String pythonBinName = "libpython.bin.so";
+    private static final String pythonBinName = "libpython.so";
     private static final String pythonLibName = "libpython.zip.so";
     private static final String pythonDirName = "python";
     private static final String ffmpegDirName = "ffmpeg";
-    private static final String ffmpegBinName = "libffmpeg.bin.so";
+    private static final String ffmpegBinName = "libffmpeg.so";
     protected static final String ytdlpDirName = "yt-dlp";
     protected static final String ytdlpBin = "yt-dlp";
     private static final String pythonLibVersion = "pythonLibVersion";
