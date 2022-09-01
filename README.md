@@ -47,19 +47,15 @@ allprojects {
     }
 }
 ```
-Step 2: Add the dependency
+Step 2: Add the dependencies
 ```gradle
 dependencies {
     implementation 'com.github.yausername.youtubedl-android:library:0.13.+'
-}
+    implementation 'com.github.yausername.youtubedl-android:ffmpeg:0.13.+' // Optional
+    implementation 'com.github.yausername.youtubedl-android:aria2c:0.13.+' // Optional
+ }
 ```
-Optional FFmpeg dependency can also be added
-```gradle
-dependencies {
-    implementation 'com.github.yausername.youtubedl-android:library:0.13.+'
-    implementation 'com.github.yausername.youtubedl-android:ffmpeg:0.13.+'
-}
-```
+
 
 <br/>
 
@@ -139,7 +135,17 @@ try {
 }
 ```
 
+## Aria2c
+
+This library can make use of aria2c as the external downloader. Include the `aria2c` dependency in your project and add the options for the request as below:
+
+```kotlin
+request.addOption("--downloader", "libaria2c.so");
+request.addOption("--external-downloader-args", "aria2c:\"--summary-interval=1\"");
+```
+
 ## Docs
+
  *  Though not required for just using this library, documentation on building python for android can be seen [here](BUILD_PYTHON.md). Same for ffmpeg [here](BUILD_FFMPEG.md). Alternatively, you can use pre-built packages from [here (android5+)](http://termux.net/dists/stable/) or [here (android7+)](https://bintray.com/termux/termux-packages-24).
  * youtubedl-android uses lazy extractors based build of yt-dlp - [ytdlp-lazy](https://github.com/xibr/ytdlp-lazy) (formerly [youtubedl-lazy](https://github.com/yausername/youtubedl-lazy/))
 
