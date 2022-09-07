@@ -42,7 +42,9 @@ class StreamProcessExtractor extends Thread {
             while ((nextChar = in.read()) != -1) {
                 buffer.append((char) nextChar);
                 if (nextChar == '\r' || nextChar == '\n' && callback != null) {
-                    processOutputLine(currentLine.toString());
+                    final String line = currentLine.toString();
+                    if (line.startsWith("["))
+                        processOutputLine(line);
                     currentLine.setLength(0);
                     continue;
                 }

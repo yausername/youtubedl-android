@@ -33,6 +33,7 @@ public class YoutubeDL {
     private static final String pythonDirName = "python";
     private static final String ffmpegDirName = "ffmpeg";
     private static final String ffmpegBinName = "libffmpeg.so";
+    private static final String aria2cDirName = "aria2c";
     protected static final String ytdlpDirName = "yt-dlp";
     protected static final String ytdlpBin = "yt-dlp";
     private static final String pythonLibVersion = "pythonLibVersion";
@@ -70,11 +71,14 @@ public class YoutubeDL {
         ffmpegPath = new File(binDir, ffmpegBinName);
         File pythonDir = new File(packagesDir, pythonDirName);
         File ffmpegDir = new File(packagesDir, ffmpegDirName);
+        File aria2cDir = new File(packagesDir, aria2cDirName);
 
         File ytdlpDir = new File(baseDir, ytdlpDirName);
         ytdlpPath = new File(ytdlpDir, ytdlpBin);
 
-        ENV_LD_LIBRARY_PATH = pythonDir.getAbsolutePath() + "/usr/lib" + ":" + ffmpegDir.getAbsolutePath() + "/usr/lib";
+        ENV_LD_LIBRARY_PATH = pythonDir.getAbsolutePath() + "/usr/lib" + ":" +
+                ffmpegDir.getAbsolutePath() + "/usr/lib" + ":" +
+        aria2cDir.getAbsolutePath() + "/usr/lib";
         ENV_SSL_CERT_FILE = pythonDir.getAbsolutePath() + "/usr/etc/tls/cert.pem";
         ENV_PYTHONHOME = pythonDir.getAbsolutePath() + "/usr";
 
