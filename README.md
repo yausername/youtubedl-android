@@ -72,48 +72,48 @@ dependencies {
 
 ```java
 try {
-    YoutubeDL.getInstance().init(getApplication());
-} catch (YoutubeDLException e) {
-    Log.e(TAG, "failed to initialize youtubedl-android", e);
-}
+        YoutubeDL.getInstance().init(getApplication());
+        } catch (YoutubeDLException e) {
+        Log.e(TAG, "failed to initialize youtubedl-android", e);
+        }
 ```
 
 
 * Downloading / custom command (A detailed example can be found in the [sample app](app/src/main/java/com/yausername/youtubedl_android_example/DownloadingExampleActivity.java))
 ```java
 File youtubeDLDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "youtubedl-android");
-YoutubeDLRequest request = new YoutubeDLRequest("https://vimeo.com/22439234");
-request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
-YoutubeDL.getInstance().execute(request, (progress, etaInSeconds) -> {
-    System.out.println(String.valueOf(progress) + "% (ETA " + String.valueOf(etaInSeconds) + " seconds)");
-});
+        YoutubeDLRequest request = new YoutubeDLRequest("https://vimeo.com/22439234");
+        request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
+        YoutubeDL.getInstance().execute(request, (progress, etaInSeconds) -> {
+        System.out.println(String.valueOf(progress) + "% (ETA " + String.valueOf(etaInSeconds) + " seconds)");
+        });
 ```
 
 * Stopping a previously started download process
 ```java
 YoutubeDLRequest request = new YoutubeDLRequest("https://vimeo.com/22439234");
 final String processId = "MyProcessDownloadId";
-YoutubeDL.getInstance().execute(request, (progress, etaInSeconds) -> {
-    System.out.println(String.valueOf(progress) + "% (ETA " + String.valueOf(etaInSeconds) + " seconds)");
-}, processId);
-...
-YoutubeDL.getInstance().destroyProcessById(processId);
+        YoutubeDL.getInstance().execute(request, (progress, etaInSeconds) -> {
+        System.out.println(String.valueOf(progress) + "% (ETA " + String.valueOf(etaInSeconds) + " seconds)");
+        }, processId);
+        ...
+        YoutubeDL.getInstance().destroyProcessById(processId);
 ```
 
 
 * Get stream info (equivalent to `--dump-json` of yt-dlp)
 ```java
 VideoInfo streamInfo = YoutubeDL.getInstance().getInfo("https://vimeo.com/22439234");
-System.out.println(streamInfo.getTitle());
+        System.out.println(streamInfo.getTitle());
 ```
 
 
 * Get a single playable link containing video+audio
 ```java
 YoutubeDLRequest request = new YoutubeDLRequest("https://youtu.be/Pv61yEcOqpw");
-request.addOption("-f", "best");
-VideoInfo streamInfo = YoutubeDL.getInstance().getInfo(request);
-System.out.println(streamInfo.getUrl());
+        request.addOption("-f", "best");
+        VideoInfo streamInfo = YoutubeDL.getInstance().getInfo(request);
+        System.out.println(streamInfo.getUrl());
 ```
 
 * yt-dlp supports myriad different options which be seen [here](https://github.com/yt-dlp/yt-dlp)
@@ -127,17 +127,26 @@ YoutubeDL.getInstance().updateYoutubeDL(getApplication());
 If you wish to use ffmpeg features of yt-dlp (e.g. --extract-audio), include and initialize the ffmpeg library.
 ```java
 try {
-    YoutubeDL.getInstance().init(getApplication());
-    FFmpeg.getInstance().init(getApplication());
-} catch (YoutubeDLException e) {
-    Log.e(TAG, "failed to initialize youtubedl-android", e);
-}
+        YoutubeDL.getInstance().init(getApplication());
+        FFmpeg.getInstance().init(getApplication());
+        } catch (YoutubeDLException e) {
+        Log.e(TAG, "failed to initialize youtubedl-android", e);
+        }
 ```
 
 ## Aria2c
 
-This library can make use of aria2c as the external downloader. Include the `aria2c` dependency in your project and add the options for the request as below:
-
+This library can make use of aria2c as the external downloader. include and initialize the `aria2c` library.
+```java
+try {
+    YoutubeDL.getInstance().init(getApplication());
+    FFmpeg.getInstance().init(getApplication());
+    Aria2c.getInstance().init(getApplication());
+} catch (YoutubeDLException e) {
+    Log.e(TAG, "failed to initialize youtubedl-android", e);
+}
+```
+and options for the request as below:
 ```kotlin
 request.addOption("--downloader", "libaria2c.so");
 request.addOption("--external-downloader-args", "aria2c:\"--summary-interval=1\"");
