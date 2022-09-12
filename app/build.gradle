@@ -5,6 +5,7 @@ android {
     defaultConfig {
         applicationId "com.yausername.youtubedl_android_example"
         minSdkVersion 21
+        //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 29
         versionCode project.versionCode
         versionName project.versionName
@@ -43,6 +44,7 @@ dependencies {
 
     implementation project(":library")
     implementation project(":ffmpeg")
+    implementation project(":aria2c")
 
     implementation "androidx.appcompat:appcompat:$appCompatVer"
     implementation "androidx.constraintlayout:constraintlayout:1.1.3"

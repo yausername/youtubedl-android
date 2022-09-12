@@ -1,1 +1,1 @@
-include ':common', ':app', ':library', ':ffmpeg'
+include ':common', ':app', ':library', ':ffmpeg', ':aria2c'
