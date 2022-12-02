@@ -55,7 +55,14 @@ dependencies {
     implementation 'com.github.yausername.youtubedl-android:aria2c:0.14.+' // Optional
  }
 ```
-
+If the build fails, use `-SNAPSHOT`
+```gradle
+dependencies {
+    implementation 'com.github.yausername.youtubedl-android:library:-SNAPSHOT'
+    implementation 'com.github.yausername.youtubedl-android:ffmpeg:-SNAPSHOT' // Optional
+    implementation 'com.github.yausername.youtubedl-android:aria2c:-SNAPSHOT' // Optional
+ }
+```
 <br/>
 
 * Set `android:extractNativeLibs="true"` in your app's manifest.
