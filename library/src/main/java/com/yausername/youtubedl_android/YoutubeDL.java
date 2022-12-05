@@ -78,7 +78,7 @@ public class YoutubeDL {
 
         ENV_LD_LIBRARY_PATH = pythonDir.getAbsolutePath() + "/usr/lib" + ":" +
                 ffmpegDir.getAbsolutePath() + "/usr/lib" + ":" +
-        aria2cDir.getAbsolutePath() + "/usr/lib";
+                aria2cDir.getAbsolutePath() + "/usr/lib";
         ENV_SSL_CERT_FILE = pythonDir.getAbsolutePath() + "/usr/etc/tls/cert.pem";
         ENV_PYTHONHOME = pythonDir.getAbsolutePath() + "/usr";
 
@@ -174,13 +174,12 @@ public class YoutubeDL {
             final Process p = id2Process.get(id);
             boolean alive = true;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (!p.isAlive()) {
-                    alive = false;
-                }
+                alive = p.isAlive();
             }
             if (alive) {
                 try {
                     p.destroy();
+                    id2Process.remove(id);
                     return true;
                 } catch (Exception ignored) {
                 }
@@ -249,15 +248,16 @@ public class YoutubeDL {
                 id2Process.remove(processId);
             throw e;
         }
-        if (processId != null)
-            id2Process.remove(processId);
 
         String out = outBuffer.toString();
         String err = errBuffer.toString();
 
         if (exitCode > 0 && !ignoreErrors(request, out)) {
-            throw new YoutubeDLException(err);
+            if (processId == null || id2Process.containsKey(processId))
+                throw new YoutubeDLException(err);
         }
+        if (processId != null)
+            id2Process.remove(processId);
 
         long elapsedTime = System.currentTimeMillis() - startTime;
 
