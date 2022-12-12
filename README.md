@@ -28,13 +28,16 @@ If you wish to use config file in the download option by using this command `--c
 -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"
 ```
 
-
 <br/>
 
 
 Checkout [dvd](https://github.com/yausername/dvd), a video downloader app based on this library.
 
 ![dvd](https://imgur.com/download/DdhdBuc)
+
+See also [Seal](https://github.com/JunkFood02/Seal), another video/audio downloader app, showcasing customized usage of this library.
+
+ 
 
 ## Installation
 
@@ -68,7 +71,8 @@ dependencies {
 * Set `android:extractNativeLibs="true"` in your app's manifest.
 * Use `abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'` in app/build.gradle, see [sample app](https://github.com/yausername/youtubedl-android/blob/master/app/build.gradle).
 * Use abi splits to reduce apk size, see [sample app](https://github.com/yausername/youtubedl-android/blob/master/app/build.gradle).
-* On android 10 set `android:requestLegacyExternalStorage="true"`. I haven't tested with scoped storage, feel free to do so.
+* On Android 10 (API 29), set `android:requestLegacyExternalStorage="true"`.
+* On Android 10+ (API 30 or higher), you'll only have the direct access to  `Download/` and `Documents/` due to Android's Scoped Storage changes. You can only download the videos into these two directory, see [related issue](https://github.com/yausername/youtubedl-android/issues/174).
 
 <br/>
 
