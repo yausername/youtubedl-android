@@ -254,6 +254,7 @@ public class YoutubeDL {
 
         if (exitCode > 0 && !ignoreErrors(request, out) &&
                 (processId == null || idProcessMap.containsKey(processId))) {
+            idProcessMap.remove(processId);
             throw new YoutubeDLException(err);
         } else {
             idProcessMap.remove(processId);
