@@ -36,6 +36,7 @@ android {
             universalApk true
         }
     }
+    namespace 'com.yausername.youtubedl_android_example'
 
 }
 
