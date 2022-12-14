@@ -48,7 +48,7 @@ public class YoutubeDL {
     private String ENV_SSL_CERT_FILE;
     private String ENV_PYTHONHOME;
 
-    private final Map<String, Process> idProcessMap = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, Process> id2Process = Collections.synchronizedMap(new HashMap<String, Process>());
 
     protected static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -78,7 +78,7 @@ public class YoutubeDL {
 
         ENV_LD_LIBRARY_PATH = pythonDir.getAbsolutePath() + "/usr/lib" + ":" +
                 ffmpegDir.getAbsolutePath() + "/usr/lib" + ":" +
-                aria2cDir.getAbsolutePath() + "/usr/lib";
+        aria2cDir.getAbsolutePath() + "/usr/lib";
         ENV_SSL_CERT_FILE = pythonDir.getAbsolutePath() + "/usr/etc/tls/cert.pem";
         ENV_PYTHONHOME = pythonDir.getAbsolutePath() + "/usr";
 
@@ -133,13 +133,13 @@ public class YoutubeDL {
         if (!initialized) throw new IllegalStateException("instance not initialized");
     }
 
-    public VideoInfo getInfo(String url) throws YoutubeDLException, InterruptedException, CanceledException {
+    public VideoInfo getInfo(String url) throws YoutubeDLException, InterruptedException {
         YoutubeDLRequest request = new YoutubeDLRequest(url);
         return getInfo(request);
     }
 
     @NonNull
-    public VideoInfo getInfo(YoutubeDLRequest request) throws YoutubeDLException, InterruptedException, CanceledException {
+    public VideoInfo getInfo(YoutubeDLRequest request) throws YoutubeDLException, InterruptedException {
         request.addOption("--dump-json");
         YoutubeDLResponse response = execute(request, null, null);
 
@@ -157,7 +157,7 @@ public class YoutubeDL {
         return videoInfo;
     }
 
-    public YoutubeDLResponse execute(YoutubeDLRequest request) throws YoutubeDLException, InterruptedException, CanceledException {
+    public YoutubeDLResponse execute(YoutubeDLRequest request) throws YoutubeDLException, InterruptedException {
         return execute(request, null, null);
     }
 
@@ -165,32 +165,33 @@ public class YoutubeDL {
         return request.hasOption("--dump-json") && !out.isEmpty() && request.hasOption("--ignore-errors");
     }
 
-    public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback) throws YoutubeDLException, InterruptedException, CanceledException {
+    public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback) throws YoutubeDLException, InterruptedException {
         return execute(request, null, callback);
     }
 
     public boolean destroyProcessById(@NonNull final String id) {
-        if (idProcessMap.containsKey(id)) {
-            final Process p = idProcessMap.get(id);
+        if (id2Process.containsKey(id)) {
+            final Process p = id2Process.get(id);
             boolean alive = true;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                alive = p.isAlive();
+                if (!p.isAlive()) {
+                    alive = false;
+                }
             }
             if (alive) {
-                p.destroy();
-                idProcessMap.remove(id);
-                return true;
+                try {
+                    p.destroy();
+                    return true;
+                } catch (Exception ignored) {
+                }
             }
         }
         return false;
     }
 
-    public static class CanceledException extends Exception {
-    }
-
-    public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable String processId, @Nullable DownloadProgressCallback callback) throws YoutubeDLException, InterruptedException, CanceledException {
+    public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable String processId, @Nullable DownloadProgressCallback callback) throws YoutubeDLException, InterruptedException {
         assertInit();
-        if (processId != null && idProcessMap.containsKey(processId))
+        if (processId != null && id2Process.containsKey(processId))
             throw new YoutubeDLException("Process ID already exists");
         // disable caching unless explicitly requested
         if (!request.hasOption("--cache-dir") || request.getOption("--cache-dir") == null) {
@@ -225,7 +226,7 @@ public class YoutubeDL {
             throw new YoutubeDLException(e);
         }
         if (processId != null) {
-            idProcessMap.put(processId, process);
+            id2Process.put(processId, process);
         }
 
         InputStream outStream = process.getInputStream();
@@ -239,23 +240,23 @@ public class YoutubeDL {
             stdErrProcessor.join();
             exitCode = process.waitFor();
         } catch (InterruptedException e) {
-            process.destroy();
+            try {
+                process.destroy();
+            } catch (Exception ignored) {
+
+            }
             if (processId != null)
-                idProcessMap.remove(processId);
+                id2Process.remove(processId);
             throw e;
         }
+        if (processId != null)
+            id2Process.remove(processId);
 
         String out = outBuffer.toString();
         String err = errBuffer.toString();
 
-
-        if (exitCode > 0) {
-            if (idProcessMap.containsKey(processId)) {
-                idProcessMap.remove(processId);
-                if (!ignoreErrors(request, out)) throw new YoutubeDLException(err);
-            } else throw new CanceledException();
-        } else {
-            idProcessMap.remove(processId);
+        if (exitCode > 0 && !ignoreErrors(request, out)) {
+            throw new YoutubeDLException(err);
         }
 
         long elapsedTime = System.currentTimeMillis() - startTime;
