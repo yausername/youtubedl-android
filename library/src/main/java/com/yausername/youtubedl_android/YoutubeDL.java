@@ -177,18 +177,18 @@ public class YoutubeDL {
                 alive = p.isAlive();
             }
             if (alive) {
-                try {
-                    p.destroy();
-                    idProcessMap.remove(id);
-                    return true;
-                } catch (Exception ignored) {
-                }
+                p.destroy();
+                idProcessMap.remove(id);
+                return true;
             }
         }
         return false;
     }
 
-    public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable String processId, @Nullable DownloadProgressCallback callback) throws YoutubeDLException, InterruptedException {
+    public static class CanceledException extends Exception {
+    }
+
+    public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable String processId, @Nullable DownloadProgressCallback callback) throws YoutubeDLException, InterruptedException, CanceledException {
         assertInit();
         if (processId != null && idProcessMap.containsKey(processId))
             throw new YoutubeDLException("Process ID already exists");
@@ -239,11 +239,7 @@ public class YoutubeDL {
             stdErrProcessor.join();
             exitCode = process.waitFor();
         } catch (InterruptedException e) {
-            try {
-                process.destroy();
-            } catch (Exception ignored) {
-
-            }
+            process.destroy();
             if (processId != null)
                 idProcessMap.remove(processId);
             throw e;
@@ -252,10 +248,12 @@ public class YoutubeDL {
         String out = outBuffer.toString();
         String err = errBuffer.toString();
 
-        if (exitCode > 0 && !ignoreErrors(request, out) &&
-                (processId == null || idProcessMap.containsKey(processId))) {
-            idProcessMap.remove(processId);
-            throw new YoutubeDLException(err);
+
+        if (exitCode > 0) {
+            if (idProcessMap.containsKey(processId)) {
+                idProcessMap.remove(processId);
+                if (!ignoreErrors(request, out)) throw new YoutubeDLException(err);
+            } else throw new CanceledException();
         } else {
             idProcessMap.remove(processId);
         }
