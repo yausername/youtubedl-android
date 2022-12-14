@@ -133,13 +133,13 @@ public class YoutubeDL {
         if (!initialized) throw new IllegalStateException("instance not initialized");
     }
 
-    public VideoInfo getInfo(String url) throws YoutubeDLException, InterruptedException {
+    public VideoInfo getInfo(String url) throws YoutubeDLException, InterruptedException, CanceledException {
         YoutubeDLRequest request = new YoutubeDLRequest(url);
         return getInfo(request);
     }
 
     @NonNull
-    public VideoInfo getInfo(YoutubeDLRequest request) throws YoutubeDLException, InterruptedException {
+    public VideoInfo getInfo(YoutubeDLRequest request) throws YoutubeDLException, InterruptedException, CanceledException {
         request.addOption("--dump-json");
         YoutubeDLResponse response = execute(request, null, null);
 
@@ -157,7 +157,7 @@ public class YoutubeDL {
         return videoInfo;
     }
 
-    public YoutubeDLResponse execute(YoutubeDLRequest request) throws YoutubeDLException, InterruptedException {
+    public YoutubeDLResponse execute(YoutubeDLRequest request) throws YoutubeDLException, InterruptedException, CanceledException {
         return execute(request, null, null);
     }
 
@@ -165,7 +165,7 @@ public class YoutubeDL {
         return request.hasOption("--dump-json") && !out.isEmpty() && request.hasOption("--ignore-errors");
     }
 
-    public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback) throws YoutubeDLException, InterruptedException {
+    public YoutubeDLResponse execute(YoutubeDLRequest request, @Nullable DownloadProgressCallback callback) throws YoutubeDLException, InterruptedException, CanceledException {
         return execute(request, null, callback);
     }
 
