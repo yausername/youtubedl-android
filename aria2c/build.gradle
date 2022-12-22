@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     compileSdkVersion 32
@@ -26,6 +27,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation project(':common')
+    implementation "androidx.core:core-ktx:$coreKtxVer"
     compileOnly project(':library')
 
     implementation "androidx.appcompat:appcompat:$appCompatVer"
