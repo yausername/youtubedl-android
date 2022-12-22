@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     compileSdkVersion 32
@@ -49,6 +50,7 @@ dependencies {
 
     implementation "androidx.appcompat:appcompat:$appCompatVer"
     implementation "androidx.constraintlayout:constraintlayout:1.1.3"
+    implementation "androidx.core:core-ktx:$coreKtxVer"
     testImplementation "junit:junit:$junitVer"
     androidTestImplementation "androidx.test.ext:junit:$androidJunitVer"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVer"

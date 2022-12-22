@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
+apply plugin: 'org.jetbrains.kotlin.android'
 android {
     compileSdkVersion 32
 
@@ -37,6 +38,7 @@ dependencies {
     implementation project(':common')
 
     implementation "androidx.appcompat:appcompat:$appCompatVer"
+    implementation "androidx.core:core-ktx:$coreKtxVer"
     testImplementation "junit:junit:$junitVer"
     androidTestImplementation "androidx.test.ext:junit:$androidJunitVer"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVer"
