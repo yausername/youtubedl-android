@@ -23,6 +23,19 @@ android {
 
 }
 
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.github.yausername.youtubedl_android'
+                artifactId = 'aria2c'
+                version = versionName
+            }
+        }
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
