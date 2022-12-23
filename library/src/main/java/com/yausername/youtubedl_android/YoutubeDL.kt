@@ -11,7 +11,6 @@ import com.yausername.youtubedl_common.utils.ZipUtils.unzip
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.IOException
-import java.util.Arrays
 import java.util.Collections
 import kotlin.collections.set
 
@@ -24,7 +23,7 @@ object YoutubeDL {
     private var ENV_LD_LIBRARY_PATH: String? = null
     private var ENV_SSL_CERT_FILE: String? = null
     private var ENV_PYTHONHOME: String? = null
-    private val idProcessMap = Collections.synchronizedMap(HashMap<String?, Process>())
+    private val idProcessMap = Collections.synchronizedMap(HashMap<String, Process>())
 
     @Synchronized
     @Throws(YoutubeDLException::class)
@@ -98,7 +97,7 @@ object YoutubeDL {
     }
 
     @Throws(YoutubeDLException::class, InterruptedException::class, CanceledException::class)
-    fun getInfo(url: String?): VideoInfo {
+    fun getInfo(url: String): VideoInfo {
         val request = YoutubeDLRequest(url)
         return getInfo(request)
     }
@@ -107,25 +106,16 @@ object YoutubeDL {
     fun getInfo(request: YoutubeDLRequest): VideoInfo {
         request.addOption("--dump-json")
         val response = execute(request, null, null)
-        val videoInfo: VideoInfo
-        videoInfo = try {
+        val videoInfo: VideoInfo = try {
             objectMapper.readValue(response.out, VideoInfo::class.java)
         } catch (e: IOException) {
             throw YoutubeDLException("Unable to parse video information", e)
-        }
-        if (videoInfo == null) {
-            throw YoutubeDLException("Failed to fetch video information")
-        }
+        } ?: throw YoutubeDLException("Failed to fetch video information")
         return videoInfo
     }
 
     private fun ignoreErrors(request: YoutubeDLRequest, out: String): Boolean {
         return request.hasOption("--dump-json") && !out.isEmpty() && request.hasOption("--ignore-errors")
-    }
-
-    @Throws(YoutubeDLException::class, InterruptedException::class, CanceledException::class)
-    fun execute(request: YoutubeDLRequest, callback: DownloadProgressCallback?): YoutubeDLResponse {
-        return execute(request, null, callback)
     }
 
     fun destroyProcessById(id: String): Boolean {
@@ -151,7 +141,7 @@ object YoutubeDL {
     fun execute(
         request: YoutubeDLRequest,
         processId: String? = null,
-        callback: DownloadProgressCallback? = null
+        callback: ((Float, Long, String) -> Unit)? = null
     ): YoutubeDLResponse {
         assertInit()
         if (processId != null && idProcessMap.containsKey(processId)) throw YoutubeDLException("Process ID already exists")
@@ -170,14 +160,15 @@ object YoutubeDL {
         val startTime = System.currentTimeMillis()
         val args = request.buildCommand()
         val command: MutableList<String?> = ArrayList()
-        command.addAll(Arrays.asList(pythonPath!!.absolutePath, ytdlpPath!!.absolutePath))
-        command.addAll(args!!)
+        command.addAll(listOf(pythonPath!!.absolutePath, ytdlpPath!!.absolutePath))
+        command.addAll(args)
         val processBuilder = ProcessBuilder(command)
-        val env = processBuilder.environment()
-        env["LD_LIBRARY_PATH"] = ENV_LD_LIBRARY_PATH
-        env["SSL_CERT_FILE"] = ENV_SSL_CERT_FILE
-        env["PATH"] = System.getenv("PATH") + ":" + binDir!!.absolutePath
-        env["PYTHONHOME"] = ENV_PYTHONHOME
+        processBuilder.environment().apply {
+            this["LD_LIBRARY_PATH"] = ENV_LD_LIBRARY_PATH
+            this["SSL_CERT_FILE"] = ENV_SSL_CERT_FILE
+            this["PATH"] = System.getenv("PATH") + ":" + binDir!!.absolutePath
+            this["PYTHONHOME"] = ENV_PYTHONHOME
+        }
         process = try {
             processBuilder.start()
         } catch (e: IOException) {

@@ -11,7 +11,7 @@ import java.util.regex.Pattern
 internal class StreamProcessExtractor(
     private val buffer: StringBuffer,
     private val stream: InputStream,
-    private val callback: DownloadProgressCallback?
+    private val callback: ((Float, Long, String) -> Unit)?
 ) : Thread() {
     private val p = Pattern.compile("\\[download\\]\\s+(\\d+\\.\\d)% .* ETA (\\d+):(\\d+)")
     private val pAria2c =
@@ -25,10 +25,10 @@ internal class StreamProcessExtractor(
 
     override fun run() {
         try {
-            val `in`: Reader = InputStreamReader(stream, StandardCharsets.UTF_8)
+            val input: Reader = InputStreamReader(stream, StandardCharsets.UTF_8)
             val currentLine = StringBuilder()
             var nextChar: Int
-            while (`in`.read().also { nextChar = it } != -1) {
+            while (input.read().also { nextChar = it } != -1) {
                 buffer.append(nextChar.toChar())
                 if (nextChar == '\r'.code || nextChar == '\n'.code && callback != null) {
                     val line = currentLine.toString()
@@ -44,7 +44,7 @@ internal class StreamProcessExtractor(
     }
 
     private fun processOutputLine(line: String) {
-        callback!!.onProgressUpdate(getProgress(line), getEta(line), line)
+        callback?.let { it(getProgress(line), getEta(line), line) }
     }
 
     private fun getProgress(line: String): Float {
@@ -62,12 +62,12 @@ internal class StreamProcessExtractor(
         if (matcher.find()) return convertToSeconds(
             matcher.group(GROUP_MINUTES),
             matcher.group(GROUP_SECONDS)
-        ).also { eta = it.toLong() }.toLong().toLong() else {
+        ).also { eta = it.toLong() }.toLong() else {
             val mAria2c = pAria2c.matcher(line)
             if (mAria2c.find()) return convertToSeconds(
                 mAria2c.group(3),
                 mAria2c.group(5)
-            ).also { eta = it.toLong() }.toLong().toLong()
+            ).also { eta = it.toLong() }.toLong()
         }
         return eta
     }

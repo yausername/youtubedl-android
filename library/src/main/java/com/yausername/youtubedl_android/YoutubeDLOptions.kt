@@ -48,7 +48,7 @@ class YoutubeDLOptions {
     fun getArgument(option: String): String? {
         if (!options.containsKey(option)) return null
         val argument = options[option]!![0]
-        return if (argument.isEmpty()) null else argument
+        return argument.ifEmpty { null }
     }
 
     fun getArguments(option: String): List<String>? {
@@ -60,11 +60,11 @@ class YoutubeDLOptions {
     }
 
     fun buildOptions(): List<String> {
-        val commandList: MutableList<String> = ArrayList()
+        val commandList: MutableList<String> = mutableListOf()
         for ((option, value) in options) {
             for (argument in value) {
                 commandList.add(option)
-                if (!argument.isEmpty()) commandList.add(argument)
+                if (argument.isNotEmpty()) commandList.add(argument)
             }
         }
         return commandList
