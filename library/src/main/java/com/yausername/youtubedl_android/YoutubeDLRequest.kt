@@ -1,15 +1,15 @@
 package com.yausername.youtubedl_android
 
 class YoutubeDLRequest {
-    private val urls: List<String?>
+    private val urls: List<String>
     private val options = YoutubeDLOptions()
-    private val customCommandList: MutableList<String?> = ArrayList()
+    private val customCommandList: MutableList<String> = ArrayList()
 
-    constructor(url: String?) {
+    constructor(url: String) {
         urls = listOf(url)
     }
 
-    constructor(urls: List<String?>) {
+    constructor(urls: List<String>) {
         this.urls = urls
     }
 
@@ -28,8 +28,8 @@ class YoutubeDLRequest {
         return this
     }
 
-    fun addCommands(commands: List<String?>?): YoutubeDLRequest {
-        customCommandList.addAll(commands!!)
+    fun addCommands(commands: List<String>): YoutubeDLRequest {
+        customCommandList.addAll(commands)
         return this
     }
 
@@ -45,8 +45,8 @@ class YoutubeDLRequest {
         return options.hasOption(option)
     }
 
-    fun buildCommand(): List<String?> {
-        val commandList: MutableList<String?> = ArrayList()
+    fun buildCommand(): List<String> {
+        val commandList: MutableList<String> = ArrayList()
         commandList.addAll(options.buildOptions())
         commandList.addAll(customCommandList)
         commandList.addAll(urls)
