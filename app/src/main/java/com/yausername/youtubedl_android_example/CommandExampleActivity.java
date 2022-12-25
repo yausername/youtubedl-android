@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.yausername.youtubedl_android.DownloadProgressCallback;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.YoutubeDLRequest;
 
@@ -28,8 +29,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function3;
 
 
 public class CommandExampleActivity extends AppCompatActivity implements View.OnClickListener {
@@ -46,17 +45,15 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
     private final String processId = "MyMainDownload";
 
-    private final Function3<Float, Long, String, Unit> callback = new Function3<Float, Long, String, Unit>() {
+    private final DownloadProgressCallback callback = new DownloadProgressCallback() {
         @Override
-        public Unit invoke(Float progress, Long o2, String line) {
+        public void onProgressUpdate(float progress, long etaInSeconds, String line) {
             runOnUiThread(() -> {
-                        progressBar.setProgress((int) progress.floatValue());
+                        progressBar.setProgress((int) progress);
                         tvCommandStatus.setText(line);
                     }
             );
-            return Unit.INSTANCE;
         }
-
     };
 
     private static final String TAG = CommandExampleActivity.class.getSimpleName();
@@ -138,25 +135,24 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
 
         running = true;
         Disposable disposable =
-                Observable.fromCallable(() -> YoutubeDL.getInstance().execute(request, processId,
-                                callback))
-                        .subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(youtubeDLResponse -> {
-                            pbLoading.setVisibility(View.GONE);
-                            progressBar.setProgress(100);
-                            tvCommandStatus.setText(getString(R.string.command_complete));
-                            tvCommandOutput.setText(youtubeDLResponse.getOut());
-                            Toast.makeText(CommandExampleActivity.this, "command successful", Toast.LENGTH_LONG).show();
-                            running = false;
-                        }, e -> {
-                            if (BuildConfig.DEBUG) Log.e(TAG, "command failed", e);
-                            pbLoading.setVisibility(View.GONE);
-                            tvCommandStatus.setText(getString(R.string.command_failed));
-                            tvCommandOutput.setText(e.getMessage());
-                            Toast.makeText(CommandExampleActivity.this, "command failed", Toast.LENGTH_LONG).show();
-                            running = false;
-                        });
+                Observable.fromCallable(() -> YoutubeDL.getInstance().execute(request, processId, callback))
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(youtubeDLResponse -> {
+                    pbLoading.setVisibility(View.GONE);
+                    progressBar.setProgress(100);
+                    tvCommandStatus.setText(getString(R.string.command_complete));
+                    tvCommandOutput.setText(youtubeDLResponse.getOut());
+                    Toast.makeText(CommandExampleActivity.this, "command successful", Toast.LENGTH_LONG).show();
+                    running = false;
+                }, e -> {
+                    if (BuildConfig.DEBUG) Log.e(TAG, "command failed", e);
+                    pbLoading.setVisibility(View.GONE);
+                    tvCommandStatus.setText(getString(R.string.command_failed));
+                    tvCommandOutput.setText(e.getMessage());
+                    Toast.makeText(CommandExampleActivity.this, "command failed", Toast.LENGTH_LONG).show();
+                    running = false;
+                });
         compositeDisposable.add(disposable);
 
     }
