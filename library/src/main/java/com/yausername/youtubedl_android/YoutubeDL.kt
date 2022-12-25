@@ -193,13 +193,15 @@ object YoutubeDL {
         val out = outBuffer.toString()
         val err = errBuffer.toString()
         if (exitCode > 0) {
-            if (idProcessMap.containsKey(processId)) {
+            if (processId != null && !idProcessMap.containsKey(processId))
+                throw CanceledException()
+            if (!ignoreErrors(request, out)) {
                 idProcessMap.remove(processId)
-                if (!ignoreErrors(request, out)) throw YoutubeDLException(err)
-            } else throw CanceledException()
-        } else {
-            idProcessMap.remove(processId)
+                throw YoutubeDLException(err)
+            }
         }
+        idProcessMap.remove(processId)
+
         val elapsedTime = System.currentTimeMillis() - startTime
         youtubeDLResponse = YoutubeDLResponse(command, exitCode, elapsedTime, out, err)
         return youtubeDLResponse
