@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.yausername.youtubedl_android.DownloadProgressCallback;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.YoutubeDLRequest;
 
@@ -29,8 +30,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function3;
 
 
 public class DownloadingExampleActivity extends AppCompatActivity implements View.OnClickListener {
@@ -49,15 +48,14 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
     private String processId = "MyDlProcess";
 
 
-    private final Function3<Float, Long, String, Unit> callback = new Function3<Float, Long, String, Unit>() {
+    private final DownloadProgressCallback callback = new DownloadProgressCallback() {
         @Override
-        public Unit invoke(Float progress, Long o2, String line) {
+        public void onProgressUpdate(float progress, long etaInSeconds, String line) {
             runOnUiThread(() -> {
-                        progressBar.setProgress((int) progress.floatValue());
+                        progressBar.setProgress((int) progress);
                         tvDownloadStatus.setText(line);
                     }
             );
-            return Unit.INSTANCE;
         }
     };
 
