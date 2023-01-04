@@ -39,7 +39,7 @@ ext {
     // supports java 1.6
     commonsIoVer = '2.5'
     // supports java 1.6
-    commonsCompressVer = '1.20'
+    commonsCompressVer = '1.12'
     coreKtxVer = '1.8.0'
 }
 
