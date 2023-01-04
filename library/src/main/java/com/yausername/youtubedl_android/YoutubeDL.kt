@@ -23,6 +23,7 @@ object YoutubeDL {
     private var ENV_LD_LIBRARY_PATH: String? = null
     private var ENV_SSL_CERT_FILE: String? = null
     private var ENV_PYTHONHOME: String? = null
+    private var HOME: String? = null
     private val idProcessMap = Collections.synchronizedMap(HashMap<String, Process>())
 
     @Synchronized
@@ -45,6 +46,7 @@ object YoutubeDL {
                 aria2cDir.absolutePath + "/usr/lib"
         ENV_SSL_CERT_FILE = pythonDir.absolutePath + "/usr/etc/tls/cert.pem"
         ENV_PYTHONHOME = pythonDir.absolutePath + "/usr"
+        HOME = appContext.filesDir.absolutePath
         initPython(appContext, pythonDir)
         init_ytdlp(appContext, ytdlpDir)
         initialized = true
@@ -168,6 +170,7 @@ object YoutubeDL {
             this["SSL_CERT_FILE"] = ENV_SSL_CERT_FILE
             this["PATH"] = System.getenv("PATH") + ":" + binDir!!.absolutePath
             this["PYTHONHOME"] = ENV_PYTHONHOME
+            this["HOME"] = HOME
         }
         process = try {
             processBuilder.start()
