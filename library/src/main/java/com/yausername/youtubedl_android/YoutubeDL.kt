@@ -2,6 +2,7 @@ package com.yausername.youtubedl_android
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.yausername.youtubedl_android.YoutubeDLException
 import com.yausername.youtubedl_android.mapper.VideoInfo
@@ -168,7 +169,9 @@ object YoutubeDL {
             this["SSL_CERT_FILE"] = ENV_SSL_CERT_FILE
             this["PATH"] = System.getenv("PATH") + ":" + binDir!!.absolutePath
             this["PYTHONHOME"] = ENV_PYTHONHOME
-        }
+            this["HOME"] = ENV_PYTHONHOME
+        }.entries.forEach { Log.d("PythonInit", "[${it.key}] = ${it.value}") }
+
         process = try {
             processBuilder.start()
         } catch (e: IOException) {
