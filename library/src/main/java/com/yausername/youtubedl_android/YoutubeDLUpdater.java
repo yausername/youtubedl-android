@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.yausername.youtubedl_android.YoutubeDL.UpdateStatus;
+import com.yausername.youtubedl_android.YoutubeDL.UpdateChannel;
 import com.yausername.youtubedl_common.SharedPrefsHelper;
 
 import org.apache.commons.io.FileUtils;
@@ -21,11 +22,12 @@ class YoutubeDLUpdater {
     private YoutubeDLUpdater() {
     }
 
-    private static final String releasesUrl = "https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest";
+    private static final String youtubeDLStableChannelUrl = "https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest";
+    private static final String youtubeDLNightlyChannelUrl = "https://api.github.com/repos/yt-dlp/yt-dlp-nightly-builds/releases/latest";
     private static final String youtubeDLVersionKey = "youtubeDLVersion";
 
-    static UpdateStatus update(Context appContext) throws IOException, YoutubeDLException {
-        JsonNode json = checkForUpdate(appContext);
+    static UpdateStatus update(Context appContext, UpdateChannel youtubeDLChannel) throws IOException, YoutubeDLException {
+        JsonNode json = checkForUpdate(appContext, youtubeDLChannel);
         if (null == json) return UpdateStatus.ALREADY_UP_TO_DATE;
 
         String downloadUrl = getDownloadUrl(json);
@@ -57,8 +59,8 @@ class YoutubeDLUpdater {
         SharedPrefsHelper.update(appContext, youtubeDLVersionKey, tag);
     }
 
-    private static JsonNode checkForUpdate(Context appContext) throws IOException {
-        URL url = new URL(releasesUrl);
+    private static JsonNode checkForUpdate(Context appContext, UpdateChannel youtubeDLChannel) throws IOException {
+        URL url = new URL((youtubeDLChannel == UpdateChannel.NIGHTLY) ? youtubeDLNightlyChannelUrl : youtubeDLStableChannelUrl);
         JsonNode json = YoutubeDL.objectMapper.readTree(url);
         String newVersion = getTag(json);
         String oldVersion = SharedPrefsHelper.get(appContext, youtubeDLVersionKey);
@@ -69,7 +71,7 @@ class YoutubeDLUpdater {
     }
 
     private static String getTag(JsonNode json) {
-        return json.get("tag_name").asText();
+        return json.get("name").asText();
     }
 
     @NonNull

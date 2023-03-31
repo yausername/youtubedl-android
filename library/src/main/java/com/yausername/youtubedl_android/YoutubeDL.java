@@ -266,10 +266,10 @@ public class YoutubeDL {
         return youtubeDLResponse;
     }
 
-    synchronized public UpdateStatus updateYoutubeDL(Context appContext) throws YoutubeDLException {
+    synchronized public UpdateStatus updateYoutubeDL(Context appContext, UpdateChannel updateChannel) throws YoutubeDLException {
         assertInit();
         try {
-            return YoutubeDLUpdater.update(appContext);
+            return YoutubeDLUpdater.update(appContext, updateChannel);
         } catch (IOException e) {
             throw new YoutubeDLException("failed to update youtube-dl", e);
         }
@@ -282,5 +282,9 @@ public class YoutubeDL {
 
     public enum UpdateStatus {
         DONE, ALREADY_UP_TO_DATE
+    }
+
+    public enum UpdateChannel {
+        STABLE, NIGHTLY
     }
 }
