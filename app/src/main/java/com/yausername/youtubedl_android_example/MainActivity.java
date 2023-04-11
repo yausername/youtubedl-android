@@ -1,7 +1,6 @@
 package com.yausername.youtubedl_android_example;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ProgressBar progressBar;
 
     private boolean updating = false;
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private static final String TAG = "MainActivity";
 
@@ -85,12 +84,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_update: {
                 AlertDialog dialog = new AlertDialog.Builder(this)
                         .setTitle("Update Channel")
-                        .setItems(new String[] {"Stable Releases", "Nightly Releases"}, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int which) {
-                                updateYoutubeDL(which == 0 ? YoutubeDL.UpdateChannel.STABLE : YoutubeDL.UpdateChannel.NIGHTLY);
-                            }
-                        })
+                        .setItems(new String[]{"Stable Releases", "Nightly Releases"},
+                                (dialogInterface, which) -> updateYoutubeDL(which == 0
+                                        ? YoutubeDL.UpdateChannel.STABLE : YoutubeDL.UpdateChannel.NIGHTLY))
                         .create();
                 dialog.show();
                 break;
@@ -100,23 +96,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void updateYoutubeDL(YoutubeDL.UpdateChannel updateChannel) {
         if (updating) {
-            Toast.makeText(MainActivity.this, "update is already in progress", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "Update is already in progress!", Toast.LENGTH_LONG).show();
             return;
         }
 
         updating = true;
         progressBar.setVisibility(View.VISIBLE);
-        Disposable disposable = Observable.fromCallable(() -> YoutubeDL.getInstance().updateYoutubeDL(getApplication(), updateChannel))
+        Disposable disposable = Observable.fromCallable(() -> YoutubeDL.getInstance().updateYoutubeDL(this, updateChannel))
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(status -> {
                     progressBar.setVisibility(View.GONE);
                     switch (status) {
                         case DONE:
-                            Toast.makeText(MainActivity.this, "update successful: " + YoutubeDL.getInstance().version(getApplication()), Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "Update successful " + YoutubeDL.getInstance().versionName(this), Toast.LENGTH_LONG).show();
                             break;
                         case ALREADY_UP_TO_DATE:
-                            Toast.makeText(MainActivity.this, "already up to date: " + YoutubeDL.getInstance().version(getApplication()), Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "Already up to date " + YoutubeDL.getInstance().versionName(this), Toast.LENGTH_LONG).show();
                             break;
                         default:
                             Toast.makeText(MainActivity.this, status.toString(), Toast.LENGTH_LONG).show();
@@ -124,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     updating = false;
                 }, e -> {
-                    if(BuildConfig.DEBUG) Log.e(TAG, "failed to update", e);
+                    if (BuildConfig.DEBUG) Log.e(TAG, "failed to update", e);
                     progressBar.setVisibility(View.GONE);
                     Toast.makeText(MainActivity.this, "update failed", Toast.LENGTH_LONG).show();
                     updating = false;

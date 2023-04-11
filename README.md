@@ -125,9 +125,9 @@ try {
 
 * yt-dlp supports myriad different options which be seen [here](https://github.com/yt-dlp/yt-dlp)
 
-* yt-dlp binary can be updated from within the library
+* yt-dlp binary can be updated from within the library (A example can be found in the [sample app](app/src/main/java/com/yausername/youtubedl_android_example/MainActivity.java))
 ```java
-    YoutubeDL.getInstance().updateYoutubeDL(this);
+    YoutubeDL.getInstance().updateYoutubeDL(this, updateChannel); // UpdateChannel.NIGHTLY or UpdateChannel.STABLE
 ```
 
 ## FFmpeg
