@@ -24,7 +24,9 @@ class YoutubeDLUpdater {
 
     private static final String youtubeDLStableChannelUrl = "https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest";
     private static final String youtubeDLNightlyChannelUrl = "https://api.github.com/repos/yt-dlp/yt-dlp-nightly-builds/releases/latest";
-    private static final String youtubeDLVersionKey = "youtubeDLVersion";
+    private static final String dlpBinaryName = "yt-dlp";
+    private static final String dlpVersionKey = "dlpVersion";
+    private static final String dlpVersionNameKey = "dlpVersionName";
 
     static UpdateStatus update(Context appContext, UpdateChannel youtubeDLChannel) throws IOException, YoutubeDLException {
         JsonNode json = checkForUpdate(appContext, youtubeDLChannel);
@@ -33,7 +35,7 @@ class YoutubeDLUpdater {
         String downloadUrl = getDownloadUrl(json);
         File file = download(appContext, downloadUrl);
         File ytdlpDir = getYoutubeDLDir(appContext);
-        File binary = new File(ytdlpDir, "yt-dlp");
+        File binary = new File(ytdlpDir, dlpBinaryName);
 
         try {
             /* purge older version */
@@ -51,19 +53,20 @@ class YoutubeDLUpdater {
             file.delete();
         }
 
-        updateSharedPrefs(appContext, getTag(json));
+        updateSharedPrefs(appContext, getTag(json), getName(json));
         return UpdateStatus.DONE;
     }
 
-    private static void updateSharedPrefs(Context appContext, String tag) {
-        SharedPrefsHelper.update(appContext, youtubeDLVersionKey, tag);
+    private static void updateSharedPrefs(Context appContext, String tag, String name) {
+        SharedPrefsHelper.update(appContext, dlpVersionKey, tag);
+        SharedPrefsHelper.update(appContext, dlpVersionNameKey, name);
     }
 
     private static JsonNode checkForUpdate(Context appContext, UpdateChannel youtubeDLChannel) throws IOException {
         URL url = new URL((youtubeDLChannel == UpdateChannel.NIGHTLY) ? youtubeDLNightlyChannelUrl : youtubeDLStableChannelUrl);
         JsonNode json = YoutubeDL.objectMapper.readTree(url);
         String newVersion = getTag(json);
-        String oldVersion = SharedPrefsHelper.get(appContext, youtubeDLVersionKey);
+        String oldVersion = SharedPrefsHelper.get(appContext, dlpVersionKey);
         if (newVersion.equals(oldVersion)) {
             return null;
         }
@@ -71,6 +74,10 @@ class YoutubeDLUpdater {
     }
 
     private static String getTag(JsonNode json) {
+        return json.get("tag_name").asText();
+    }
+
+    private static String getName(JsonNode json) {
         return json.get("name").asText();
     }
 
@@ -91,7 +98,7 @@ class YoutubeDLUpdater {
     @NonNull
     private static File download(Context appContext, String url) throws IOException {
         URL downloadUrl = new URL(url);
-        File file = File.createTempFile("yt-dlp", null, appContext.getCacheDir());
+        File file = File.createTempFile(dlpBinaryName, null, appContext.getCacheDir());
         FileUtils.copyURLToFile(downloadUrl, file, 5000, 10000);
         return file;
     }
@@ -104,7 +111,12 @@ class YoutubeDLUpdater {
 
     @Nullable
     static String version(Context appContext) {
-        return SharedPrefsHelper.get(appContext, youtubeDLVersionKey);
+        return SharedPrefsHelper.get(appContext, dlpVersionKey);
+    }
+
+    @Nullable
+    static String versionName(Context appContext) {
+        return SharedPrefsHelper.get(appContext, dlpVersionNameKey);
     }
 
 }
