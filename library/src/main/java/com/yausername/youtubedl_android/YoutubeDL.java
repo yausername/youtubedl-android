@@ -280,6 +280,11 @@ public class YoutubeDL {
         return YoutubeDLUpdater.version(appContext);
     }
 
+    @Nullable
+    public String versionName(Context appContext) {
+        return YoutubeDLUpdater.versionName(appContext);
+    }
+
     public enum UpdateStatus {
         DONE, ALREADY_UP_TO_DATE
     }
