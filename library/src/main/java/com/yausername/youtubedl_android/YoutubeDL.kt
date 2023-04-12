@@ -2,7 +2,6 @@ package com.yausername.youtubedl_android
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.yausername.youtubedl_android.YoutubeDLException
 import com.yausername.youtubedl_android.mapper.VideoInfo
@@ -170,7 +169,7 @@ object YoutubeDL {
             this["PATH"] = System.getenv("PATH") + ":" + binDir!!.absolutePath
             this["PYTHONHOME"] = ENV_PYTHONHOME
             this["HOME"] = ENV_PYTHONHOME
-        }.entries.forEach { Log.d("PythonInit", "[${it.key}] = ${it.value}") }
+        }
 
         process = try {
             processBuilder.start()
@@ -212,10 +211,13 @@ object YoutubeDL {
 
     @Synchronized
     @Throws(YoutubeDLException::class)
-    fun updateYoutubeDL(appContext: Context): UpdateStatus? {
+    fun updateYoutubeDL(
+        appContext: Context,
+        updateChannel: UpdateChannel = UpdateChannel.STABLE
+    ): UpdateStatus? {
         assertInit()
         return try {
-            YoutubeDLUpdater.update(appContext)
+            YoutubeDLUpdater.update(appContext, updateChannel)
         } catch (e: IOException) {
             throw YoutubeDLException("failed to update youtube-dl", e)
         }
@@ -225,9 +227,28 @@ object YoutubeDL {
         return YoutubeDLUpdater.version(appContext)
     }
 
+    fun versionName(appContext: Context?): String? {
+        return YoutubeDLUpdater.versionName(appContext)
+    }
+
     enum class UpdateStatus {
         DONE, ALREADY_UP_TO_DATE
     }
+
+    sealed class UpdateChannel(val apiUrl: String) {
+        object STABLE : UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest")
+        object NIGHTLY :
+            UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp-nightly-builds/releases/latest")
+
+        companion object {
+            @JvmField
+            val _STABLE: STABLE = STABLE
+
+            @JvmField
+            val _NIGHTLY: NIGHTLY = NIGHTLY
+        }
+    }
+
 
     const val baseName = "youtubedl-android"
     private const val packagesRoot = "packages"

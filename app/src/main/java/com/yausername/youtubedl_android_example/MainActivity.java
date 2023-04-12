@@ -85,8 +85,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 AlertDialog dialog = new AlertDialog.Builder(this)
                         .setTitle("Update Channel")
                         .setItems(new String[]{"Stable Releases", "Nightly Releases"},
-                                (dialogInterface, which) -> updateYoutubeDL(which == 0
-                                        ? YoutubeDL.UpdateChannel.STABLE : YoutubeDL.UpdateChannel.NIGHTLY))
+                                (dialogInterface, which) -> {
+                                    if (which == 0)
+                                        updateYoutubeDL(YoutubeDL.UpdateChannel._STABLE);
+                                    else updateYoutubeDL(YoutubeDL.UpdateChannel._NIGHTLY);
+                                })
                         .create();
                 dialog.show();
                 break;
