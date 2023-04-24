@@ -1,14 +1,13 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'maven-publish'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 32
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 29
-        versionCode project.versionCode
-        versionName project.versionName
+        targetSdkVersion 32
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -20,13 +19,26 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    namespace 'com.yausername.ffmpeg'
 
 }
-
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.github.yausername.youtubedl_android'
+                artifactId = 'ffmpeg'
+                version = versionName
+            }
+        }
+    }
+}
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation project(':common')
+    implementation "androidx.core:core-ktx:$coreKtxVer"
     compileOnly project(':library')
 
     implementation "androidx.appcompat:appcompat:$appCompatVer"
