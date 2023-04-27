@@ -59,7 +59,7 @@ internal object YoutubeDLUpdater {
 
     @Throws(IOException::class)
     private fun checkForUpdate(appContext: Context, youtubeDLChannel: UpdateChannel): JsonNode? {
-        val url = youtubeDLChannel.apiUrl
+        val url = URL(youtubeDLChannel.apiUrl)
         val json = YoutubeDL.objectMapper.readTree(url)
         val newVersion = getTag(json)
         val oldVersion = SharedPrefsHelper[appContext, dlpVersionKey]
