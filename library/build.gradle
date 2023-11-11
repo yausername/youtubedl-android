@@ -45,7 +45,6 @@ dependencies {
 
     implementation "androidx.appcompat:appcompat:$appCompatVer"
     implementation "androidx.core:core-ktx:$coreKtxVer"
-    implementation 'androidx.core:core-ktx:+'
     testImplementation "junit:junit:$junitVer"
     androidTestImplementation "androidx.test.ext:junit:$androidJunitVer"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVer"
