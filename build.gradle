@@ -1,7 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-
     ext {
         kotlin_version = '1.7.22'
     }
@@ -41,6 +40,7 @@ ext {
     // supports java 1.6
     commonsCompressVer = '1.12'
     coreKtxVer = '1.8.0'
+    kotlinxSerializationVer = '1.4.1'
 }
 
 allprojects {
