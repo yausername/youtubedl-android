@@ -46,7 +46,7 @@ object ZipUtils {
 
     fun unzip(inputStream: InputStream?, targetDirectory: File) {
         ZipArchiveInputStream(BufferedInputStream(inputStream)).use { zis ->
-            var entry: ZipArchiveEntry? = null
+            var entry: ZipArchiveEntry?
             while (zis.nextZipEntry.also { entry = it } != null) {
                 val entryDestination = File(targetDirectory, entry!!.name)
                 // prevent zipSlip
@@ -56,7 +56,7 @@ object ZipUtils {
                 if (entry!!.isDirectory) {
                     entryDestination.mkdirs()
                 } else {
-                    entryDestination.parentFile.mkdirs()
+                    entryDestination.parentFile?.mkdirs()
                     FileOutputStream(entryDestination).use { out -> IOUtils.copy(zis, out) }
                 }
             }

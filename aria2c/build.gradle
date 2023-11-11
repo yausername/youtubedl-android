@@ -1,6 +1,8 @@
-apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
-apply plugin: 'org.jetbrains.kotlin.android'
+plugins {
+    id 'org.jetbrains.kotlin.android'
+    id 'com.android.library'
+    id 'maven-publish'
+}
 
 android {
     compileSdkVersion 34

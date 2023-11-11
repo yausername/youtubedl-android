@@ -1,7 +1,8 @@
 plugins {
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.7.22'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.20'
     id 'com.android.library'
     id 'maven-publish'
+    id 'org.jetbrains.kotlin.android'
 }
 android {
     compileSdkVersion 34
@@ -20,6 +21,9 @@ android {
         }
     }
     namespace 'com.yausername.youtubedl_android'
+    kotlinOptions {
+        jvmTarget = '17'
+    }
 
 }
 afterEvaluate {
@@ -41,6 +45,7 @@ dependencies {
 
     implementation "androidx.appcompat:appcompat:$appCompatVer"
     implementation "androidx.core:core-ktx:$coreKtxVer"
+    implementation 'androidx.core:core-ktx:+'
     testImplementation "junit:junit:$junitVer"
     androidTestImplementation "androidx.test.ext:junit:$androidJunitVer"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVer"
