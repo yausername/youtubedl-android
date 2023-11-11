@@ -2,11 +2,12 @@ package com.yausername.youtubedl_android
 
 import android.content.Context
 import android.os.Build
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.yausername.youtubedl_android.mapper.VideoInfo
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
 import com.yausername.youtubedl_common.utils.ZipUtils.unzip
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.IOException
@@ -106,10 +107,10 @@ object YoutubeDL {
         request.addOption("--dump-json")
         val response = execute(request, null, null)
         val videoInfo: VideoInfo = try {
-            objectMapper.readValue(response.out, VideoInfo::class.java)
+            json.decodeFromString<VideoInfo>(response.out)
         } catch (e: IOException) {
             throw YoutubeDLException("Unable to parse video information", e)
-        } ?: throw YoutubeDLException("Failed to fetch video information")
+        }
         return videoInfo
     }
 
@@ -260,7 +261,10 @@ object YoutubeDL {
     const val ytdlpDirName = "yt-dlp"
     const val ytdlpBin = "yt-dlp"
     private const val pythonLibVersion = "pythonLibVersion"
-    val objectMapper = ObjectMapper()
+    val json = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
 
     @JvmStatic
     fun getInstance() = this
