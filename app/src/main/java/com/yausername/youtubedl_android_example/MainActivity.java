@@ -84,11 +84,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_update: {
                 AlertDialog dialog = new AlertDialog.Builder(this)
                         .setTitle("Update Channel")
-                        .setItems(new String[]{"Stable Releases", "Nightly Releases"},
+                        .setItems(new String[]{"Stable Releases", "Nightly Releases", "Master Releases"},
                                 (dialogInterface, which) -> {
                                     if (which == 0)
                                         updateYoutubeDL(YoutubeDL.UpdateChannel._STABLE);
-                                    else updateYoutubeDL(YoutubeDL.UpdateChannel._NIGHTLY);
+                                    else if (which == 1)
+                                        updateYoutubeDL(YoutubeDL.UpdateChannel._NIGHTLY);
+                                    else
+                                        updateYoutubeDL(YoutubeDL.UpdateChannel._MASTER);
                                 })
                         .create();
                 dialog.show();
