@@ -18,6 +18,8 @@ internal object YoutubeDLUpdater {
         "https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest"
     private const val youtubeDLNightlyChannelUrl =
         "https://api.github.com/repos/yt-dlp/yt-dlp-nightly-builds/releases/latest"
+    private const val youtubeDLMasterChannelUrl =
+        "https://api.github.com/repos/yt-dlp/yt-dlp-master-builds/releases/latest"
     private const val dlpBinaryName = "yt-dlp"
     private const val dlpVersionKey = "dlpVersion"
     private const val dlpVersionNameKey = "dlpVersionName"
