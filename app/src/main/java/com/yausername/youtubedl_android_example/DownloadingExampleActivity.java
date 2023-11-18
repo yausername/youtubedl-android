@@ -110,9 +110,12 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
             return;
         }
 
-        if (!isStoragePermissionGranted()) {
-            Toast.makeText(DownloadingExampleActivity.this, "grant storage permission and retry", Toast.LENGTH_LONG).show();
-            return;
+        //if its android 12 or lower, we need to check storage permission
+        if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.S) {
+            if (!isStoragePermissionGranted()) {
+                Toast.makeText(DownloadingExampleActivity.this, "grant storage permission and retry", Toast.LENGTH_LONG).show();
+                return;
+            }
         }
 
         String url = etUrl.getText().toString().trim();

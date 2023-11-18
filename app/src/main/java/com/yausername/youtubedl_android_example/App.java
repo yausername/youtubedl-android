@@ -7,7 +7,7 @@ import android.widget.Toast;
 import com.yausername.aria2c.Aria2c;
 import com.yausername.ffmpeg.FFmpeg;
 import com.yausername.youtubedl_android.YoutubeDL;
-import com.yausername.youtubedl_android.YoutubeDLException;
+import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException;
 
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;

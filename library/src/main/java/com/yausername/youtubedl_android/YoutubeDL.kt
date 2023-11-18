@@ -2,7 +2,12 @@ package com.yausername.youtubedl_android
 
 import android.content.Context
 import android.os.Build
-import com.yausername.youtubedl_android.mapper.VideoInfo
+import com.yausername.youtubedl_android.data.local.streams.StreamGobbler
+import com.yausername.youtubedl_android.data.local.streams.StreamProcessExtractor
+import com.yausername.youtubedl_android.data.remote.YoutubeDLUpdater
+import com.yausername.youtubedl_android.domain.model.VideoInfo
+import com.yausername.youtubedl_android.domain.model.YoutubeDLResponse
+import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
 import com.yausername.youtubedl_common.utils.ZipUtils.unzip
@@ -155,8 +160,8 @@ object YoutubeDL {
         val youtubeDLResponse: YoutubeDLResponse
         val process: Process
         val exitCode: Int
-        val outBuffer = StringBuffer() //stdout
-        val errBuffer = StringBuffer() //stderr
+        val outBuffer = StringBuilder() //stdout
+        val errBuffer = StringBuilder() //stderr
         val startTime = System.currentTimeMillis()
         val args = request.buildCommand()
         val command: MutableList<String?> = ArrayList()

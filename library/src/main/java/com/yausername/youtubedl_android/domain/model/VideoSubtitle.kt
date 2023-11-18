@@ -1,4 +1,4 @@
-package com.yausername.youtubedl_android.mapper
+package com.yausername.youtubedl_android.domain.model
 
 import kotlinx.serialization.Serializable
 

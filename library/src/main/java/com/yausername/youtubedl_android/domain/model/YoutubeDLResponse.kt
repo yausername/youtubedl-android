@@ -1,6 +1,6 @@
-package com.yausername.youtubedl_android
+package com.yausername.youtubedl_android.domain.model
 
-class YoutubeDLResponse(
+data class YoutubeDLResponse(
     val command: List<String?>,
     val exitCode: Int,
     val elapsedTime: Long,

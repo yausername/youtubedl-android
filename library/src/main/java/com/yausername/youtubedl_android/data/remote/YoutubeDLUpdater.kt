@@ -1,10 +1,11 @@
-package com.yausername.youtubedl_android
+package com.yausername.youtubedl_android.data.remote
 
 import android.content.Context
+import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDL.UpdateChannel
 import com.yausername.youtubedl_android.YoutubeDL.UpdateStatus
-import com.yausername.youtubedl_android.YoutubeDL.getInstance
-import com.yausername.youtubedl_android.mapper.Release
+import com.yausername.youtubedl_android.domain.model.updates.Release
+import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -46,7 +47,7 @@ internal object YoutubeDLUpdater {
         } catch (e: Exception) {
             /* if something went wrong restore default version */
             FileUtils.deleteQuietly(ytdlpDir)
-            getInstance().init_ytdlp(appContext, ytdlpDir)
+            YoutubeDL.init_ytdlp(appContext, ytdlpDir)
             throw YoutubeDLException(e)
         } finally {
             file.delete()
