@@ -1,11 +1,10 @@
 plugins {
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.20'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.20'
     id 'com.android.library'
     id 'maven-publish'
     id 'org.jetbrains.kotlin.android'
 }
 android {
-    compileSdkVersion 34
 
     defaultConfig {
         minSdkVersion 21

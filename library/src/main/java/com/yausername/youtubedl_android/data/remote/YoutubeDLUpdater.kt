@@ -19,8 +19,6 @@ import java.io.IOException
 import java.net.URL
 
 internal object YoutubeDLUpdater {
-
-    private const val dlpBinaryName = "yt-dlp"
     private const val dlpVersionKey = "dlpVersion"
     private const val dlpVersionNameKey = "dlpVersionName"
 
@@ -36,7 +34,7 @@ internal object YoutubeDLUpdater {
         val ytdlpDir = getYoutubeDLDir(
             appContext
         )
-        val binary = File(ytdlpDir, dlpBinaryName)
+        val binary = File(ytdlpDir, YTDLP_BINARY_NAME)
         try {
             /* purge older version */
             if (ytdlpDir.exists()) FileUtils.deleteDirectory(ytdlpDir)
@@ -88,7 +86,7 @@ internal object YoutubeDLUpdater {
     @Throws(IOException::class)
     private fun download(appContext: Context, url: String): File {
         val downloadUrl = URL(url)
-        val file = File.createTempFile(dlpBinaryName, null, appContext.cacheDir)
+        val file = File.createTempFile(YTDLP_BINARY_NAME, null, appContext.cacheDir)
         FileUtils.copyURLToFile(downloadUrl, file, 5000, 10000)
         return file
     }
