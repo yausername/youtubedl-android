@@ -18,8 +18,9 @@ import com.yausername.youtubedl_android.data.local.streams.StreamGobbler
 import com.yausername.youtubedl_android.data.local.streams.StreamProcessExtractor
 import com.yausername.youtubedl_android.data.remote.YoutubeDLUpdater
 import com.yausername.youtubedl_android.data.remote.files.FileDownloader
-import com.yausername.youtubedl_android.domain.model.videos.VideoInfo
+import com.yausername.youtubedl_android.domain.model.DownloadedPlugins
 import com.yausername.youtubedl_android.domain.model.YoutubeDLResponse
+import com.yausername.youtubedl_android.domain.model.videos.VideoInfo
 import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException
 import com.yausername.youtubedl_android.util.files.FilesUtil.assertAndCreate
 import com.yausername.youtubedl_common.SharedPrefsHelper
@@ -40,20 +41,19 @@ import kotlin.collections.set
 object YoutubeDL {
     private var initialized = false
 
-    private var binariesDirectory: File? = null
+    internal lateinit var binariesDirectory: File
 
     private var pythonPath: File? = null
     private var ffmpegPath: File? = null
-    private var ytdlpPath: File? = null
+    private lateinit var ytdlpPath: File
 
     /* ENVIRONMENT VARIABLES */
-    private var ENV_LD_LIBRARY_PATH: String? = null
-    private var ENV_SSL_CERT_FILE: String? = null
-    private var ENV_PYTHONHOME: String? = null
+    private lateinit var ENV_LD_LIBRARY_PATH: String
+    private lateinit var ENV_SSL_CERT_FILE: String
+    private lateinit var ENV_PYTHONHOME: String
 
     //Map of process id associated with the process
     private val idProcessMap = Collections.synchronizedMap(HashMap<String, Process>())
-
     @Synchronized
     @Throws(YoutubeDLException::class)
     /**
@@ -69,7 +69,8 @@ object YoutubeDL {
 
         val packagesDir = File(baseDir, PACKAGES_ROOT_NAME)
 
-        binariesDirectory = File(appContext.applicationInfo.nativeLibraryDir)
+        binariesDirectory = File(appContext.applicationInfo.nativeLibraryDir) //Here are all the binaries provided by the jniLibs folder
+
         pythonPath = File(binariesDirectory, PYTHON_BINARY_NAME)
         ffmpegPath = File(binariesDirectory, FFMPEG_BINARY_NAME)
 
@@ -81,6 +82,8 @@ object YoutubeDL {
         val ytdlpDir = File(baseDir, YTDLP_DIRECTORY_NAME)
         ytdlpPath = File(ytdlpDir, YTDLP_BINARY_NAME)
 
+        val installedPlugins = checkInstalledPlugins(appContext)
+
         // Set environment variables
         ENV_LD_LIBRARY_PATH = pythonDir.absolutePath + "/usr/lib" + ":" +
                 ffmpegDir.absolutePath + "/usr/lib" + ":" +
@@ -88,9 +91,11 @@ object YoutubeDL {
         ENV_SSL_CERT_FILE = pythonDir.absolutePath + "/usr/etc/tls/cert.pem"
         ENV_PYTHONHOME = pythonDir.absolutePath + "/usr"
 
-        // Initialize Python and yt-dlp
+        if(!installedPlugins.python) {
+        }
         initPython(appContext, pythonDir)
-        init_ytdlp(appContext, ytdlpDir)
+        // Initialize Python and yt-dlp
+        initYtdlp(appContext, ytdlpDir)
 
         initialized = true
     }
@@ -101,7 +106,7 @@ object YoutubeDL {
      * @param appContext the application context
      * @param ytdlpDir the directory where yt-dlp is located
      */
-    fun init_ytdlp(appContext: Context, ytdlpDir: File) {
+    internal fun initYtdlp(appContext: Context, ytdlpDir: File) {
         if (!ytdlpDir.exists()) ytdlpDir.mkdirs()
         val ytdlpBinary = File(ytdlpDir, YTDLP_BINARY_NAME)
         if (!ytdlpBinary.exists()) {
@@ -111,7 +116,7 @@ object YoutubeDL {
                 FileUtils.copyInputStreamToFile(inputStream, ytdlpBinary)
             } catch (e: Exception) {
                 FileUtils.deleteQuietly(ytdlpDir)
-                throw YoutubeDLException("failed to initialize", e)
+                throw YoutubeDLException("Failed to initialize yt-dlp", e)
             }
         }
     }
@@ -123,17 +128,17 @@ object YoutubeDL {
      * @param pythonDir the directory where Python is located
      */
     fun initPython(appContext: Context, pythonDir: File) {
-        val pythonLib = File(binariesDirectory, PYTHON_LIBRARY_NAME)
+        val pythonLibrary = File(binariesDirectory, PYTHON_LIBRARY_NAME)
         // using size of lib as version
-        val pythonSize = pythonLib.length().toString()
+        val pythonSize = pythonLibrary.length().toString()
         if (!pythonDir.exists() || shouldUpdatePython(appContext, pythonSize)) {
             FileUtils.deleteQuietly(pythonDir)
             pythonDir.mkdirs()
             try {
-                unzip(pythonLib, pythonDir)
+                unzip(pythonLibrary, pythonDir)
             } catch (e: Exception) {
                 FileUtils.deleteQuietly(pythonDir)
-                throw YoutubeDLException("failed to initialize", e)
+                throw YoutubeDLException("Failed to initialize Python", e)
             }
             updatePython(appContext, pythonSize)
         }
@@ -147,7 +152,7 @@ object YoutubeDL {
         scope.launch(Dispatchers.IO) {
             try {
                 val localFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "FilesTest/test.zip")
-                Log.i("File Downloader", "Downloading file to ${localFile.absolutePath}")
+                Log.i("YoutubeDL", "Downloading file to ${localFile.absolutePath}")
                 FileDownloader.downloadFileWithProgress(
                     "https://firebasestorage.googleapis.com/v0/b/drive-personal-865ae.appspot.com/o/files%2FldnTgvDGCPSjnhwyWKD9uYl1ZXm1%2F2%C2%BABac%20TIC%2FHTML.zip?alt=media&token=f0632376-d8a7-41bd-a44d-b9b8168dc0f2",
                     localFile
@@ -273,13 +278,13 @@ object YoutubeDL {
         val startTime = System.currentTimeMillis()
         val args = request.buildCommand()
         val command: MutableList<String?> = ArrayList()
-        command.addAll(listOf(pythonPath!!.absolutePath, ytdlpPath!!.absolutePath))
+        command.addAll(listOf(pythonPath!!.absolutePath, ytdlpPath.absolutePath))
         command.addAll(args)
         val processBuilder = ProcessBuilder(command)
         processBuilder.environment().apply {
             this["LD_LIBRARY_PATH"] = ENV_LD_LIBRARY_PATH
             this["SSL_CERT_FILE"] = ENV_SSL_CERT_FILE
-            this["PATH"] = System.getenv("PATH")!! + ":" + binariesDirectory!!.absolutePath
+            this["PATH"] = System.getenv("PATH")!! + ":" + binariesDirectory.absolutePath
             this["PYTHONHOME"] = ENV_PYTHONHOME
             this["HOME"] = ENV_PYTHONHOME
         }
@@ -341,6 +346,29 @@ object YoutubeDL {
             throw YoutubeDLException("Failed to update yt-dlp!", e)
         }
     }
+
+    /**
+     * Checks if the plugins are installed
+     * @return the installed plugins
+     */
+    private fun checkInstalledPlugins(appContext: Context): DownloadedPlugins {
+        val libraryBaseDir = File(appContext.noBackupFilesDir, LIBRARY_NAME)
+        val packagesDir = File(libraryBaseDir, PACKAGES_ROOT_NAME)
+
+        val pythonDir = File(packagesDir, PYTHON_DIRECTORY_NAME)
+        val ffmpegDir = File(packagesDir, FFMPEG_DIRECTORY_NAME)
+        val aria2cDir = File(packagesDir, ARIA2C_DIRECTORY_NAME)
+
+        val installedPlugins = DownloadedPlugins(
+            pythonDir.exists(),
+            ffmpegDir.exists(),
+            aria2cDir.exists()
+        )
+
+        Log.i("YoutubeDL", installedPlugins.toString())
+        return installedPlugins
+    }
+
 
     /**
      * Gets the version of yt-dlp

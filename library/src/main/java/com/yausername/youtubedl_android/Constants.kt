@@ -15,6 +15,12 @@ object Constants {
         const val PYTHON_LIBRARY_NAME = "libpython.zip.so"
         const val FFMPEG_LIBRARY_NAME = "libffmpeg.zip.so"
         const val ARIA2C_LIBRARY_NAME = "libaria2c.zip.so"
+
+        object Temporal {
+            const val TEMPORAL_PYTHON_LIBRARY_NAME = "temp_libpython.zip.so"
+            const val TEMPORAL_FFMPEG_LIBRARY_NAME = "temp_libffmpeg.zip.so"
+            const val TEMPORAL_ARIA2C_LIBRARY_NAME = "temp_libaria2c.zip.so"
+        }
     }
 
     object Directories {

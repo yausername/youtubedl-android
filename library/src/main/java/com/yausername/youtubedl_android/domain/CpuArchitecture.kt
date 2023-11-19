@@ -7,6 +7,15 @@ enum class CpuArchitecture {
     X64; // x86_64
 
     companion object {
+        fun String.fromCompleteAbiToCpuArchitecture(): CpuArchitecture {
+            return when (this) {
+                "armeabi-v7a" -> ARM32
+                "arm64-v8a" -> ARM64
+                "x86" -> X86
+                "x86_64" -> X64
+                else -> throw IllegalArgumentException("Unknown CPU architecture: $this")
+            }
+        }
         fun fromString(string: String): CpuArchitecture {
             return when (string) {
                 "arm32" -> ARM32

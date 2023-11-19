@@ -5,7 +5,6 @@ import com.yausername.youtubedl_android.BuildConfig
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.io.Reader
 import java.nio.charset.StandardCharsets
 
 internal class StreamGobbler(private val buffer: StringBuilder, private val stream: InputStream) :

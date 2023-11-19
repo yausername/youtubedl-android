@@ -1,5 +1,6 @@
 package com.yausername.youtubedl_android.util.files
 
+import android.util.Log
 import java.io.File
 
 object FilesUtil {
@@ -9,6 +10,7 @@ object FilesUtil {
      */
     fun assertAndCreate(file: File) {
         if(!file.exists()) {
+            Log.i("FilesUtil", "Creating ${file.absolutePath}")
             file.mkdir()
         }
     }
