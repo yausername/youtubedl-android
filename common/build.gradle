@@ -22,6 +22,16 @@ android {
     }
     namespace 'com.yausername.youtubedl_common'
 }
+
+android {
+    publishing {
+        singleVariant("release") {
+            withJavadocJar()
+            withSourcesJar()
+        }
+    }
+}
+
 afterEvaluate {
     publishing {
         publications {

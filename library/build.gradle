@@ -26,6 +26,15 @@ android {
     }
 
 }
+
+android {
+    publishing {
+        singleVariant("release") {
+            withJavadocJar()
+            withSourcesJar()
+        }
+    }
+}
 afterEvaluate {
     publishing {
         publications {

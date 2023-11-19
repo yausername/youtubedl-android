@@ -24,6 +24,16 @@ android {
     namespace 'com.yausername.ffmpeg'
 
 }
+
+android {
+    publishing {
+        singleVariant("release") {
+            withJavadocJar()
+            withSourcesJar()
+        }
+    }
+}
+
 afterEvaluate {
     publishing {
         publications {
