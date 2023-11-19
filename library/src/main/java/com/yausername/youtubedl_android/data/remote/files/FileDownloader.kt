@@ -1,6 +1,7 @@
 package com.yausername.youtubedl_android.data.remote.files
 
 import android.util.Log
+import com.yausername.youtubedl_android.util.exceptions.FileDownloadException
 import com.yausername.youtubedl_android.util.network.Ktor.client
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
@@ -16,8 +17,14 @@ object FileDownloader {
     suspend fun downloadFileWithProgress(
         fileUrl: String,
         localFile: File,
+        overwrite: Boolean = false,
         progressCallback: (progress: Int) -> Unit
     ) {
+        if(localFile.exists() && overwrite) {
+            Log.i("File Downloader","Deleting existing file for overwrite: ${localFile.absolutePath}")
+            localFile.delete()
+        }
+
         try {
             client.prepareGet(fileUrl).execute { response ->
                 val bytesChannel: ByteReadChannel = response.body()
@@ -61,7 +68,7 @@ object FileDownloader {
             403 -> throw FileDownloadException("403 Forbidden")
             404 -> throw FileDownloadException("404 Not Found")
             429 -> throw FileDownloadException("429 Too Many Requests")
-            else -> throw FileDownloadException("Unknown error")
+            else -> throw FileDownloadException("Unknown error", e)
         }
     }
 }

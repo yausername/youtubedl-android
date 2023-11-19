@@ -1,6 +1,9 @@
 package com.yausername.youtubedl_android.data.remote
 
 import android.content.Context
+import com.yausername.youtubedl_android.Constants.Binaries.YTDLP_BINARY_NAME
+import com.yausername.youtubedl_android.Constants.Directories.YTDLP_DIRECTORY_NAME
+import com.yausername.youtubedl_android.Constants.LIBRARY_NAME
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDL.UpdateChannel
 import com.yausername.youtubedl_android.YoutubeDL.UpdateStatus
@@ -16,11 +19,6 @@ import java.io.IOException
 import java.net.URL
 
 internal object YoutubeDLUpdater {
-    private const val youtubeDLStableChannelUrl =
-        "https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest"
-
-    private const val youtubeDLNightlyChannelUrl =
-        "https://api.github.com/repos/yt-dlp/yt-dlp-nightly-builds/releases/latest"
 
     private const val dlpBinaryName = "yt-dlp"
     private const val dlpVersionKey = "dlpVersion"
@@ -78,7 +76,7 @@ internal object YoutubeDLUpdater {
         val assets = json.assets
         var downloadUrl = ""
         for (asset in assets) {
-            if (YoutubeDL.ytdlpBin == asset.name) {
+            if (YTDLP_BINARY_NAME == asset.name) {
                 downloadUrl = asset.browser_download_url
                 break
             }
@@ -96,8 +94,8 @@ internal object YoutubeDLUpdater {
     }
 
     private fun getYoutubeDLDir(appContext: Context): File {
-        val baseDir = File(appContext.noBackupFilesDir, YoutubeDL.baseName)
-        return File(baseDir, YoutubeDL.ytdlpDirName)
+        val baseDir = File(appContext.noBackupFilesDir, LIBRARY_NAME)
+        return File(baseDir, YTDLP_DIRECTORY_NAME)
     }
 
     fun version(appContext: Context?): String? {

@@ -4,16 +4,30 @@ import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.util.Log
+import com.yausername.youtubedl_android.Constants.Binaries.FFMPEG_BINARY_NAME
+import com.yausername.youtubedl_android.Constants.Binaries.PYTHON_BINARY_NAME
+import com.yausername.youtubedl_android.Constants.Binaries.YTDLP_BINARY_NAME
+import com.yausername.youtubedl_android.Constants.Directories.ARIA2C_DIRECTORY_NAME
+import com.yausername.youtubedl_android.Constants.Directories.FFMPEG_DIRECTORY_NAME
+import com.yausername.youtubedl_android.Constants.Directories.PYTHON_DIRECTORY_NAME
+import com.yausername.youtubedl_android.Constants.Directories.YTDLP_DIRECTORY_NAME
+import com.yausername.youtubedl_android.Constants.LIBRARY_NAME
+import com.yausername.youtubedl_android.Constants.Libraries.PYTHON_LIBRARY_NAME
+import com.yausername.youtubedl_android.Constants.PACKAGES_ROOT_NAME
 import com.yausername.youtubedl_android.data.local.streams.StreamGobbler
 import com.yausername.youtubedl_android.data.local.streams.StreamProcessExtractor
 import com.yausername.youtubedl_android.data.remote.YoutubeDLUpdater
 import com.yausername.youtubedl_android.data.remote.files.FileDownloader
-import com.yausername.youtubedl_android.domain.model.VideoInfo
+import com.yausername.youtubedl_android.domain.model.videos.VideoInfo
 import com.yausername.youtubedl_android.domain.model.YoutubeDLResponse
 import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
 import com.yausername.youtubedl_common.utils.ZipUtils.unzip
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.apache.commons.io.FileUtils
@@ -37,17 +51,17 @@ object YoutubeDL {
     @Throws(YoutubeDLException::class)
     fun init(appContext: Context) {
         if (initialized) return
-        val baseDir = File(appContext.noBackupFilesDir, baseName)
+        val baseDir = File(appContext.noBackupFilesDir, LIBRARY_NAME)
         if (!baseDir.exists()) baseDir.mkdir()
-        val packagesDir = File(baseDir, packagesRoot)
+        val packagesDir = File(baseDir, PACKAGES_ROOT_NAME)
         binDir = File(appContext.applicationInfo.nativeLibraryDir)
-        pythonPath = File(binDir, pythonBinName)
-        ffmpegPath = File(binDir, ffmpegBinName)
-        val pythonDir = File(packagesDir, pythonDirName)
-        val ffmpegDir = File(packagesDir, ffmpegDirName)
-        val aria2cDir = File(packagesDir, aria2cDirName)
-        val ytdlpDir = File(baseDir, ytdlpDirName)
-        ytdlpPath = File(ytdlpDir, ytdlpBin)
+        pythonPath = File(binDir, PYTHON_BINARY_NAME)
+        ffmpegPath = File(binDir, FFMPEG_BINARY_NAME)
+        val pythonDir = File(packagesDir, PYTHON_DIRECTORY_NAME)
+        val ffmpegDir = File(packagesDir, FFMPEG_DIRECTORY_NAME)
+        val aria2cDir = File(packagesDir, ARIA2C_DIRECTORY_NAME)
+        val ytdlpDir = File(baseDir, YTDLP_DIRECTORY_NAME)
+        ytdlpPath = File(ytdlpDir, YTDLP_BINARY_NAME)
         ENV_LD_LIBRARY_PATH = pythonDir.absolutePath + "/usr/lib" + ":" +
                 ffmpegDir.absolutePath + "/usr/lib" + ":" +
                 aria2cDir.absolutePath + "/usr/lib"
@@ -61,7 +75,7 @@ object YoutubeDL {
     @Throws(YoutubeDLException::class)
     fun init_ytdlp(appContext: Context, ytdlpDir: File) {
         if (!ytdlpDir.exists()) ytdlpDir.mkdirs()
-        val ytdlpBinary = File(ytdlpDir, ytdlpBin)
+        val ytdlpBinary = File(ytdlpDir, YTDLP_BINARY_NAME)
         if (!ytdlpBinary.exists()) {
             try {
                 val inputStream =
@@ -76,7 +90,7 @@ object YoutubeDL {
 
     @Throws(YoutubeDLException::class)
     fun initPython(appContext: Context, pythonDir: File) {
-        val pythonLib = File(binDir, pythonLibName)
+        val pythonLib = File(binDir, PYTHON_LIBRARY_NAME)
         // using size of lib as version
         val pythonSize = pythonLib.length().toString()
         if (!pythonDir.exists() || shouldUpdatePython(appContext, pythonSize)) {
@@ -92,25 +106,30 @@ object YoutubeDL {
         }
     }
 
-    suspend fun downloadFileTest(progressCallback: ((Float) -> Unit)? = null) {
-        // EXTERNAL_STORAGE_DIR
-        val localFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "FilesTest/test.zip")
-        Log.i("File Downloader", "Downloading file to ${localFile.absolutePath}")
-        FileDownloader.downloadFileWithProgress(
-            "https://firebasestorage.googleapis.com/v0/b/drive-personal-865ae.appspot.com/o/files%2FldnTgvDGCPSjnhwyWKD9uYl1ZXm1%2F2%C2%BABac%20TIC%2FHTML.zip?alt=media&token=f0632376-d8a7-41bd-a44d-b9b8168dc0f2",
-            localFile
-        ) {
-            progressCallback?.invoke(it.toFloat() / 100)
-            println("Progress: $it")
+    fun downloadFileTest(progressCallback: ((Float) -> Unit)? = null) {
+        scope.launch(Dispatchers.IO) {
+            try {
+                val localFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "FilesTest/test.zip")
+                Log.i("File Downloader", "Downloading file to ${localFile.absolutePath}")
+                FileDownloader.downloadFileWithProgress(
+                    "https://firebasestorage.googleapis.com/v0/b/drive-personal-865ae.appspot.com/o/files%2FldnTgvDGCPSjnhwyWKD9uYl1ZXm1%2F2%C2%BABac%20TIC%2FHTML.zip?alt=media&token=f0632376-d8a7-41bd-a44d-b9b8168dc0f2",
+                    localFile
+                ) {
+                    progressCallback?.invoke(it.toFloat() / 100)
+                    println("Progress: $it")
+                }
+            } catch (e: Exception) {
+                Log.e("File Downloader", "An error occurred during file download", e)
+            }
         }
     }
 
     private fun shouldUpdatePython(appContext: Context, version: String): Boolean {
-        return version != SharedPrefsHelper[appContext, pythonLibVersion]
+        return version != SharedPrefsHelper[appContext, PYTHON_LIB_VERSION]
     }
 
     private fun updatePython(appContext: Context, version: String) {
-        update(appContext, pythonLibVersion, version)
+        update(appContext, PYTHON_LIB_VERSION, version)
     }
 
     private fun assertInit() {
@@ -276,18 +295,8 @@ object YoutubeDL {
         }
     }
 
-
-    const val baseName = "youtubedl-android"
-    private const val packagesRoot = "packages"
-    private const val pythonBinName = "libpython.so"
-    private const val pythonLibName = "libpython.zip.so"
-    private const val pythonDirName = "python"
-    private const val ffmpegDirName = "ffmpeg"
-    private const val ffmpegBinName = "libffmpeg.so"
-    private const val aria2cDirName = "aria2c"
-    const val ytdlpDirName = "yt-dlp"
-    const val ytdlpBin = "yt-dlp"
-    private const val pythonLibVersion = "pythonLibVersion"
+    internal val scope = CoroutineScope(SupervisorJob())
+    private const val PYTHON_LIB_VERSION = "pythonLibVersion"
     val json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true

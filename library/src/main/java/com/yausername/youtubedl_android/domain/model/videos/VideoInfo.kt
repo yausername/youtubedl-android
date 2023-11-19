@@ -1,4 +1,4 @@
-package com.yausername.youtubedl_android.domain.model
+package com.yausername.youtubedl_android.domain.model.videos
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
