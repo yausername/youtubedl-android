@@ -22,4 +22,5 @@
     <string name="command_complete">Command Complete</string>
     <string name="command_failed">Command Failed</string>
     <string name="use_config_file">Use Config File?</string>
+    <string name="btn_test_file_download">Download file test</string>
 </resources>

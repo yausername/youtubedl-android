@@ -12,3 +12,4 @@ dependencyResolutionManagement {
         // Add any repositories you would be adding to all projects here
     }
 }
+include ':app_compose'

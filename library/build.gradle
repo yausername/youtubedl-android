@@ -45,10 +45,13 @@ dependencies {
 
     implementation "androidx.appcompat:appcompat:$appCompatVer"
     implementation "androidx.core:core-ktx:$coreKtxVer"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVer"
+    implementation "io.ktor:ktor-client-core:$ktorversion"
+    implementation "io.ktor:ktor-client-android:$ktorversion"
+
     testImplementation "junit:junit:$junitVer"
     androidTestImplementation "androidx.test.ext:junit:$androidJunitVer"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVer"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVer"
 
     implementation group: 'commons-io', name: 'commons-io', version: "$commonsIoVer"
 }

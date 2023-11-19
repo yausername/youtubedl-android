@@ -2,9 +2,12 @@ package com.yausername.youtubedl_android
 
 import android.content.Context
 import android.os.Build
+import android.os.Environment
+import android.util.Log
 import com.yausername.youtubedl_android.data.local.streams.StreamGobbler
 import com.yausername.youtubedl_android.data.local.streams.StreamProcessExtractor
 import com.yausername.youtubedl_android.data.remote.YoutubeDLUpdater
+import com.yausername.youtubedl_android.data.remote.files.FileDownloader
 import com.yausername.youtubedl_android.domain.model.VideoInfo
 import com.yausername.youtubedl_android.domain.model.YoutubeDLResponse
 import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException
@@ -86,6 +89,18 @@ object YoutubeDL {
                 throw YoutubeDLException("failed to initialize", e)
             }
             updatePython(appContext, pythonSize)
+        }
+    }
+
+    suspend fun downloadFileTest() {
+        // EXTERNAL_STORAGE_DIR
+        val localFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "FilesTest/test.zip")
+        Log.i("File Downloader", "Downloading file to ${localFile.absolutePath}")
+        FileDownloader.downloadFileWithProgress(
+            "https://firebasestorage.googleapis.com/v0/b/drive-personal-865ae.appspot.com/o/files%2FldnTgvDGCPSjnhwyWKD9uYl1ZXm1%2F2%C2%BABac%20TIC%2FHTML.zip?alt=media&token=f0632376-d8a7-41bd-a44d-b9b8168dc0f2",
+            localFile
+        ) {
+            println("Progress: $it")
         }
     }
 
@@ -244,6 +259,7 @@ object YoutubeDL {
         object STABLE : UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest")
         object NIGHTLY :
             UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp-nightly-builds/releases/latest")
+
         object MASTER :
             UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp-master-builds/releases/latest")
 

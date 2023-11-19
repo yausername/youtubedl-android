@@ -40,6 +40,7 @@ ext {
     commonsCompressVer = '1.12'
     coreKtxVer = '1.12.0'
     kotlinxSerializationVer = '1.4.1'
+    ktorversion='2.3.6'
 }
 
 allprojects {
