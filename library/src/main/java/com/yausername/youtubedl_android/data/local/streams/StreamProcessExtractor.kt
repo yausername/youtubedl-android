@@ -5,7 +5,6 @@ import com.yausername.youtubedl_android.BuildConfig
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.io.Reader
 import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern
 
@@ -14,7 +13,7 @@ internal class StreamProcessExtractor(
     private val stream: InputStream,
     private val callback: ((Float, Long, String) -> Unit)?
 ) : Thread() {
-    private val p = Pattern.compile("\\[download\\]\\s+(\\d+\\.\\d)% .* ETA (\\d+):(\\d+)")
+    private val p = Pattern.compile("\\[download]\\s+(\\d+\\.\\d)% .* ETA (\\d+):(\\d+)")
     private val pAria2c =
         Pattern.compile("\\[#\\w{6}.*\\((\\d*\\.*\\d+)%\\).*?((\\d+)m)*((\\d+)s)*]")
     private var progress = PERCENT
@@ -47,15 +46,26 @@ internal class StreamProcessExtractor(
 
     private fun processOutputLine(line: String) {
         callback?.let { it(getProgress(line), getEta(line), line) }
+        if(BuildConfig.DEBUG) Log.d(TAG, "progress: $progress, eta: $eta, line: $line")
     }
 
     private fun getProgress(line: String): Float {
         val matcher = p.matcher(line)
-        if (matcher.find()) return matcher.group(GROUP_PERCENT).toFloat().also { progress = it }
         val mAria2c = pAria2c.matcher(line)
-        if (mAria2c.find()) return mAria2c.group(1).toFloat().also { progress = it }
+
+        if (matcher.find()) {
+            val percentGroup = matcher.group(GROUP_PERCENT)
+            return percentGroup?.toFloat()?.also { progress = it } ?: PERCENT
+        }
+
+        if (mAria2c.find()) {
+            val percentAria2c = mAria2c.group(1)
+            return percentAria2c?.toFloat()?.also { progress = it } ?: PERCENT
+        }
+
         return progress
     }
+
 
     private fun getEta(line: String): Long {
         val matcher = p.matcher(line)
