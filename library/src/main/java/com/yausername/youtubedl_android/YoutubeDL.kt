@@ -21,6 +21,7 @@ import com.yausername.youtubedl_android.data.remote.files.FileDownloader
 import com.yausername.youtubedl_android.domain.model.videos.VideoInfo
 import com.yausername.youtubedl_android.domain.model.YoutubeDLResponse
 import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException
+import com.yausername.youtubedl_android.util.files.FilesUtil.assertAndCreate
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
 import com.yausername.youtubedl_common.utils.ZipUtils.unzip
@@ -38,41 +39,68 @@ import kotlin.collections.set
 
 object YoutubeDL {
     private var initialized = false
+
+    private var binariesDirectory: File? = null
+
     private var pythonPath: File? = null
     private var ffmpegPath: File? = null
     private var ytdlpPath: File? = null
-    private var binDir: File? = null
+
+    /* ENVIRONMENT VARIABLES */
     private var ENV_LD_LIBRARY_PATH: String? = null
     private var ENV_SSL_CERT_FILE: String? = null
     private var ENV_PYTHONHOME: String? = null
+
+    //Map of process id associated with the process
     private val idProcessMap = Collections.synchronizedMap(HashMap<String, Process>())
 
     @Synchronized
     @Throws(YoutubeDLException::class)
+    /**
+     * Initializes the library. This method should be called before any other method.
+     * @param appContext the application context
+     */
     fun init(appContext: Context) {
         if (initialized) return
+
         val baseDir = File(appContext.noBackupFilesDir, LIBRARY_NAME)
-        if (!baseDir.exists()) baseDir.mkdir()
+
+        assertAndCreate(baseDir)
+
         val packagesDir = File(baseDir, PACKAGES_ROOT_NAME)
-        binDir = File(appContext.applicationInfo.nativeLibraryDir)
-        pythonPath = File(binDir, PYTHON_BINARY_NAME)
-        ffmpegPath = File(binDir, FFMPEG_BINARY_NAME)
+
+        binariesDirectory = File(appContext.applicationInfo.nativeLibraryDir)
+        pythonPath = File(binariesDirectory, PYTHON_BINARY_NAME)
+        ffmpegPath = File(binariesDirectory, FFMPEG_BINARY_NAME)
+
+        // Create plugins packages directory
         val pythonDir = File(packagesDir, PYTHON_DIRECTORY_NAME)
         val ffmpegDir = File(packagesDir, FFMPEG_DIRECTORY_NAME)
         val aria2cDir = File(packagesDir, ARIA2C_DIRECTORY_NAME)
+
         val ytdlpDir = File(baseDir, YTDLP_DIRECTORY_NAME)
         ytdlpPath = File(ytdlpDir, YTDLP_BINARY_NAME)
+
+        // Set environment variables
         ENV_LD_LIBRARY_PATH = pythonDir.absolutePath + "/usr/lib" + ":" +
                 ffmpegDir.absolutePath + "/usr/lib" + ":" +
                 aria2cDir.absolutePath + "/usr/lib"
         ENV_SSL_CERT_FILE = pythonDir.absolutePath + "/usr/etc/tls/cert.pem"
         ENV_PYTHONHOME = pythonDir.absolutePath + "/usr"
+
+        // Initialize Python and yt-dlp
         initPython(appContext, pythonDir)
         init_ytdlp(appContext, ytdlpDir)
+
         initialized = true
     }
 
     @Throws(YoutubeDLException::class)
+    /**
+     * Initializes yt-dlp.
+     * @param appContext the application context
+     * @param ytdlpDir the directory where yt-dlp is located
+     */
     fun init_ytdlp(appContext: Context, ytdlpDir: File) {
         if (!ytdlpDir.exists()) ytdlpDir.mkdirs()
         val ytdlpBinary = File(ytdlpDir, YTDLP_BINARY_NAME)
@@ -89,8 +117,13 @@ object YoutubeDL {
     }
 
     @Throws(YoutubeDLException::class)
+    /**
+     * Initializes Python.
+     * @param appContext the application context
+     * @param pythonDir the directory where Python is located
+     */
     fun initPython(appContext: Context, pythonDir: File) {
-        val pythonLib = File(binDir, PYTHON_LIBRARY_NAME)
+        val pythonLib = File(binariesDirectory, PYTHON_LIBRARY_NAME)
         // using size of lib as version
         val pythonSize = pythonLib.length().toString()
         if (!pythonDir.exists() || shouldUpdatePython(appContext, pythonSize)) {
@@ -106,6 +139,10 @@ object YoutubeDL {
         }
     }
 
+    /**
+     * Downloads a file with progress callback
+     * @param progressCallback a callback that will be called with the progress percentage
+     */
     fun downloadFileTest(progressCallback: ((Float) -> Unit)? = null) {
         scope.launch(Dispatchers.IO) {
             try {
@@ -124,16 +161,29 @@ object YoutubeDL {
         }
     }
 
+    /**
+     * Check if Python should be updated by using the zip file size (both new and old)
+     * @param appContext the application context
+     * @param version the current version of Python (the size of the zip file)
+     */
     private fun shouldUpdatePython(appContext: Context, version: String): Boolean {
         return version != SharedPrefsHelper[appContext, PYTHON_LIB_VERSION]
     }
 
+    /**
+     * Updates the Python version
+     * @param appContext the application context
+     * @param version the new version of Python (the size of the zip file)
+     */
     private fun updatePython(appContext: Context, version: String) {
         update(appContext, PYTHON_LIB_VERSION, version)
     }
 
+    /**
+     * Asserts that the library is initialized
+     */
     private fun assertInit() {
-        check(initialized) { "instance not initialized" }
+        check(initialized) { "The library instance that you are trying to access is not initialized; please, check if you have initialized it by using the YoutubeDL.init() function" }
     }
 
     @Throws(YoutubeDLException::class, InterruptedException::class, CanceledException::class)
@@ -143,6 +193,11 @@ object YoutubeDL {
     }
 
     @Throws(YoutubeDLException::class, InterruptedException::class, CanceledException::class)
+    /**
+     * Gets video information
+     * @param request the request object
+     * @return the video information
+     */
     fun getInfo(request: YoutubeDLRequest): VideoInfo {
         request.addOption("--dump-json")
         val response = execute(request, null, null)
@@ -154,10 +209,21 @@ object YoutubeDL {
         return videoInfo
     }
 
+    /**
+     * Checks if the output errors should be ignored
+     * @param request the request object
+     * @param out the output
+     * @return true if the errors should be ignored, false otherwise
+     */
     private fun ignoreErrors(request: YoutubeDLRequest, out: String): Boolean {
-        return request.hasOption("--dump-json") && !out.isEmpty() && request.hasOption("--ignore-errors")
+        return request.hasOption("--dump-json") && out.isNotEmpty() && request.hasOption("--ignore-errors")
     }
 
+    /**
+     * Checks if a process with the given id is running and destroys it
+     * @param id the process id
+     * @return true if the process was destroyed successfully, false otherwise
+     */
     fun destroyProcessById(id: String): Boolean {
         if (idProcessMap.containsKey(id)) {
             val p = idProcessMap[id]
@@ -178,6 +244,13 @@ object YoutubeDL {
 
     @JvmOverloads
     @Throws(YoutubeDLException::class, InterruptedException::class, CanceledException::class)
+    /**
+     * Executes a request to yt-dlp
+     * @param request the request object
+     * @param processId the process id
+     * @param callback a callback that will be called with the progress percentage, the ETA and the output
+     * @return the response object
+     */
     fun execute(
         request: YoutubeDLRequest,
         processId: String? = null,
@@ -206,7 +279,7 @@ object YoutubeDL {
         processBuilder.environment().apply {
             this["LD_LIBRARY_PATH"] = ENV_LD_LIBRARY_PATH
             this["SSL_CERT_FILE"] = ENV_SSL_CERT_FILE
-            this["PATH"] = System.getenv("PATH") + ":" + binDir!!.absolutePath
+            this["PATH"] = System.getenv("PATH")!! + ":" + binariesDirectory!!.absolutePath
             this["PYTHONHOME"] = ENV_PYTHONHOME
             this["HOME"] = ENV_PYTHONHOME
         }
@@ -251,6 +324,12 @@ object YoutubeDL {
 
     @Synchronized
     @Throws(YoutubeDLException::class)
+    /**
+     * Updates yt-dlp
+     * @param appContext the application context
+     * @param updateChannel the update channel
+     * @return the update status
+     */
     fun updateYoutubeDL(
         appContext: Context,
         updateChannel: UpdateChannel = UpdateChannel.STABLE
@@ -259,14 +338,20 @@ object YoutubeDL {
         return try {
             YoutubeDLUpdater.update(appContext, updateChannel)
         } catch (e: IOException) {
-            throw YoutubeDLException("failed to update youtube-dl", e)
+            throw YoutubeDLException("Failed to update yt-dlp!", e)
         }
     }
 
+    /**
+     * Gets the version of yt-dlp
+     */
     fun version(appContext: Context?): String? {
         return YoutubeDLUpdater.version(appContext)
     }
 
+    /**
+     * Gets the version name of yt-dlp
+     */
     fun versionName(appContext: Context?): String? {
         return YoutubeDLUpdater.versionName(appContext)
     }
@@ -276,11 +361,11 @@ object YoutubeDL {
     }
 
     sealed class UpdateChannel(val apiUrl: String) {
-        object STABLE : UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest")
-        object NIGHTLY :
+        data object STABLE : UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest")
+        data object NIGHTLY :
             UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp-nightly-builds/releases/latest")
 
-        object MASTER :
+        data object MASTER :
             UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp-master-builds/releases/latest")
 
         companion object {
@@ -297,6 +382,7 @@ object YoutubeDL {
 
     internal val scope = CoroutineScope(SupervisorJob())
     private const val PYTHON_LIB_VERSION = "pythonLibVersion"
+
     val json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
