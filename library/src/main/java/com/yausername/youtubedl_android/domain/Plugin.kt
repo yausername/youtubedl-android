@@ -31,5 +31,13 @@ enum class Plugin {
                 ARIA2C -> Constants.Libraries.ARIA2C_LIBRARY_NAME
             }
         }
+
+        fun Plugin.toDirectoryName(): String {
+            return when (this) {
+                PYTHON -> Constants.Directories.PYTHON_DIRECTORY_NAME
+                FFMPEG -> Constants.Directories.FFMPEG_DIRECTORY_NAME
+                ARIA2C -> Constants.Directories.ARIA2C_DIRECTORY_NAME
+            }
+        }
     }
 }

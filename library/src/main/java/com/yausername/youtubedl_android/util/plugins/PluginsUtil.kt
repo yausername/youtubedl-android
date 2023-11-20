@@ -1,20 +1,31 @@
 package com.yausername.youtubedl_android.util.plugins
 
+import android.content.Context
+import com.yausername.youtubedl_android.Constants
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.domain.CpuArchitecture
 import com.yausername.youtubedl_android.domain.Plugin
+import com.yausername.youtubedl_android.domain.Plugin.Companion.toDirectoryName
 import com.yausername.youtubedl_android.domain.Plugin.Companion.toLibraryName
 import com.yausername.youtubedl_android.domain.model.updates.Release
 import com.yausername.youtubedl_android.util.network.Ktor.client
 import com.yausername.youtubedl_android.util.network.Ktor.makeApiCall
+import com.yausername.youtubedl_common.utils.ZipUtils.unzip
 import org.apache.commons.io.FileUtils
 import java.io.File
 
 object PluginsUtil {
-
     fun deletePlugin(plugin: Plugin): Boolean {
         val pluginFile = File(YoutubeDL.binariesDirectory, plugin.toLibraryName())
         return FileUtils.deleteQuietly(pluginFile)
+    }
+
+    fun unzipToPluginDirectory(context: Context, tempFile: File, plugin: Plugin) {
+        val baseDir = File(context.noBackupFilesDir, Constants.LIBRARY_NAME)
+        val packagesDir = File(baseDir, Constants.PACKAGES_ROOT_NAME)
+
+        val pluginFile = File(packagesDir, plugin.toDirectoryName())
+        unzip(tempFile, pluginFile)
     }
 
     //The plugins scheme is: [arch]_lib[pluginName].zip.so
