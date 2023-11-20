@@ -67,7 +67,7 @@ object YoutubeDL {
      * Initializes the library. This method should be called before any other method.
      * @param appContext the application context
      */
-    fun init(appContext: Context) {
+    fun init(appContext: Context, callback: pluginDownloadCallback? = null) {
         if (initialized) return
 
         val baseDir = File(appContext.noBackupFilesDir, LIBRARY_NAME)
@@ -99,7 +99,7 @@ object YoutubeDL {
         ENV_PYTHONHOME = pythonDir.absolutePath + "/usr"
 
         assertPlugins(appContext, installedPlugins) { plugin, progress ->
-            Log.i("YoutubeDL", "Downloading $plugin: $progress%")
+            callback?.invoke(plugin, progress)
         }
 
         initPython(appContext, pythonDir)
@@ -198,28 +198,6 @@ object YoutubeDL {
                 throw YoutubeDLException("Failed to initialize Python", e)
             }
             updatePython(appContext, pythonSize)
-        }
-    }
-
-    /**
-     * Downloads a file with progress callback
-     * @param progressCallback a callback that will be called with the progress percentage
-     */
-    fun downloadFileTest(progressCallback: ((Float) -> Unit)? = null) {
-        scope.launch(Dispatchers.IO) {
-            try {
-                val localFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "FilesTest/test.zip")
-                Log.i("YoutubeDL", "Downloading file to ${localFile.absolutePath}")
-                FileDownloader.downloadFileWithProgress(
-                    "https://firebasestorage.googleapis.com/v0/b/drive-personal-865ae.appspot.com/o/files%2FldnTgvDGCPSjnhwyWKD9uYl1ZXm1%2F2%C2%BABac%20TIC%2FHTML.zip?alt=media&token=f0632376-d8a7-41bd-a44d-b9b8168dc0f2",
-                    localFile
-                ) {
-                    progressCallback?.invoke(it.toFloat() / 100)
-                    println("Progress: $it")
-                }
-            } catch (e: Exception) {
-                Log.e("File Downloader", "An error occurred during file download", e)
-            }
         }
     }
 
@@ -408,7 +386,7 @@ object YoutubeDL {
      * Checks if the plugins are installed
      * @return the installed plugins
      */
-    private fun checkInstalledPlugins(appContext: Context): DownloadedPlugins {
+    fun checkInstalledPlugins(appContext: Context): DownloadedPlugins {
         val libraryBaseDir = File(appContext.noBackupFilesDir, LIBRARY_NAME)
         val packagesDir = File(libraryBaseDir, PACKAGES_ROOT_NAME)
 

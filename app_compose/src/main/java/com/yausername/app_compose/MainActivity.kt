@@ -48,9 +48,9 @@ class MainActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.Center
                     ) {
                         Button(onClick = {
-                                YoutubeDL.downloadFileTest {
-                                    progress = it
-                                }
+//                                YoutubeDL.downloadFileTest {
+//                                    progress = it
+//                                }
                             Toast.makeText(
                                 this@MainActivity,
                                 "Download finished",
