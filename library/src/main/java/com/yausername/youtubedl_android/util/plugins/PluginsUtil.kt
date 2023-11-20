@@ -1,6 +1,7 @@
 package com.yausername.youtubedl_android.util.plugins
 
 import android.content.Context
+import android.util.Log
 import com.yausername.youtubedl_android.Constants
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.domain.CpuArchitecture
@@ -39,8 +40,10 @@ object PluginsUtil {
     @Throws(Exception::class)
     fun getDownloadLinkForPlugin(architecture: CpuArchitecture, plugin: Plugin, release: Release): String {
         val pluginName = plugin.toString()
-        val pluginFileName = "${architecture.name}_lib$pluginName.zip.so"
-        val pluginAsset = release.assets.find { it.name == pluginFileName }
+        val desiredArch = architecture.name.lowercase()
+        val pluginFileName = "${desiredArch}_lib$pluginName.zip.so"
+        val pluginAsset = release.assets.find { it.name.lowercase() == pluginFileName }
+
         return pluginAsset?.browser_download_url ?: throw Exception("Plugin $pluginName not found for architecture ${architecture.name}")
     }
 

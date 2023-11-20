@@ -35,6 +35,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.apache.commons.io.FileUtils
@@ -115,33 +116,37 @@ object YoutubeDL {
      */
     @Throws(MissingPlugin::class)
     fun assertPlugins(appContext: Context, downloadedPlugins: DownloadedPlugins, callback: pluginDownloadCallback?) {
-        //We check what plugins are missing and download them; the callback is called with the plugin and the progress of the download.
-        //get the plugins that are missing
+        // We check what plugins are missing and download them; the callback is called with the plugin and the progress of the download.
+        // get the plugins that are missing
         val missingPlugins = downloadedPlugins.getMissingPlugins()
         if (missingPlugins.isNotEmpty()) {
             Log.i("YoutubeDL", "Some plugins are missing: $missingPlugins")
-            //download the missing plugins
-            missingPlugins.forEach { plugin ->
-                when (plugin) {
-                    Plugin.PYTHON -> {
-                        pluginsDownloader.downloadPython(appContext) { progress ->
-                            callback?.invoke(plugin, progress)
+
+            runBlocking(Dispatchers.IO) {
+                // download the missing plugins
+                missingPlugins.forEach { plugin ->
+                    Log.i("YoutubeDL", "Downloading $plugin")
+                    when (plugin) {
+                        Plugin.PYTHON -> {
+                            pluginsDownloader.downloadPython(appContext) { progress ->
+                                callback?.invoke(plugin, progress)
+                            }
                         }
-                    }
-                    Plugin.FFMPEG -> {
-                        pluginsDownloader.downloadFFmpeg(appContext) { progress ->
-                            callback?.invoke(plugin, progress)
+                        Plugin.FFMPEG -> {
+                            pluginsDownloader.downloadFFmpeg(appContext) { progress ->
+                                callback?.invoke(plugin, progress)
+                            }
                         }
-                    }
-                    Plugin.ARIA2C -> {
-                        pluginsDownloader.downloadAria2c(appContext) { progress ->
-                            callback?.invoke(plugin, progress)
+                        Plugin.ARIA2C -> {
+                            pluginsDownloader.downloadAria2c(appContext) { progress ->
+                                callback?.invoke(plugin, progress)
+                            }
                         }
                     }
                 }
             }
 
-            //check again if the plugins are installed (this time they should be)
+            // check again if the plugins are installed (this time they should be)
             val postInstallMissingPlugins = checkInstalledPlugins(appContext).getMissingPlugins()
             if (postInstallMissingPlugins.isNotEmpty()) {
                 throw MissingPlugin("Some of the plugins are still missing after the installation: $postInstallMissingPlugins")
@@ -150,6 +155,7 @@ object YoutubeDL {
             Log.i("YoutubeDL", "All plugins are installed")
         }
     }
+
 
     @Throws(YoutubeDLException::class)
     /**
@@ -465,6 +471,7 @@ object YoutubeDL {
     val json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
+        coerceInputValues = true
     }
 
     @JvmStatic
