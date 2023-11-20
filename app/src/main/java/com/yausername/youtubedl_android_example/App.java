@@ -58,7 +58,7 @@ public class App extends Application {
     }
 
     private void initLibraries() throws YoutubeDLException, MissingPlugin {
-        YoutubeDL.getInstance().init(this);
+        YoutubeDL.getInstance().init(this, null);
         FFmpeg.getInstance().init(this);
         Aria2c.getInstance().init(this);
     }
