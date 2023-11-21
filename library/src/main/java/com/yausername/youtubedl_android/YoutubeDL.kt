@@ -472,7 +472,6 @@ object YoutubeDL {
         }
     }
 
-    internal val scope = CoroutineScope(SupervisorJob())
     private const val PYTHON_LIB_VERSION = "pythonLibVersion"
 
     val json = Json {
