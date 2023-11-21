@@ -100,9 +100,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 dialog.show();
                 break;
             }
-
-            case R.id.btn_download: {
-            }
         }
     }
 
