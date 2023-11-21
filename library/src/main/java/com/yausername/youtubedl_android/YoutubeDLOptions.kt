@@ -1,13 +1,7 @@
 package com.yausername.youtubedl_android
 
-import kotlin.collections.ArrayList
-import kotlin.collections.LinkedHashMap
-import kotlin.collections.List
-import kotlin.collections.MutableList
-import kotlin.collections.MutableMap
 import kotlin.collections.component1
 import kotlin.collections.component2
-import kotlin.collections.iterator
 import kotlin.collections.set
 
 class YoutubeDLOptions {

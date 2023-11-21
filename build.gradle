@@ -1,9 +1,8 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-
     ext {
-        kotlin_version = '1.7.22'
+        kotlin_version = '1.9.20'
     }
     repositories {
         google()
@@ -15,7 +14,7 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.1'
+        classpath 'com.android.tools.build:gradle:8.1.4'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -24,23 +23,24 @@ buildscript {
 }
 
 def versionMajor = 0
-def versionMinor = 15
+def versionMinor = 16
 def versionPatch = 0
 def versionBuild = 0 // bump for dogfood builds, public betas, etc.
 
 ext {
     versionCode = versionMajor * 100000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
     versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
-    appCompatVer = '1.4.2'
+    appCompatVer = '1.6.1'
     junitVer = '4.13.2'
-    androidJunitVer = '1.1.3'
-    espressoVer = '3.4.0'
-    jacksonVer = '2.11.1'
+    androidJunitVer = '1.1.5'
+    espressoVer = '3.5.1'
     // supports java 1.6
     commonsIoVer = '2.5'
     // supports java 1.6
     commonsCompressVer = '1.12'
-    coreKtxVer = '1.8.0'
+    coreKtxVer = '1.12.0'
+    kotlinxSerializationVer = '1.4.1'
+    ktorversion='2.3.6'
 }
 
 allprojects {
@@ -48,6 +48,6 @@ allprojects {
     version = versionName
 }
 
-task clean(type: Delete) {
+tasks.register('clean', Delete) {
     delete rootProject.buildDir
 }

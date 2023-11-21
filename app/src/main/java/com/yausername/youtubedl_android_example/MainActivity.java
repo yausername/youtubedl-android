@@ -28,6 +28,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnUpdate;
     private ProgressBar progressBar;
 
+    private Button btnDownloadFileTest;
+    private ProgressBar progressBarDownloadFileTest;
+
     private boolean updating = false;
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
