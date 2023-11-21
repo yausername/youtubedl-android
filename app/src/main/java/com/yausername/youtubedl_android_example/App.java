@@ -34,7 +34,7 @@ public class App extends Application {
 
             @Override
             public void onError(Throwable e) {
-                if(BuildConfig.DEBUG) Log.e(TAG, "failed to initialize youtubedl-android", e);
+                if (BuildConfig.DEBUG) Log.e(TAG, "failed to initialize youtubedl-android", e);
                 Toast.makeText(getApplicationContext(), "initialization failed: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -58,7 +58,11 @@ public class App extends Application {
     }
 
     private void initLibraries() throws YoutubeDLException, MissingDependency {
-        YoutubeDL.getInstance().ensureDependencies(this, null);
+        YoutubeDL.getInstance().ensureDependencies(this, (dependency, progress) -> {
+            // Your callback logic here
+            System.out.println("Dependency: " + dependency + ", Progress: " + progress);
+            return null;
+        });
         YoutubeDL.getInstance().init(this);
         FFmpeg.getInstance().init(this);
         Aria2c.getInstance().init(this);

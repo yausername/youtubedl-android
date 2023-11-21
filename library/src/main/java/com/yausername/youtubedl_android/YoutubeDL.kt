@@ -137,22 +137,33 @@ object YoutubeDL {
                 // download the missing dependencies
                 missingDependencies.forEach { dependency ->
                     Log.i("YoutubeDL", "Downloading $dependency")
+                    var lastProgress = 0 // Initialize with an appropriate default value
+
                     when (dependency) {
                         Dependency.PYTHON -> {
                             dependenciesDownloader.downloadPython(appContext) { progress ->
-                                callback?.invoke(dependency, progress)
+                                if (progress != lastProgress) {
+                                    callback?.invoke(dependency, progress)
+                                    lastProgress = progress
+                                }
                             }
                         }
 
                         Dependency.FFMPEG -> {
                             dependenciesDownloader.downloadFFmpeg(appContext) { progress ->
-                                callback?.invoke(dependency, progress)
+                                if (progress != lastProgress) {
+                                    callback?.invoke(dependency, progress)
+                                    lastProgress = progress
+                                }
                             }
                         }
 
                         Dependency.ARIA2C -> {
                             dependenciesDownloader.downloadAria2c(appContext) { progress ->
-                                callback?.invoke(dependency, progress)
+                                if (progress != lastProgress) {
+                                    callback?.invoke(dependency, progress)
+                                    lastProgress = progress
+                                }
                             }
                         }
                     }
