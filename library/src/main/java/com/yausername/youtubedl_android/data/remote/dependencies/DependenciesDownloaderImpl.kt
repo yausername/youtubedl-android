@@ -1,32 +1,32 @@
-package com.yausername.youtubedl_android.data.remote.plugins
+package com.yausername.youtubedl_android.data.remote.dependencies
 
 import android.content.Context
-import com.yausername.youtubedl_android.Constants.Libraries.Temporal.TEMPORAL_ARIA2C_LIBRARY_NAME
-import com.yausername.youtubedl_android.Constants.Libraries.Temporal.TEMPORAL_FFMPEG_LIBRARY_NAME
-import com.yausername.youtubedl_android.Constants.Libraries.Temporal.TEMPORAL_PYTHON_LIBRARY_NAME
+import com.yausername.youtubedl_android.Constants.LibrariesName.TemporalFilesName.TEMPORAL_ARIA2C
+import com.yausername.youtubedl_android.Constants.LibrariesName.TemporalFilesName.TEMPORAL_FFMPEG
+import com.yausername.youtubedl_android.Constants.LibrariesName.TemporalFilesName.TEMPORAL_PYTHON
 import com.yausername.youtubedl_android.data.remote.files.FileDownloader
-import com.yausername.youtubedl_android.domain.Plugin
-import com.yausername.youtubedl_android.domain.PluginsDownloader
+import com.yausername.youtubedl_android.domain.Dependency
+import com.yausername.youtubedl_android.domain.DependenciesDownloader
 import com.yausername.youtubedl_android.util.device.CpuUtils
-import com.yausername.youtubedl_android.util.plugins.PluginsUtil.getDownloadLinkForPlugin
-import com.yausername.youtubedl_android.util.plugins.PluginsUtil.unzipToPluginDirectory
+import com.yausername.youtubedl_android.util.dependencies.DependenciesUtil.getDownloadLinkForDependency
+import com.yausername.youtubedl_android.util.dependencies.DependenciesUtil.unzipToDependencyDirectory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class PluginsDownloaderImpl : PluginsDownloader {
+class DependenciesDownloaderImpl : DependenciesDownloader {
     private val fileDownloader by lazy { FileDownloader }
     override suspend fun downloadPython(
         context: Context,
         progressCallback: (progress: Int) -> Unit
     ) {
         val tempFile = withContext(Dispatchers.IO) {
-            File.createTempFile(TEMPORAL_PYTHON_LIBRARY_NAME, null)
+            File.createTempFile(TEMPORAL_PYTHON, null)
         }
 
         val urlDeferred = withContext(Dispatchers.IO) {
-            async { getDownloadLinkForPlugin(CpuUtils.getPreferredAbi(), Plugin.PYTHON) }
+            async { getDownloadLinkForDependency(CpuUtils.getPreferredAbi(), Dependency.PYTHON) }
         }
 
         val downloadUrl = urlDeferred.await()
@@ -38,7 +38,7 @@ class PluginsDownloaderImpl : PluginsDownloader {
             overwrite = true
         )
 
-        unzipToPluginDirectory(context, tempFile, Plugin.PYTHON)
+        unzipToDependencyDirectory(context, tempFile, Dependency.PYTHON)
     }
 
     override suspend fun downloadFFmpeg(
@@ -46,11 +46,11 @@ class PluginsDownloaderImpl : PluginsDownloader {
         progressCallback: (progress: Int) -> Unit
     ) {
         val tempFile = withContext(Dispatchers.IO) {
-            File.createTempFile(TEMPORAL_FFMPEG_LIBRARY_NAME, null)
+            File.createTempFile(TEMPORAL_FFMPEG, null)
         }
 
         val urlDeferred = withContext(Dispatchers.IO) {
-            async { getDownloadLinkForPlugin(CpuUtils.getPreferredAbi(), Plugin.FFMPEG) }
+            async { getDownloadLinkForDependency(CpuUtils.getPreferredAbi(), Dependency.FFMPEG) }
         }
 
         val downloadUrl = urlDeferred.await()
@@ -62,7 +62,7 @@ class PluginsDownloaderImpl : PluginsDownloader {
             overwrite = true
         )
 
-        unzipToPluginDirectory(context, tempFile, Plugin.FFMPEG)
+        unzipToDependencyDirectory(context, tempFile, Dependency.FFMPEG)
     }
 
     override suspend fun downloadAria2c(
@@ -70,10 +70,10 @@ class PluginsDownloaderImpl : PluginsDownloader {
         progressCallback: (progress: Int) -> Unit
     ) {
         val tempFile = withContext(Dispatchers.IO) {
-            File.createTempFile(TEMPORAL_ARIA2C_LIBRARY_NAME, null)
+            File.createTempFile(TEMPORAL_ARIA2C, null)
         }
         val urlDeferred = withContext(Dispatchers.IO) {
-            async { getDownloadLinkForPlugin(CpuUtils.getPreferredAbi(), Plugin.ARIA2C) }
+            async { getDownloadLinkForDependency(CpuUtils.getPreferredAbi(), Dependency.ARIA2C) }
         }
 
         val downloadUrl = urlDeferred.await()
@@ -85,6 +85,6 @@ class PluginsDownloaderImpl : PluginsDownloader {
             overwrite = true
         )
 
-        unzipToPluginDirectory(context, tempFile, Plugin.ARIA2C)
+        unzipToDependencyDirectory(context, tempFile, Dependency.ARIA2C)
     }
 }

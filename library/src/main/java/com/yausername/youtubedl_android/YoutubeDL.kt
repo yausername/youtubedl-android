@@ -2,39 +2,29 @@ package com.yausername.youtubedl_android
 
 import android.content.Context
 import android.os.Build
-import android.os.Environment
 import android.util.Log
-import com.yausername.youtubedl_android.Constants.Binaries.FFMPEG_BINARY_NAME
-import com.yausername.youtubedl_android.Constants.Binaries.PYTHON_BINARY_NAME
-import com.yausername.youtubedl_android.Constants.Binaries.YTDLP_BINARY_NAME
-import com.yausername.youtubedl_android.Constants.Directories.ARIA2C_DIRECTORY_NAME
-import com.yausername.youtubedl_android.Constants.Directories.FFMPEG_DIRECTORY_NAME
-import com.yausername.youtubedl_android.Constants.Directories.PYTHON_DIRECTORY_NAME
-import com.yausername.youtubedl_android.Constants.Directories.YTDLP_DIRECTORY_NAME
+import com.yausername.youtubedl_android.Constants.DirectoriesName.ARIA2C
 import com.yausername.youtubedl_android.Constants.LIBRARY_NAME
-import com.yausername.youtubedl_android.Constants.Libraries.PYTHON_LIBRARY_NAME
 import com.yausername.youtubedl_android.Constants.PACKAGES_ROOT_NAME
 import com.yausername.youtubedl_android.data.local.streams.StreamGobbler
 import com.yausername.youtubedl_android.data.local.streams.StreamProcessExtractor
 import com.yausername.youtubedl_android.data.remote.YoutubeDLUpdater
-import com.yausername.youtubedl_android.data.remote.files.FileDownloader
-import com.yausername.youtubedl_android.data.remote.plugins.PluginsDownloaderImpl
-import com.yausername.youtubedl_android.domain.Plugin
-import com.yausername.youtubedl_android.domain.PluginsDownloader
-import com.yausername.youtubedl_android.domain.model.DownloadedPlugins
+import com.yausername.youtubedl_android.data.remote.dependencies.DependenciesDownloaderImpl
+import com.yausername.youtubedl_android.domain.DependenciesDownloader
+import com.yausername.youtubedl_android.domain.Dependency
+import com.yausername.youtubedl_android.domain.model.DownloadedDependencies
 import com.yausername.youtubedl_android.domain.model.YoutubeDLResponse
-import com.yausername.youtubedl_android.domain.model.getMissingPlugins
+import com.yausername.youtubedl_android.domain.model.getMissingDependencies
 import com.yausername.youtubedl_android.domain.model.videos.VideoInfo
-import com.yausername.youtubedl_android.util.exceptions.MissingPlugin
+import com.yausername.youtubedl_android.util.exceptions.MissingDependency
 import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException
-import com.yausername.youtubedl_android.util.files.FilesUtil.assertAndCreate
+import com.yausername.youtubedl_android.util.files.FilesUtil.createDirectoryIfNotExists
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
 import com.yausername.youtubedl_common.utils.ZipUtils.unzip
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -57,50 +47,51 @@ object YoutubeDL {
     private lateinit var ENV_SSL_CERT_FILE: String
     private lateinit var ENV_PYTHONHOME: String
 
-    private val pluginsDownloader: PluginsDownloader = PluginsDownloaderImpl()
+    private val dependenciesDownloader: DependenciesDownloader = DependenciesDownloaderImpl()
 
     //Map of process id associated with the process
     private val idProcessMap = Collections.synchronizedMap(HashMap<String, Process>())
+
     @Synchronized
-    @Throws(YoutubeDLException::class, MissingPlugin::class)
-    /**
-     * Initializes the library. This method should be called before any other method.
-     * @param appContext the application context
-     */
-    fun init(appContext: Context, callback: pluginDownloadCallback? = null) {
+    @Throws(YoutubeDLException::class, MissingDependency::class)
+            /**
+             * Initializes the library. This method should be called before any other method.
+             * @param appContext the application context
+             */
+    fun init(appContext: Context) {
         if (initialized) return
 
         val baseDir = File(appContext.noBackupFilesDir, LIBRARY_NAME)
 
-        assertAndCreate(baseDir)
+        createDirectoryIfNotExists(baseDir)
 
         val packagesDir = File(baseDir, PACKAGES_ROOT_NAME)
 
-        binariesDirectory = File(appContext.applicationInfo.nativeLibraryDir) //Here are all the binaries provided by the jniLibs folder
+        binariesDirectory =
+            File(appContext.applicationInfo.nativeLibraryDir) //Here are all the binaries provided by the jniLibs folder
 
-        pythonPath = File(binariesDirectory, PYTHON_BINARY_NAME)
-        ffmpegPath = File(binariesDirectory, FFMPEG_BINARY_NAME)
+        pythonPath = File(binariesDirectory, Constants.BinariesName.PYTHON)
+        ffmpegPath = File(binariesDirectory, Constants.BinariesName.FFMPEG)
 
-        // Create plugins packages directory (where they are extracted)
-        val pythonDir = File(packagesDir, PYTHON_DIRECTORY_NAME)
-        val ffmpegDir = File(packagesDir, FFMPEG_DIRECTORY_NAME)
-        val aria2cDir = File(packagesDir, ARIA2C_DIRECTORY_NAME)
+        // Create dependencies packages directory (where they are extracted)
+        val pythonDir = File(
+            packagesDir, Constants.DirectoriesName.PYTHON
+        )
+        val ffmpegDir = File(
+            packagesDir, Constants.DirectoriesName.FFMPEG
+        )
+        val aria2cDir = File(packagesDir, Constants.DirectoriesName.ARIA2C)
 
-        val ytdlpDir = File(baseDir, YTDLP_DIRECTORY_NAME)
-        ytdlpPath = File(ytdlpDir, YTDLP_BINARY_NAME)
-
-        val installedPlugins = checkInstalledPlugins(appContext)
+        val ytdlpDir = File(
+            baseDir, Constants.DirectoriesName.YTDLP
+        )
+        ytdlpPath = File(ytdlpDir, Constants.BinariesName.YTDLP)
 
         // Set environment variables
-        ENV_LD_LIBRARY_PATH = pythonDir.absolutePath + "/usr/lib" + ":" +
-                ffmpegDir.absolutePath + "/usr/lib" + ":" +
-                aria2cDir.absolutePath + "/usr/lib"
+        ENV_LD_LIBRARY_PATH =
+            pythonDir.absolutePath + "/usr/lib" + ":" + ffmpegDir.absolutePath + "/usr/lib" + ":" + aria2cDir.absolutePath + "/usr/lib"
         ENV_SSL_CERT_FILE = pythonDir.absolutePath + "/usr/etc/tls/cert.pem"
         ENV_PYTHONHOME = pythonDir.absolutePath + "/usr"
-
-        assertPlugins(appContext, installedPlugins) { plugin, progress ->
-            callback?.invoke(plugin, progress)
-        }
 
         initPython(appContext, pythonDir)
         initYtdlp(appContext, ytdlpDir)
@@ -109,50 +100,73 @@ object YoutubeDL {
     }
 
     /**
-     * Asserts that the plugins are installed and downloads them if they are missing
+     * Asserts that the dependencies are installed and downloads them if they are missing.
+     * RECOMMENDATION: Call this method before init.
      * @param appContext the application context
-     * @param downloadedPlugins the downloaded plugins
-     * @param callback a callback that will be called with the plugin and the progress of the download
+     * @param callback a callback that will be called with the dependency and the progress of the download
+     * @throws MissingDependency if the dependencies are missing after the installation
      */
-    @Throws(MissingPlugin::class)
-    fun assertPlugins(appContext: Context, downloadedPlugins: DownloadedPlugins, callback: pluginDownloadCallback?) {
-        // We check what plugins are missing and download them; the callback is called with the plugin and the progress of the download.
-        // get the plugins that are missing
-        val missingPlugins = downloadedPlugins.getMissingPlugins()
-        if (missingPlugins.isNotEmpty()) {
-            Log.i("YoutubeDL", "Some plugins are missing: $missingPlugins")
+    @Throws(MissingDependency::class)
+    fun ensureDependencies(appContext: Context, callback: dependencyDownloadCallback? = null) {
+        val installedDependencies = checkInstalledDependencies(appContext)
+        installDependencies(appContext, installedDependencies) { dependency, progress ->
+            callback?.invoke(dependency, progress)
+        }
+    }
+
+    /**
+     * Asserts that the dependencies are installed and downloads them if they are missing
+     * @param appContext the application context
+     * @param downloadedDependencies the downloaded dependencies
+     * @param callback a callback that will be called with the dependency and the progress of the download
+     */
+    @Throws(MissingDependency::class)
+    fun installDependencies(
+        appContext: Context,
+        downloadedDependencies: DownloadedDependencies,
+        callback: dependencyDownloadCallback?
+    ) {
+        // We check what dependencies are missing and download them; the callback is called with the dependency and the progress of the download.
+        // get the dependencies that are missing
+        val missingDependencies = downloadedDependencies.getMissingDependencies()
+        if (BuildConfig.DEBUG) Log.i("YoutubeDL", "Missing dependencies: $missingDependencies")
+        if (missingDependencies.isNotEmpty()) {
+            Log.i("YoutubeDL", "Some dependencies are missing: $missingDependencies")
 
             runBlocking(Dispatchers.IO) {
-                // download the missing plugins
-                missingPlugins.forEach { plugin ->
-                    Log.i("YoutubeDL", "Downloading $plugin")
-                    when (plugin) {
-                        Plugin.PYTHON -> {
-                            pluginsDownloader.downloadPython(appContext) { progress ->
-                                callback?.invoke(plugin, progress)
+                // download the missing dependencies
+                missingDependencies.forEach { dependency ->
+                    Log.i("YoutubeDL", "Downloading $dependency")
+                    when (dependency) {
+                        Dependency.PYTHON -> {
+                            dependenciesDownloader.downloadPython(appContext) { progress ->
+                                callback?.invoke(dependency, progress)
                             }
                         }
-                        Plugin.FFMPEG -> {
-                            pluginsDownloader.downloadFFmpeg(appContext) { progress ->
-                                callback?.invoke(plugin, progress)
+
+                        Dependency.FFMPEG -> {
+                            dependenciesDownloader.downloadFFmpeg(appContext) { progress ->
+                                callback?.invoke(dependency, progress)
                             }
                         }
-                        Plugin.ARIA2C -> {
-                            pluginsDownloader.downloadAria2c(appContext) { progress ->
-                                callback?.invoke(plugin, progress)
+
+                        Dependency.ARIA2C -> {
+                            dependenciesDownloader.downloadAria2c(appContext) { progress ->
+                                callback?.invoke(dependency, progress)
                             }
                         }
                     }
                 }
             }
 
-            // check again if the plugins are installed (this time they should be)
-            val postInstallMissingPlugins = checkInstalledPlugins(appContext).getMissingPlugins()
-            if (postInstallMissingPlugins.isNotEmpty()) {
-                throw MissingPlugin("Some of the plugins are still missing after the installation: $postInstallMissingPlugins")
+            // check again if the dependencies are installed (this time they should be)
+            val postInstallMissingDependencies =
+                checkInstalledDependencies(appContext).getMissingDependencies()
+            if (postInstallMissingDependencies.isNotEmpty()) {
+                throw MissingDependency("Some of the dependencies are still missing after the installation: $postInstallMissingDependencies")
             }
         } else {
-            Log.i("YoutubeDL", "All plugins are installed")
+            Log.i("YoutubeDL", "All dependencies are installed")
         }
     }
 
@@ -165,7 +179,7 @@ object YoutubeDL {
      */
     internal fun initYtdlp(appContext: Context, ytdlpDir: File) {
         if (!ytdlpDir.exists()) ytdlpDir.mkdirs()
-        val ytdlpBinary = File(ytdlpDir, YTDLP_BINARY_NAME)
+        val ytdlpBinary = File(ytdlpDir, Constants.BinariesName.YTDLP)
         if (!ytdlpBinary.exists()) {
             try {
                 val inputStream =
@@ -179,13 +193,15 @@ object YoutubeDL {
     }
 
     @Throws(YoutubeDLException::class)
-    /**
-     * Initializes Python.
-     * @param appContext the application context
-     * @param pythonDir the directory where Python is located
-     */
+            /**
+             * Initializes Python.
+             * @param appContext the application context
+             * @param pythonDir the directory where Python is located
+             */
     fun initPython(appContext: Context, pythonDir: File) {
-        val pythonLibrary = File(binariesDirectory, PYTHON_LIBRARY_NAME)
+        val pythonLibrary = File(
+            binariesDirectory, Constants.LibrariesName.PYTHON
+        )
         // using size of lib as version
         val pythonSize = pythonLibrary.length().toString()
         if (!pythonDir.exists() || shouldUpdatePython(appContext, pythonSize)) {
@@ -233,11 +249,11 @@ object YoutubeDL {
     }
 
     @Throws(YoutubeDLException::class, InterruptedException::class, CanceledException::class)
-    /**
-     * Gets video information
-     * @param request the request object
-     * @return the video information
-     */
+            /**
+             * Gets video information
+             * @param request the request object
+             * @return the video information
+             */
     fun getInfo(request: YoutubeDLRequest): VideoInfo {
         request.addOption("--dump-json")
         val response = execute(request, null, null)
@@ -284,13 +300,13 @@ object YoutubeDL {
 
     @JvmOverloads
     @Throws(YoutubeDLException::class, InterruptedException::class, CanceledException::class)
-    /**
-     * Executes a request to yt-dlp
-     * @param request the request object
-     * @param processId the process id
-     * @param callback a callback that will be called with the progress percentage, the ETA and the output
-     * @return the response object
-     */
+            /**
+             * Executes a request to yt-dlp
+             * @param request the request object
+             * @param processId the process id
+             * @param callback a callback that will be called with the progress percentage, the ETA and the output
+             * @return the response object
+             */
     fun execute(
         request: YoutubeDLRequest,
         processId: String? = null,
@@ -348,8 +364,7 @@ object YoutubeDL {
         val out = outBuffer.toString()
         val err = errBuffer.toString()
         if (exitCode > 0) {
-            if (processId != null && !idProcessMap.containsKey(processId))
-                throw CanceledException()
+            if (processId != null && !idProcessMap.containsKey(processId)) throw CanceledException()
             if (!ignoreErrors(request, out)) {
                 idProcessMap.remove(processId)
                 throw YoutubeDLException(err)
@@ -364,15 +379,14 @@ object YoutubeDL {
 
     @Synchronized
     @Throws(YoutubeDLException::class)
-    /**
-     * Updates yt-dlp
-     * @param appContext the application context
-     * @param updateChannel the update channel
-     * @return the update status
-     */
+            /**
+             * Updates yt-dlp
+             * @param appContext the application context
+             * @param updateChannel the update channel
+             * @return the update status
+             */
     fun updateYoutubeDL(
-        appContext: Context,
-        updateChannel: UpdateChannel = UpdateChannel.STABLE
+        appContext: Context, updateChannel: UpdateChannel = UpdateChannel.STABLE
     ): UpdateStatus? {
         assertInit()
         return try {
@@ -383,25 +397,27 @@ object YoutubeDL {
     }
 
     /**
-     * Checks if the plugins are installed
-     * @return the installed plugins
+     * Checks if the dependencies are installed
+     * @return the installed dependencies
      */
-    fun checkInstalledPlugins(appContext: Context): DownloadedPlugins {
+    fun checkInstalledDependencies(appContext: Context): DownloadedDependencies {
         val libraryBaseDir = File(appContext.noBackupFilesDir, LIBRARY_NAME)
         val packagesDir = File(libraryBaseDir, PACKAGES_ROOT_NAME)
 
-        val pythonDir = File(packagesDir, PYTHON_DIRECTORY_NAME)
-        val ffmpegDir = File(packagesDir, FFMPEG_DIRECTORY_NAME)
-        val aria2cDir = File(packagesDir, ARIA2C_DIRECTORY_NAME)
+        val pythonDir = File(
+            packagesDir, Constants.DirectoriesName.PYTHON
+        )
+        val ffmpegDir = File(
+            packagesDir, Constants.DirectoriesName.FFMPEG
+        )
+        val aria2cDir = File(packagesDir, ARIA2C)
 
-        val installedPlugins = DownloadedPlugins(
-            pythonDir.exists(),
-            ffmpegDir.exists(),
-            aria2cDir.exists()
+        val installedDependencies = DownloadedDependencies(
+            pythonDir.exists(), ffmpegDir.exists(), aria2cDir.exists()
         )
 
-        Log.i("YoutubeDL", installedPlugins.toString())
-        return installedPlugins
+        Log.i("YoutubeDL", installedDependencies.toString())
+        return installedDependencies
     }
 
 
@@ -424,7 +440,9 @@ object YoutubeDL {
     }
 
     sealed class UpdateChannel(val apiUrl: String) {
-        data object STABLE : UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest")
+        data object STABLE :
+            UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest")
+
         data object NIGHTLY :
             UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp-nightly-builds/releases/latest")
 
@@ -456,4 +474,4 @@ object YoutubeDL {
     fun getInstance() = this
 }
 
-typealias pluginDownloadCallback = (Plugin, Int) -> Unit
+typealias dependencyDownloadCallback = (Dependency, Int) -> Unit

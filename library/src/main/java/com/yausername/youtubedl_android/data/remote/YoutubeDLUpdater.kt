@@ -1,8 +1,9 @@
 package com.yausername.youtubedl_android.data.remote
 
 import android.content.Context
-import com.yausername.youtubedl_android.Constants.Binaries.YTDLP_BINARY_NAME
-import com.yausername.youtubedl_android.Constants.Directories.YTDLP_DIRECTORY_NAME
+import com.yausername.youtubedl_android.Constants
+import com.yausername.youtubedl_android.Constants.BinariesName.YTDLP
+import com.yausername.youtubedl_android.Constants.DirectoriesName.YTDLP
 import com.yausername.youtubedl_android.Constants.LIBRARY_NAME
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDL.UpdateChannel
@@ -34,7 +35,7 @@ internal object YoutubeDLUpdater {
         val ytdlpDir = getYoutubeDLDir(
             appContext
         )
-        val binary = File(ytdlpDir, YTDLP_BINARY_NAME)
+        val binary = File(ytdlpDir, Constants.BinariesName.YTDLP)
         try {
             /* purge older version */
             if (ytdlpDir.exists()) FileUtils.deleteDirectory(ytdlpDir)
@@ -74,7 +75,7 @@ internal object YoutubeDLUpdater {
         val assets = json.assets
         var downloadUrl = ""
         for (asset in assets) {
-            if (YTDLP_BINARY_NAME == asset.name) {
+            if (Constants.BinariesName.YTDLP == asset.name) {
                 downloadUrl = asset.browser_download_url
                 break
             }
@@ -86,14 +87,14 @@ internal object YoutubeDLUpdater {
     @Throws(IOException::class)
     private fun download(appContext: Context, url: String): File {
         val downloadUrl = URL(url)
-        val file = File.createTempFile(YTDLP_BINARY_NAME, null, appContext.cacheDir)
+        val file = File.createTempFile(Constants.BinariesName.YTDLP, null, appContext.cacheDir)
         FileUtils.copyURLToFile(downloadUrl, file, 5000, 10000)
         return file
     }
 
     private fun getYoutubeDLDir(appContext: Context): File {
         val baseDir = File(appContext.noBackupFilesDir, LIBRARY_NAME)
-        return File(baseDir, YTDLP_DIRECTORY_NAME)
+        return File(baseDir, Constants.DirectoriesName.YTDLP)
     }
 
     fun version(appContext: Context?): String? {

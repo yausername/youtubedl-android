@@ -2,7 +2,7 @@ package com.yausername.youtubedl_android.domain
 
 import com.yausername.youtubedl_android.Constants
 
-enum class Plugin {
+enum class Dependency {
     PYTHON,
     FFMPEG,
     ARIA2C;
@@ -15,7 +15,7 @@ enum class Plugin {
         }
     }
 
-    fun fromString(string: String): Plugin {
+    fun fromString(string: String): Dependency {
         return when (string) {
             "python" -> PYTHON
             "ffmpeg" -> FFMPEG
@@ -24,19 +24,19 @@ enum class Plugin {
         }
     }
     companion object {
-        fun Plugin.toLibraryName(): String {
+        fun Dependency.toLibraryName(): String {
             return when (this) {
-                PYTHON -> Constants.Libraries.PYTHON_LIBRARY_NAME
-                FFMPEG -> Constants.Libraries.FFMPEG_LIBRARY_NAME
-                ARIA2C -> Constants.Libraries.ARIA2C_LIBRARY_NAME
+                PYTHON -> Constants.LibrariesName.PYTHON
+                FFMPEG -> Constants.LibrariesName.FFMPEG
+                ARIA2C -> Constants.LibrariesName.ARIA2C
             }
         }
 
-        fun Plugin.toDirectoryName(): String {
+        fun Dependency.toDirectoryName(): String {
             return when (this) {
-                PYTHON -> Constants.Directories.PYTHON_DIRECTORY_NAME
-                FFMPEG -> Constants.Directories.FFMPEG_DIRECTORY_NAME
-                ARIA2C -> Constants.Directories.ARIA2C_DIRECTORY_NAME
+                PYTHON -> Constants.DirectoriesName.PYTHON
+                FFMPEG -> Constants.DirectoriesName.FFMPEG
+                ARIA2C -> Constants.DirectoriesName.ARIA2C
             }
         }
     }
