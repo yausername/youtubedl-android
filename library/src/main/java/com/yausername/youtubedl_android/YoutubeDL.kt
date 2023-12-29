@@ -2,6 +2,7 @@ package com.yausername.youtubedl_android
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.yausername.youtubedl_android.YoutubeDLException
 import com.yausername.youtubedl_android.mapper.VideoInfo
@@ -9,11 +10,14 @@ import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
 import com.yausername.youtubedl_common.utils.ZipUtils.unzip
 import org.apache.commons.io.FileUtils
+import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
+import java.io.InputStreamReader
 import java.util.Collections
 import kotlin.collections.set
 
+const val TAG = "YouTubeDL"
 object YoutubeDL {
     private var initialized = false
     private var pythonPath: File? = null
@@ -120,14 +124,20 @@ object YoutubeDL {
 
     fun destroyProcessById(id: String): Boolean {
         if (idProcessMap.containsKey(id)) {
-            killChildProcesses()
             val p = idProcessMap[id]
+            p?.let {
+                val pythonProcessId = getPythonProcessId(it)
+                val pid = getFFMPEGProcessId(pythonProcessId)
+                killChildProcess(pid)
+            }
+
             var alive = true
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 alive = p!!.isAlive
             }
             if (alive) {
                 p!!.destroy()
+
                 idProcessMap.remove(id)
                 return true
             }
@@ -135,15 +145,44 @@ object YoutubeDL {
         return false
 
     }
-    fun killChildProcesses() {
-        val process = Runtime.getRuntime().exec("ps -A -o pid,cmd")
-        process.inputStream.bufferedReader().useLines { lines ->
-            lines.filter { it.contains("ffmpeg") }
-                .mapNotNull { it.split(" ").firstOrNull()?.toIntOrNull() }
-                .forEach { pid ->
-                    android.os.Process.killProcess(pid)
-                }
+
+    //This is function to get currentprocess(libpython.so)
+    fun getPythonProcessId(process: Process): Int {
+       return try{
+           val field = process.javaClass.getDeclaredField("pid")
+           field.isAccessible = true
+           field.getInt(process)
+       }catch (ex:Exception){
+           ex.printStackTrace()
+           -1
+       }
+    }
+
+    //A function to get child id of the process(ffmpeg is child of current python process)
+    fun getFFMPEGProcessId(pythonPID: Int): Int {
+        return try {
+            val command = "ps --ppid $pythonPID | awk 'NR > 1 {print \$2}'"
+            val processBuilder = ProcessBuilder("/system/bin/sh", "-c", command)
+            val process = processBuilder.start()
+            val reader = BufferedReader(InputStreamReader(process.inputStream))
+            val pidLine = reader.readLine()
+            if (pidLine != null) {
+                val pid = pidLine.trim().toIntOrNull()
+                pid
+            }
+
+            val exitCode = process.waitFor()
+            Log.e(TAG, "Process exited with code: $exitCode")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            -1
         }
+
+    }
+
+    //Kill that specific ffmpeg process
+    fun killChildProcess(pid:Int) {
+        android.os.Process.killProcess(pid)
     }
     class CanceledException : Exception()
 

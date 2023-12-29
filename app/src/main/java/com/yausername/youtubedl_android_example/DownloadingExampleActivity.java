@@ -46,7 +46,8 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
 
     private boolean downloading = false;
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
-    private String processId = "MyDlProcess";
+    private String processIdFacebook = "Myfacebookprocess";
+    private String processIdCbc = "MyCbcprocess";
 
 
     private final Function3<Float, Long, String, Unit> callback = new Function3<Float, Long, String, Unit>() {
@@ -93,11 +94,14 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_start_download:
-                startDownload();
+                String cbcurl = "https://www.cbsnews.com/video/a-nation-in-transition-cbs-reports";
+                String facebookurl = "https://www.facebook.com/peopleareawesome/videos/best-videos-of-the-year-so-far/1393626100686564/";
+                startDownload(cbcurl,processIdCbc);
+                startDownload(facebookurl,processIdFacebook);
                 break;
             case R.id.btn_stop_download:
                 try {
-                    YoutubeDL.getInstance().destroyProcessById(processId);
+                    YoutubeDL.getInstance().destroyProcessById(processIdFacebook);
                 } catch (Exception e) {
                     Log.e(TAG, e.toString());
                 }
@@ -105,23 +109,20 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
         }
     }
 
-    private void startDownload() {
-        if (downloading) {
+    private void startDownload(String url,String processId) {
+        /*if (downloading) {
             Toast.makeText(DownloadingExampleActivity.this, "cannot start download. a download is already in progress", Toast.LENGTH_LONG).show();
             return;
-        }
+        }*/
 
         if (!isStoragePermissionGranted()) {
             Toast.makeText(DownloadingExampleActivity.this, "grant storage permission and retry", Toast.LENGTH_LONG).show();
             return;
         }
-
-        String url = etUrl.getText().toString().trim();
         if (TextUtils.isEmpty(url)) {
             etUrl.setError(getString(R.string.url_error));
             return;
         }
-
         YoutubeDLRequest request = new YoutubeDLRequest(url);
         File youtubeDLDir = getDownloadLocation();
         File config = new File(youtubeDLDir, "config.txt");
