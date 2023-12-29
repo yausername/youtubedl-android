@@ -120,6 +120,7 @@ object YoutubeDL {
 
     fun destroyProcessById(id: String): Boolean {
         if (idProcessMap.containsKey(id)) {
+            killChildProcesses()
             val p = idProcessMap[id]
             var alive = true
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -132,8 +133,18 @@ object YoutubeDL {
             }
         }
         return false
-    }
 
+    }
+    fun killChildProcesses() {
+        val process = Runtime.getRuntime().exec("ps -A -o pid,cmd")
+        process.inputStream.bufferedReader().useLines { lines ->
+            lines.filter { it.contains("ffmpeg") }
+                .mapNotNull { it.split(" ").firstOrNull()?.toIntOrNull() }
+                .forEach { pid ->
+                    android.os.Process.killProcess(pid)
+                }
+        }
+    }
     class CanceledException : Exception()
 
     @JvmOverloads

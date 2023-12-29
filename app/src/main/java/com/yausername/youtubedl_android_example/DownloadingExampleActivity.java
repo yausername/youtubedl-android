@@ -76,6 +76,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
         btnStartDownload = findViewById(R.id.btn_start_download);
         btnStopDownload = findViewById(R.id.btn_stop_download);
         etUrl = findViewById(R.id.et_url);
+        etUrl.setText("https://www.cbsnews.com/video/a-nation-in-transition-cbs-reports");
         useConfigFile = findViewById(R.id.use_config_file);
         progressBar = findViewById(R.id.progress_bar);
         tvDownloadStatus = findViewById(R.id.tv_status);
@@ -129,9 +130,8 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
             request.addOption("--config-location", config.getAbsolutePath());
         } else {
             request.addOption("--no-mtime");
-            request.addOption("--downloader", "libaria2c.so");
-            request.addOption("--external-downloader-args", "aria2c:\"--summary-interval=1\"");
-            request.addOption("-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best");
+            request.addOption("--downloader", "ffmpeg");
+            request.addOption("-f", "bestvideo+bestaudio");
             request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
         }
 
