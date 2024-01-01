@@ -5,6 +5,14 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 
 object ProcessUtils {
+    fun extractSize(line: String?): Int? {
+        return line?.let {
+            val pattern = Regex("""size\s*=\s*(\d+)kB""")
+            val matchResult = pattern.find(line)
+            val sizeValue = matchResult?.groupValues?.getOrNull(1)
+            sizeValue?.toIntOrNull()
+        }
+    }
     fun getPythonProcessId(process: Process): Int {
         return try{
             val field = process.javaClass.getDeclaredField("pid")

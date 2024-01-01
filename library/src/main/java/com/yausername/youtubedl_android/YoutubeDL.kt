@@ -156,7 +156,7 @@ object YoutubeDL {
         request: YoutubeDLRequest,
         processId: String? = null,
         callback: ((Float, Long, String) -> Unit)? = null,
-        progressCallback:(line:String?)->Unit = {},
+        progressCallback:(size:Int?,line:String?)->Unit = {size,line->},
         onComplete:(line:String)->Unit = {}
 
     ): YoutubeDLResponse {
@@ -191,8 +191,8 @@ object YoutubeDL {
 
         process = try {
            val startedProcess =  processBuilder.start()
-            FFMPEGExtractor(startedProcess,{
-                progressCallback(it)
+            FFMPEGExtractor(startedProcess,{size,line ->
+                progressCallback(size,line)
             },{
                 onComplete(it)
             })

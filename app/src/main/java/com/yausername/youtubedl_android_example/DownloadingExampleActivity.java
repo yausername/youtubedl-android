@@ -31,6 +31,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
+import kotlin.jvm.functions.Function2;
 import kotlin.jvm.functions.Function3;
 
 
@@ -62,11 +63,11 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
             return Unit.INSTANCE;
         }
     };
-    Function1<String, Unit> progressCallback = new Function1<String, Unit>() {
+    Function2<Integer,String, Unit> progressCallback = new Function2<Integer,String,Unit>() {
         @Override
-        public Unit invoke(String line) {
+        public Unit invoke(Integer size,String line) {
             // Your implementation of the progressCallback function
-           Log.e(TAG,"FFMPEG progress: "+line);
+           Log.e(TAG,"FFMPEG progress: "+size);
             return null;
         }
     };

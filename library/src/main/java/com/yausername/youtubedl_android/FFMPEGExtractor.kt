@@ -1,5 +1,6 @@
 package com.yausername.youtubedl_android
 
+import android.util.Log
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
@@ -7,7 +8,7 @@ import java.io.InputStreamReader
 
 class FFMPEGExtractor(
             private val process: Process,
-            private val progressCallback:(line:String?)->Unit,
+            private val progressCallback:(size:Int?,line:String?)->Unit,
             private val onComplete:(line:String)->Unit
 ) {
     fun start(){
@@ -17,7 +18,7 @@ class FFMPEGExtractor(
             .start()
     }
     class ProgressCallback(private val process:Process,
-                           private val progressCallback:(line:String?)->Unit):Thread(){
+                           private val progressCallback:(size:Int?,line:String?)->Unit):Thread(){
         override fun run() {
             val pythonPID = ProcessUtils.getPythonProcessId(process)
             while(true){
@@ -29,9 +30,8 @@ class FFMPEGExtractor(
                     val reader = BufferedReader(InputStreamReader(inputStream))
                     var line: String?
                     while (reader.readLine().also { line = it } != null) {
-                        if(line?.contains("size") == true){
-                            progressCallback(line)
-                        }
+                        val size = ProcessUtils.extractSize(line)
+                        progressCallback(size,line)
                     }
                 }
 
@@ -53,7 +53,9 @@ class FFMPEGExtractor(
                     var line: String?
                     while (reader.readLine().also { line = it } != null) {
                         line?.let{
-                            onComplete(it)
+                            if(it.isNotEmpty()){
+                                onComplete(it)
+                            }
                         }
                     }
                 }
