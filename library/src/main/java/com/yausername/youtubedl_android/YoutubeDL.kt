@@ -12,6 +12,7 @@ import com.yausername.youtubedl_common.utils.ZipUtils.unzip
 import org.apache.commons.io.FileUtils
 import java.io.BufferedReader
 import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStreamReader
 import java.util.Collections
@@ -126,9 +127,7 @@ object YoutubeDL {
         if (idProcessMap.containsKey(id)) {
             val p = idProcessMap[id]
             p?.let {
-                val pythonProcessId = getPythonProcessId(it)
-                val pid = getFFMPEGProcessId(pythonProcessId)
-                killChildProcess(pid)
+                ProcessUtils.killChildProcess(it)
             }
 
             var alive = true
@@ -147,43 +146,8 @@ object YoutubeDL {
     }
 
     //This is function to get currentprocess(libpython.so)
-    fun getPythonProcessId(process: Process): Int {
-       return try{
-           val field = process.javaClass.getDeclaredField("pid")
-           field.isAccessible = true
-           field.getInt(process)
-       }catch (ex:Exception){
-           ex.printStackTrace()
-           -1
-       }
-    }
 
-    //A function to get child id of the process(ffmpeg is child of current python process)
-    fun getFFMPEGProcessId(pythonPID: Int): Int {
-        return try {
-            val command = "ps --ppid $pythonPID | awk 'NR > 1 {print \$2}'"
-            val processBuilder = ProcessBuilder("/system/bin/sh", "-c", command)
-            val process = processBuilder.start()
-            val reader = BufferedReader(InputStreamReader(process.inputStream))
-            val pidLine = reader.readLine()
-            if (pidLine != null) {
-                val pid = pidLine.trim().toIntOrNull()
-                pid
-            }
 
-            val exitCode = process.waitFor()
-            Log.e(TAG, "Process exited with code: $exitCode")
-        } catch (e: Exception) {
-            e.printStackTrace()
-            -1
-        }
-
-    }
-
-    //Kill that specific ffmpeg process
-    fun killChildProcess(pid:Int) {
-        android.os.Process.killProcess(pid)
-    }
     class CanceledException : Exception()
 
     @JvmOverloads
@@ -191,7 +155,10 @@ object YoutubeDL {
     fun execute(
         request: YoutubeDLRequest,
         processId: String? = null,
-        callback: ((Float, Long, String) -> Unit)? = null
+        callback: ((Float, Long, String) -> Unit)? = null,
+        progressCallback:(line:String?)->Unit = {},
+        onComplete:(line:String)->Unit = {}
+
     ): YoutubeDLResponse {
         assertInit()
         if (processId != null && idProcessMap.containsKey(processId)) throw YoutubeDLException("Process ID already exists")
@@ -212,6 +179,7 @@ object YoutubeDL {
         val command: MutableList<String?> = ArrayList()
         command.addAll(listOf(pythonPath!!.absolutePath, ytdlpPath!!.absolutePath))
         command.addAll(args)
+
         val processBuilder = ProcessBuilder(command)
         processBuilder.environment().apply {
             this["LD_LIBRARY_PATH"] = ENV_LD_LIBRARY_PATH
@@ -222,10 +190,18 @@ object YoutubeDL {
         }
 
         process = try {
-            processBuilder.start()
+           val startedProcess =  processBuilder.start()
+            FFMPEGExtractor(startedProcess,{
+                progressCallback(it)
+            },{
+                onComplete(it)
+            })
+                .start()
+            startedProcess
         } catch (e: IOException) {
             throw YoutubeDLException(e)
         }
+
         if (processId != null) {
             idProcessMap[processId] = process
         }
@@ -233,6 +209,7 @@ object YoutubeDL {
         val errStream = process.errorStream
         val stdOutProcessor = StreamProcessExtractor(outBuffer, outStream, callback)
         val stdErrProcessor = StreamGobbler(errBuffer, errStream)
+
         exitCode = try {
             stdOutProcessor.join()
             stdErrProcessor.join()

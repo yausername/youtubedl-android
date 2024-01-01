@@ -30,6 +30,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 import kotlin.jvm.functions.Function3;
 
 
@@ -59,6 +60,23 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
                     }
             );
             return Unit.INSTANCE;
+        }
+    };
+    Function1<String, Unit> progressCallback = new Function1<String, Unit>() {
+        @Override
+        public Unit invoke(String line) {
+            // Your implementation of the progressCallback function
+           Log.e(TAG,"FFMPEG progress: "+line);
+            return null;
+        }
+    };
+
+    // Define the onComplete function
+    Function1<String, Unit> onComplete = new Function1<String, Unit>() {
+        @Override
+        public Unit invoke(String line) {
+            Log.e(TAG,"FFMPEG onComplete"+line);
+            return null;
         }
     };
 
@@ -94,9 +112,9 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_start_download:
-                String cbcurl = "https://www.cbsnews.com/video/a-nation-in-transition-cbs-reports";
+                //String cbcurl = "https://www.cbsnews.com/video/a-nation-in-transition-cbs-reports";
+                //startDownload(cbcurl,processIdCbc);
                 String facebookurl = "https://www.facebook.com/peopleareawesome/videos/best-videos-of-the-year-so-far/1393626100686564/";
-                startDownload(cbcurl,processIdCbc);
                 startDownload(facebookurl,processIdFacebook);
                 break;
             case R.id.btn_stop_download:
@@ -138,8 +156,11 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
 
         showStart();
 
+
         downloading = true;
-        Disposable disposable = Observable.fromCallable(() -> YoutubeDL.getInstance().execute(request, processId, callback))
+        Disposable disposable = Observable.fromCallable(() ->
+                        YoutubeDL.getInstance().execute(request, processId, callback, progressCallback,onComplete)
+                )
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(youtubeDLResponse -> {

@@ -29,6 +29,7 @@ internal class StreamProcessExtractor(
             val currentLine = StringBuilder()
             var nextChar: Int
             while (input.read().also { nextChar = it } != -1) {
+
                 buffer.append(nextChar.toChar())
                 if (nextChar == '\r'.code || nextChar == '\n'.code && callback != null) {
                     val line = currentLine.toString()
