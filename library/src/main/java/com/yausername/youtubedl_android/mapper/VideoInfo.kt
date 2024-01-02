@@ -9,6 +9,11 @@ class VideoInfo {
     val fulltitle: String? = null
     val title: String? = null
 
+    //New fields
+    @JsonProperty("is_live")
+    val islive:Boolean? = null
+    //End new fields
+
     @JsonProperty("upload_date")
     val uploadDate: String? = null
 

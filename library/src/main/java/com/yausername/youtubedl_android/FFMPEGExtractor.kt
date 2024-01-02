@@ -60,7 +60,7 @@ class FFMPEGExtractor(
                     }
                 }
 
-                sleep(100)
+                sleep(1000)
             }
         }
     }
