@@ -1,27 +1,33 @@
 package com.yausername.youtubedl_android
 
-import android.util.Log
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStreamReader
+import java.util.concurrent.ConcurrentHashMap
 
-class FFMPEGExtractor(
-            private val process: Process,
-            private val progressCallback:(size:Int?,line:String?)->Unit,
-            private val onComplete:(line:String)->Unit
-) {
-    fun start(){
-        ProgressCallback(process,progressCallback)
-            .start()
-        CompleteCallback(process,onComplete)
-            .start()
+class FFMPEGExtractor{
+    private val progressCallbacks = ConcurrentHashMap<String,ProgressThread>()
+    fun start(id:String,process: Process,progressCallback:((size:Int?,line:String?)->Unit)? = null){
+        if(!progressCallbacks.containsKey(id)){
+            val callback = ProgressThread(process,progressCallback)
+            progressCallbacks[id] = callback
+            callback.start()
+        }
     }
-    class ProgressCallback(private val process:Process,
-                           private val progressCallback:(size:Int?,line:String?)->Unit):Thread(){
+    fun stop(id:String){
+        if(progressCallbacks.containsKey(id)){
+            progressCallbacks[id]?.stopNow()
+            progressCallbacks.remove(id)
+        }
+    }
+    inner class ProgressThread(private val process:Process,
+                               private val progressCallback:((size:Int?,line:String?)->Unit)?=null
+    ):Thread(){
+        var shouldContinue = true
         override fun run() {
             val pythonPID = ProcessUtils.getPythonProcessId(process)
-            while(true){
+            while(shouldContinue){
                 val ffmpegPid = ProcessUtils.getFFMPEGProcessId(pythonPID)
                 val progressFilePath = "/proc/$ffmpegPid/fd/2"
                 val progressfile = File(progressFilePath)
@@ -31,37 +37,16 @@ class FFMPEGExtractor(
                     var line: String?
                     while (reader.readLine().also { line = it } != null) {
                         val size = ProcessUtils.extractSize(line)
-                        progressCallback(size,line)
+                        progressCallback?.let { it(size,line) }
                     }
                 }
 
                 sleep(1000)
             }
         }
-    }
-    class CompleteCallback(private val process:Process,
-                           private val onComplete:(line:String)->Unit):Thread(){
-        override fun run() {
-            val pythonPID = ProcessUtils.getPythonProcessId(process)
-            while(true){
-                val ffmpegPid = ProcessUtils.getFFMPEGProcessId(pythonPID)
-                val completeFilePath = "/proc/$ffmpegPid/fd/1"
-                val completefile = File(completeFilePath)
-                if (completefile.exists()) {
-                    val inputStream = FileInputStream(completefile)
-                    val reader = BufferedReader(InputStreamReader(inputStream))
-                    var line: String?
-                    while (reader.readLine().also { line = it } != null) {
-                        line?.let{
-                            if(it.isNotEmpty()){
-                                onComplete(it)
-                            }
-                        }
-                    }
-                }
 
-                sleep(1000)
-            }
+        fun stopNow(){
+            shouldContinue = false
         }
     }
 }

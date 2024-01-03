@@ -130,6 +130,8 @@ object YoutubeDL {
                 ProcessUtils.killChildProcess(it)
             }
 
+            FFMPEGExtractor()
+                .stop(id)
             var alive = true
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 alive = p!!.isAlive
@@ -156,9 +158,7 @@ object YoutubeDL {
         request: YoutubeDLRequest,
         processId: String? = null,
         callback: ((Float, Long, String) -> Unit)? = null,
-        progressCallback:(size:Int?,line:String?)->Unit = {size,line->},
-        onComplete:(line:String)->Unit = {}
-
+        progressCallback:((size:Int?,line:String?)->Unit)? = null,
     ): YoutubeDLResponse {
         assertInit()
         if (processId != null && idProcessMap.containsKey(processId)) throw YoutubeDLException("Process ID already exists")
@@ -191,12 +191,12 @@ object YoutubeDL {
 
         process = try {
            val startedProcess =  processBuilder.start()
-            FFMPEGExtractor(startedProcess,{size,line ->
-                progressCallback(size,line)
-            },{
-                onComplete(it)
-            })
-                .start()
+            processId?.let { procId ->
+               if(progressCallback != null){
+                   FFMPEGExtractor()
+                       .start(procId,startedProcess,progressCallback)
+               }
+            }
             startedProcess
         } catch (e: IOException) {
             throw YoutubeDLException(e)

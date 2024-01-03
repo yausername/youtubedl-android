@@ -73,13 +73,6 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
     };
 
     // Define the onComplete function
-    Function1<String, Unit> onComplete = new Function1<String, Unit>() {
-        @Override
-        public Unit invoke(String line) {
-            Log.e(TAG,"FFMPEG onComplete"+line);
-            return null;
-        }
-    };
 
     private static final String TAG = DownloadingExampleActivity.class.getSimpleName();
 
@@ -150,7 +143,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
             request.addOption("--config-location", config.getAbsolutePath());
         } else {
             request.addOption("--no-mtime");
-            request.addOption("--downloader", "ffmpeg");
+            //request.addOption("--downloader", "ffmpeg");
             request.addOption("-f", "bestvideo+bestaudio");
             request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
         }
@@ -160,7 +153,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
 
         downloading = true;
         Disposable disposable = Observable.fromCallable(() ->
-                        YoutubeDL.getInstance().execute(request, processId, callback, progressCallback,onComplete)
+                        YoutubeDL.getInstance().execute(request, processId, callback, progressCallback)
                 )
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
