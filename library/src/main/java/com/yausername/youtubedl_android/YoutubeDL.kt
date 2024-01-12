@@ -158,7 +158,7 @@ object YoutubeDL {
         request: YoutubeDLRequest,
         processId: String? = null,
         callback: ((Float, Long, String) -> Unit)? = null,
-        progressCallback:((size:Int?,line:String?)->Unit)? = null,
+        progressCallback:((size:Int?,line:String?,processavailable:Boolean)->Unit)? = null,
     ): YoutubeDLResponse {
         assertInit()
         if (processId != null && idProcessMap.containsKey(processId)) throw YoutubeDLException("Process ID already exists")
