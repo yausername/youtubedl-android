@@ -44,7 +44,7 @@ class FFMPEGExtractor{
                            Log.e(TAG,"Line Internal: ${line}")
                            progressCallback?.let { it(size,line,true) }
                        }
-                       progressCallback?.let { it(-1,line,true) }
+                       progressCallback?.let { it(-1,line,false) }
                    }
                    sleep(100)
                }
