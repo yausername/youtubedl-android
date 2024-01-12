@@ -4,6 +4,7 @@ import android.util.Log
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
+import java.io.IOException
 import java.io.InputStreamReader
 import java.util.concurrent.ConcurrentHashMap
 
@@ -34,11 +35,12 @@ class FFMPEGExtractor{
                 val ffmpegPid = ProcessUtils.getFFMPEGProcessId(pythonPID)
                 val progressFilePath = "/proc/$ffmpegPid/fd/2"
                 val progressfile = File(progressFilePath)
-                if (progressfile.exists()) {
+                if(ffmpegPid > 0){
                     ffmpegstarted = true
+                }
+                if (progressfile.exists()) {
                     val inputStream = FileInputStream(progressfile)
                     val reader = BufferedReader(InputStreamReader(inputStream))
-
                     while (reader.readLine().also { line = it } != null) {
                         val size = ProcessUtils.extractSize(line)
                         progressCallback?.let { it(size,line,ffmpegstarted) }
@@ -46,7 +48,8 @@ class FFMPEGExtractor{
                 }
                 if(ffmpegstarted && ffmpegPid < 0){
                     progressCallback?.let { it(-1,line,false) }
-                    throw YoutubeDLException("FFMPEG process closed due to unknown reason")
+                    ffmpegstarted = false
+                    throw IOException()
                 }
                 sleep(1000)
             }

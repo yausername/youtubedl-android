@@ -166,7 +166,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
                     Toast.makeText(DownloadingExampleActivity.this, "download successful", Toast.LENGTH_LONG).show();
                     downloading = false;
                 }, e -> {
-                    if (BuildConfig.DEBUG) Log.e(TAG, "failed to download", e);
+                    if (BuildConfig.DEBUG) Log.e(TAG, "failed to download");
                     pbLoading.setVisibility(View.GONE);
                     tvDownloadStatus.setText(getString(R.string.download_failed));
                     tvCommandOutput.setText(e.getMessage());
