@@ -67,7 +67,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
         @Override
         public Unit invoke(Integer size,String line, Boolean available) {
             // Your implementation of the progressCallback function
-           Log.e(TAG,"FFMPEG available: "+available);
+           Log.e(TAG,"FFMPEG available: "+available+" Size: "+size);
             return null;
         }
     };

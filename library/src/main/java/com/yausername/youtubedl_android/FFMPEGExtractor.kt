@@ -41,12 +41,10 @@ class FFMPEGExtractor{
                        val reader = BufferedReader(InputStreamReader(inputStream))
                        while (reader.readLine().also { line = it } != null) {
                            val size = ProcessUtils.extractSize(line)
-                           Log.e(TAG,"Line Internal: ${line}")
                            progressCallback?.let { it(size,line,true) }
                        }
-                       progressCallback?.let { it(-1,line,false) }
                    }
-                   sleep(100)
+                   sleep(1000)
                }
            }catch (ex:Exception){
                throw IOException()

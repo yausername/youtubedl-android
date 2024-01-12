@@ -11,7 +11,8 @@ import java.util.regex.Pattern
 internal class StreamProcessExtractor(
     private val buffer: StringBuffer,
     private val stream: InputStream,
-    private val callback: ((Float, Long, String) -> Unit)?
+    private val callback: ((Float, Long, String) -> Unit)?,
+    private val ffmpegprogress:((size:Int?,line:String?,processavailable:Boolean)->Unit)?=null
 ) : Thread() {
     private val p = Pattern.compile("\\[download\\]\\s+(\\d+\\.\\d)% .* ETA (\\d+):(\\d+)")
     private val pAria2c =
@@ -34,6 +35,9 @@ internal class StreamProcessExtractor(
                 if (nextChar == '\r'.code || nextChar == '\n'.code && callback != null) {
                     val line = currentLine.toString()
                     Log.e(TAG,"FFMPEG myline: ${line}")
+                    if(line.contains("100%")){
+                        ffmpegprogress?.let { it(100,line,false) }
+                    }
                     if (line.startsWith("[")) processOutputLine(line)
                     currentLine.setLength(0)
                     continue

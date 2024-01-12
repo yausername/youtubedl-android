@@ -207,7 +207,7 @@ object YoutubeDL {
         }
         val outStream = process.inputStream
         val errStream = process.errorStream
-        val stdOutProcessor = StreamProcessExtractor(outBuffer, outStream, callback)
+        val stdOutProcessor = StreamProcessExtractor(outBuffer, outStream, callback,progressCallback)
         val stdErrProcessor = StreamGobbler(errBuffer, errStream)
 
         exitCode = try {
