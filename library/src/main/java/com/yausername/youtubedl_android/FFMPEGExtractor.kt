@@ -46,6 +46,7 @@ class FFMPEGExtractor{
                 }
                 if(ffmpegstarted && ffmpegPid < 0){
                     progressCallback?.let { it(-1,line,false) }
+                    throw YoutubeDLException("FFMPEG process closed due to unknown reason")
                 }
                 sleep(1000)
             }
