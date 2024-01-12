@@ -30,25 +30,22 @@ class FFMPEGExtractor{
         override fun run() {
            try{
                val pythonPID = ProcessUtils.getPythonProcessId(process)
-               var ffmpegstarted = false
-               var line: String? = null
+               var line: String?
                while(shouldContinue){
                    val ffmpegPid = ProcessUtils.getFFMPEGProcessId(pythonPID)
                    val progressFilePath = "/proc/$ffmpegPid/fd/2"
                    val progressfile = File(progressFilePath)
-                   if(ffmpegPid > 0){
-                       ffmpegstarted = true
-                   }
+
                    if (progressfile.exists()) {
                        val inputStream = FileInputStream(progressfile)
                        val reader = BufferedReader(InputStreamReader(inputStream))
                        while (reader.readLine().also { line = it } != null) {
                            val size = ProcessUtils.extractSize(line)
-                           progressCallback?.let {  }
+                           Log.e(TAG,"Line Internal: ${line}")
+                           progressCallback?.let { it(size,line,true) }
                        }
-                       progressCallback?.let {  it(-1,line,false)}
+                       progressCallback?.let { it(-1,line,true) }
                    }
-
                    sleep(100)
                }
            }catch (ex:Exception){
