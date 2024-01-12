@@ -45,7 +45,7 @@ class FFMPEGExtractor{
                     }
                 }
                 if(ffmpegstarted && ffmpegPid < 0){
-                    ffmpegstarted = false
+                    Log.e(TAG,"FFMPEG closed")
                     progressCallback?.let { it(-1,line,false) }
                 }
                 sleep(1000)
