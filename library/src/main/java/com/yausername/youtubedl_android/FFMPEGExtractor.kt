@@ -45,12 +45,12 @@ class FFMPEGExtractor{
                         val size = ProcessUtils.extractSize(line)
                         progressCallback?.let { it(size,line,ffmpegstarted) }
                     }
+                }else {
+                    if(ffmpegstarted && ffmpegPid < 0){
+                        progressCallback?.let { it(-1,line,false) }
+                    }
                 }
-                if(ffmpegstarted && ffmpegPid < 0){
-                    progressCallback?.let { it(-1,line,false) }
-                    ffmpegstarted = false
-                    throw IOException()
-                }
+
                 sleep(1000)
             }
         }
