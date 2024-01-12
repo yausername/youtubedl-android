@@ -40,8 +40,7 @@ class FFMPEGExtractor{
                         progressCallback?.let { it(size,line) }
                     }
                 }
-
-                sleep(1000)
+                sleep(100)
             }
         }
 

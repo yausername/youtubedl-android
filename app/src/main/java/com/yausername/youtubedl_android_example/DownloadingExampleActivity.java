@@ -106,14 +106,15 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_start_download:
-                //String cbcurl = "https://www.cbsnews.com/video/a-nation-in-transition-cbs-reports";
-                //startDownload(cbcurl,processIdCbc);
-                String facebookurl = "https://www.facebook.com/peopleareawesome/videos/best-videos-of-the-year-so-far/1393626100686564/";
-                startDownload(facebookurl,processIdFacebook);
+                String cbcurl = "https://www.cbsnews.com/video/a-nation-in-transition-cbs-reports";
+                startDownload(cbcurl,processIdCbc);
+                //String facebookurl = "https://www.facebook.com/peopleareawesome/videos/best-videos-of-the-year-so-far/1393626100686564/";
+                //startDownload(facebookurl,processIdFacebook);
                 break;
             case R.id.btn_stop_download:
                 try {
-                    YoutubeDL.getInstance().destroyProcessById(processIdFacebook);
+
+                    YoutubeDL.getInstance().destroyProcessById(processIdCbc);
                 } catch (Exception e) {
                     Log.e(TAG, e.toString());
                 }
@@ -124,7 +125,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
     private void startDownload(String url,String processId) {
         /*if (downloading) {
             Toast.makeText(DownloadingExampleActivity.this, "cannot start download. a download is already in progress", Toast.LENGTH_LONG).show();
-            return;
+            return;F
         }*/
 
         if (!isStoragePermissionGranted()) {
@@ -143,8 +144,8 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
             request.addOption("--config-location", config.getAbsolutePath());
         } else {
             request.addOption("--no-mtime");
-            //request.addOption("--downloader", "ffmpeg");
-            request.addOption("-f", "bestvideo+bestaudio");
+            request.addOption("--downloader", "ffmpeg");
+            //request.addOption("-f", "bestvideo+bestaudio");
             request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
         }
 

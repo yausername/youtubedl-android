@@ -33,6 +33,7 @@ internal class StreamProcessExtractor(
                 buffer.append(nextChar.toChar())
                 if (nextChar == '\r'.code || nextChar == '\n'.code && callback != null) {
                     val line = currentLine.toString()
+                    Log.e(TAG,"FFMPEG myline: ${line}")
                     if (line.startsWith("[")) processOutputLine(line)
                     currentLine.setLength(0)
                     continue
