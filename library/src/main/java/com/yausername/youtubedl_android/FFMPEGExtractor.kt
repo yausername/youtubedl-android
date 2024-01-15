@@ -7,12 +7,14 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStreamReader
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.concurrent.thread
 
 class FFMPEGExtractor{
     private val progressCallbacks = ConcurrentHashMap<String,ProgressThread>()
-    fun start(id:String,process: Process,progressCallback:((size:Int?,line:String?,processavailable:Boolean)->Unit)? = null){
+    fun start(id:String, process: Process,
+              ffmpegcallback:((size:Int?, line:String?, error:Boolean)->Unit)? = null){
         if(!progressCallbacks.containsKey(id)){
-            val callback = ProgressThread(process,progressCallback)
+            val callback = ProgressThread(process,ffmpegcallback)
             progressCallbacks[id] = callback
             callback.start()
         }
@@ -23,36 +25,75 @@ class FFMPEGExtractor{
             progressCallbacks.remove(id)
         }
     }
-    inner class ProgressThread(private val process:Process,
-                               private val progressCallback:((size:Int?,line:String?,processavailable:Boolean)->Unit)?=null
-    ):Thread(){
-        var shouldContinue = true
-        override fun run() {
-           try{
-               val pythonPID = ProcessUtils.getPythonProcessId(process)
-               var line: String?
-               while(shouldContinue){
-                   val ffmpegPid = ProcessUtils.getFFMPEGProcessId(pythonPID)
-                   val progressFilePath = "/proc/$ffmpegPid/fd/2"
-                   val progressfile = File(progressFilePath)
+    class ProgressThread(
+        private val process: Process,
+        private val ffmpegcallback: ((size: Int?, line: String?, error: Boolean) -> Unit)? = null
+    ) : Thread() {
 
-                   if (progressfile.exists()) {
-                       val inputStream = FileInputStream(progressfile)
-                       val reader = BufferedReader(InputStreamReader(inputStream))
-                       while (reader.readLine().also { line = it } != null) {
-                           val size = ProcessUtils.extractSize(line)
-                           progressCallback?.let { it(size,line,true) }
-                       }
-                   }
-                   sleep(1000)
-               }
-           }catch (ex:Exception){
-               throw IOException()
-           }
+        private var shouldContinue = true
+        private var mFfmpegPid = 0
+
+        override fun run() {
+            try {
+                val pythonPID = ProcessUtils.getPythonProcessId(process)
+                var line: String?
+                //thread { monitorInternetConnection() }
+
+                while (shouldContinue) {
+                    mFfmpegPid = ProcessUtils.getFFMPEGProcessId(pythonPID)
+                    val progressFilePath = "/proc/$mFfmpegPid/fd/2"
+                    val progressfile = File(progressFilePath)
+
+                    if (progressfile.exists()) {
+                        val inputStream = FileInputStream(progressfile)
+                        val reader = BufferedReader(InputStreamReader(inputStream))
+                        while (reader.readLine().also { line = it } != null) {
+                            val iserror = line?.contains("fail", true) == true
+                            val size = ProcessUtils.extractSize(line)
+                            ffmpegcallback?.invoke(size, line, iserror)
+                            /*if (iserror) {
+                                stopNow()
+                            }*/
+                        }
+                    }
+                    sleep(1000)
+                }
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                // Handle the exception as needed
+            }
         }
 
-        fun stopNow(){
+        fun stopNow() {
+            ProcessUtils.killProcess(mFfmpegPid)
+            process.destroy()
             shouldContinue = false
+        }
+
+        private fun monitorInternetConnection() {
+            try {
+                while (shouldContinue) {
+                    if (!isInternetReachable()) {
+                        stopNow()
+                    } 
+                    sleep(5000)
+                }
+            } catch (ex: Exception) {
+                Log.e("FFMPEGExtractor", "Exception in monitorInternetConnection", ex)
+            }
+        }
+
+
+        private fun isInternetReachable(): Boolean {
+            return try {
+                val process = ProcessBuilder("ping", "-c", "1","-W","3", "google.com").start()
+                val exitCode = process.waitFor()
+                exitCode == 0
+            } catch (e: IOException) {
+                false
+            } catch (e: InterruptedException) {
+                false
+            }
         }
     }
 }

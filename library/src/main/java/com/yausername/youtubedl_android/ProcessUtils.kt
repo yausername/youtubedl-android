@@ -55,4 +55,7 @@ object ProcessUtils {
         val ffmpegId = getFFMPEGProcessId(pythonId)
         android.os.Process.killProcess(ffmpegId)
     }
+    fun killProcess(pid:Int) {
+        android.os.Process.killProcess(pid)
+    }
 }

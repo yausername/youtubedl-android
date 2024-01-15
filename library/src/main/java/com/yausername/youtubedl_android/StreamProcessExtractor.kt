@@ -34,10 +34,6 @@ internal class StreamProcessExtractor(
                 buffer.append(nextChar.toChar())
                 if (nextChar == '\r'.code || nextChar == '\n'.code && callback != null) {
                     val line = currentLine.toString()
-                    Log.e(TAG,"FFMPEG myline: ${line}")
-                    if(line.contains("100%")){
-                        ffmpegprogress?.let { it(100,line,false) }
-                    }
                     if (line.startsWith("[")) processOutputLine(line)
                     currentLine.setLength(0)
                     continue

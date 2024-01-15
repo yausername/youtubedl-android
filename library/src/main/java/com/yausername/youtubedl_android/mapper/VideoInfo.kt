@@ -20,6 +20,7 @@ class VideoInfo {
     @JsonProperty("display_id")
     val displayId: String? = null
     val duration = 0
+    val tbr = 0
     val description: String? = null
     val thumbnail: String? = null
     val license: String? = null
