@@ -158,7 +158,7 @@ object YoutubeDL {
         request: YoutubeDLRequest,
         processId: String? = null,
         callback: ((Float, Long, String) -> Unit)? = null,
-        progressCallback:((size:Int?,line:String?,processavailable:Boolean)->Unit)? = null,
+        progressCallback:((size:Int?,line:String?)->Unit)? = null,
     ): YoutubeDLResponse {
         assertInit()
         if (processId != null && idProcessMap.containsKey(processId)) throw YoutubeDLException("Process ID already exists")
@@ -207,7 +207,7 @@ object YoutubeDL {
         }
         val outStream = process.inputStream
         val errStream = process.errorStream
-        val stdOutProcessor = StreamProcessExtractor(outBuffer, outStream, callback,progressCallback)
+        val stdOutProcessor = StreamProcessExtractor(outBuffer, outStream, callback)
         val stdErrProcessor = StreamGobbler(errBuffer, errStream)
 
         exitCode = try {

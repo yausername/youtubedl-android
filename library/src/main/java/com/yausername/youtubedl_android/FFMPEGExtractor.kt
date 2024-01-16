@@ -12,7 +12,7 @@ import kotlin.concurrent.thread
 class FFMPEGExtractor{
     private val progressCallbacks = ConcurrentHashMap<String,ProgressThread>()
     fun start(id:String, process: Process,
-              ffmpegcallback:((size:Int?, line:String?, error:Boolean)->Unit)? = null){
+              ffmpegcallback:((size:Int?, line:String?)->Unit)? = null){
         if(!progressCallbacks.containsKey(id)){
             val callback = ProgressThread(process,ffmpegcallback)
             progressCallbacks[id] = callback
@@ -27,7 +27,7 @@ class FFMPEGExtractor{
     }
     class ProgressThread(
         private val process: Process,
-        private val ffmpegcallback: ((size: Int?, line: String?, error: Boolean) -> Unit)? = null
+        private val ffmpegcallback: ((size: Int?, line: String?) -> Unit)? = null
     ) : Thread() {
 
         private var shouldContinue = true
@@ -48,12 +48,8 @@ class FFMPEGExtractor{
                         val inputStream = FileInputStream(progressfile)
                         val reader = BufferedReader(InputStreamReader(inputStream))
                         while (reader.readLine().also { line = it } != null) {
-                            val iserror = line?.contains("fail", true) == true
                             val size = ProcessUtils.extractSize(line)
-                            ffmpegcallback?.invoke(size, line, iserror)
-                            /*if (iserror) {
-                                stopNow()
-                            }*/
+                            ffmpegcallback?.let { it(size,line) }
                         }
                     }
                     sleep(1000)

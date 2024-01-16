@@ -63,9 +63,9 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
             return Unit.INSTANCE;
         }
     };
-    Function3<Integer,String,Boolean, Unit> progressCallback = new Function3<Integer,String,Boolean,Unit>() {
+    Function2<Integer,String, Unit> progressCallback = new Function2<Integer,String,Unit>() {
         @Override
-        public Unit invoke(Integer size,String line, Boolean error) {
+        public Unit invoke(Integer size,String line) {
             // Your implementation of the progressCallback function
            Log.e(TAG,"FFMPEG size: "+line);
             return null;
