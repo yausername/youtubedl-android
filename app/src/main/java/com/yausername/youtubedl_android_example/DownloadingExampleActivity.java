@@ -106,14 +106,13 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_start_download:
-                String cbcurl = "https://www.cbsnews.com/video/a-nation-in-transition-cbs-reports";
+                String cbcurl = "https://baijiahao.baidu.com/s?id=1783258486309390969"; //"https://www.cbsnews.com/video/a-nation-in-transition-cbs-reports";
                 startDownload(cbcurl,processIdCbc);
                 //String facebookurl = "https://www.facebook.com/peopleareawesome/videos/best-videos-of-the-year-so-far/1393626100686564/";
                 //startDownload(facebookurl,processIdFacebook);
                 break;
             case R.id.btn_stop_download:
                 try {
-
                     YoutubeDL.getInstance().destroyProcessById(processIdCbc);
                 } catch (Exception e) {
                     Log.e(TAG, e.toString());
@@ -166,7 +165,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
                     Toast.makeText(DownloadingExampleActivity.this, "download successful", Toast.LENGTH_LONG).show();
                     downloading = false;
                 }, e -> {
-                    if (BuildConfig.DEBUG) Log.e(TAG, "failed to download");
+                    if (BuildConfig.DEBUG) Log.e(TAG, "failed to download "+e.getMessage());
                     pbLoading.setVisibility(View.GONE);
                     tvDownloadStatus.setText(getString(R.string.download_failed));
                     tvCommandOutput.setText(e.getMessage());

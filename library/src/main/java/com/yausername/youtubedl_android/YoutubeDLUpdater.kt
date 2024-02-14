@@ -40,7 +40,7 @@ internal object YoutubeDLUpdater {
         val binary = File(ytdlpDir, dlpBinaryName)
         try {
             /* purge older version */
-            if (ytdlpDir.exists()) FileUtils.deleteDirectory(ytdlpDir)
+            if (ytdlpDir.exists()) ytdlpDir.deleteRecursively() //FileUtils.deleteDirectory(ytdlpDir)
             /* install newer version */ytdlpDir.mkdirs()
             FileUtils.copyFile(file, binary)
         } catch (e: Exception) {
