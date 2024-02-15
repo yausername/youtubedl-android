@@ -103,6 +103,7 @@ object YoutubeDL {
 
     @Throws(YoutubeDLException::class, InterruptedException::class, CanceledException::class)
     fun getInfo(url: String): VideoInfo {
+        Log.e(TAG,"GetInfo Url: ${url}")
         val request = YoutubeDLRequest(url)
         return getInfo(request)
     }
@@ -215,6 +216,7 @@ object YoutubeDL {
             stdErrProcessor.join()
             process.waitFor()
         } catch (e: InterruptedException) {
+            Log.i(TAG,"Exception: ${e}")
             process.destroy()
             if (processId != null) idProcessMap.remove(processId)
             throw e
@@ -282,11 +284,11 @@ object YoutubeDL {
     }
 
 
-    const val baseName = "y"
-    private const val packagesRoot = "j"
+    const val baseName = "youtubedl-android"
+    private const val packagesRoot = "packages"
     private const val pythonBinName = "libpython.so"
     private const val pythonLibName = "libpython.zip.so"
-    private const val pythonDirName = "p"
+    private const val pythonDirName = "python"
     private const val ffmpegDirName = "ffmpeg"
     private const val ffmpegBinName = "libffmpeg.so"
     private const val aria2cDirName = "aria2c"
