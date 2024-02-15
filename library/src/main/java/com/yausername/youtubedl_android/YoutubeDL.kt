@@ -282,11 +282,11 @@ object YoutubeDL {
     }
 
 
-    const val baseName = "youtubedl-android"
-    private const val packagesRoot = "packages"
+    const val baseName = "y"
+    private const val packagesRoot = "j"
     private const val pythonBinName = "libpython.so"
     private const val pythonLibName = "libpython.zip.so"
-    private const val pythonDirName = "python"
+    private const val pythonDirName = "p"
     private const val ffmpegDirName = "ffmpeg"
     private const val ffmpegBinName = "libffmpeg.so"
     private const val aria2cDirName = "aria2c"
