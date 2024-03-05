@@ -32,7 +32,7 @@ internal class StreamProcessExtractor(
                 buffer.append(nextChar.toChar())
                 if (nextChar == '\r'.code || nextChar == '\n'.code && callback != null) {
                     val line = currentLine.toString()
-                    if (line.startsWith("[")) processOutputLine(line)
+                    processOutputLine(line)
                     currentLine.setLength(0)
                     continue
                 }
