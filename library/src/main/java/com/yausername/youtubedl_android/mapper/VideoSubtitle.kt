@@ -1,6 +1,6 @@
 package com.yausername.youtubedl_android.mapper
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import kotlinx.serialization.Serializable
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-class VideoSubtitle 
+@Serializable
+class VideoSubtitle

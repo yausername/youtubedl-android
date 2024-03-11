@@ -121,19 +121,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
             return;
         }
 
-        YoutubeDLRequest request = new YoutubeDLRequest(url);
-        File youtubeDLDir = getDownloadLocation();
-        File config = new File(youtubeDLDir, "config.txt");
-
-        if (useConfigFile.isChecked() && config.exists()) {
-            request.addOption("--config-location", config.getAbsolutePath());
-        } else {
-            request.addOption("--no-mtime");
-            request.addOption("--downloader", "libaria2c.so");
-            request.addOption("--external-downloader-args", "aria2c:\"--summary-interval=1\"");
-            request.addOption("-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best");
-            request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
-        }
+        YoutubeDLRequest request = getYoutubeDLRequest(url);
 
         showStart();
 
@@ -160,6 +148,23 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
 
     }
 
+    private YoutubeDLRequest getYoutubeDLRequest(String url) {
+        YoutubeDLRequest request = new YoutubeDLRequest(url);
+        File youtubeDLDir = getDownloadLocation();
+        File config = new File(youtubeDLDir, "config.txt");
+
+        if (useConfigFile.isChecked() && config.exists()) {
+            request.addOption("--config-location", config.getAbsolutePath());
+        } else {
+            request.addOption("--no-mtime");
+            request.addOption("--downloader", "libaria2c.so");
+            request.addOption("--external-downloader-args", "aria2c:\"--summary-interval=1\"");
+            request.addOption("-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best");
+            request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
+        }
+        return request;
+    }
+
     @Override
     protected void onDestroy() {
         compositeDisposable.dispose();
@@ -180,17 +185,37 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
         pbLoading.setVisibility(View.VISIBLE);
     }
 
+    public static final int STORAGE_PERMISSION_REQUEST_CODE = 1;
+
     public boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 return true;
             } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                requestStoragePermission();
                 return false;
             }
         } else {
             return true;
+        }
+    }
+
+    private void requestStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.i(TAG, "Request code:" + requestCode);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == STORAGE_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(DownloadingExampleActivity.this, "permission granted", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(DownloadingExampleActivity.this, "permission denied", Toast.LENGTH_LONG).show();
+            }
         }
     }
 }

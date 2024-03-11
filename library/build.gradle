@@ -1,12 +1,15 @@
-apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
-apply plugin: 'org.jetbrains.kotlin.android'
+plugins {
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.20'
+    id 'com.android.library'
+    id 'maven-publish'
+    id 'org.jetbrains.kotlin.android'
+}
 android {
-    compileSdkVersion 32
+    compileSdkVersion 34
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 32
+        targetSdkVersion 34
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -18,6 +21,9 @@ android {
         }
     }
     namespace 'com.yausername.youtubedl_android'
+    kotlinOptions {
+        jvmTarget = '17'
+    }
 
 }
 afterEvaluate {
@@ -42,8 +48,7 @@ dependencies {
     testImplementation "junit:junit:$junitVer"
     androidTestImplementation "androidx.test.ext:junit:$androidJunitVer"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVer"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVer"
 
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "$jacksonVer"
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: "$jacksonVer"
     implementation group: 'commons-io', name: 'commons-io', version: "$commonsIoVer"
 }

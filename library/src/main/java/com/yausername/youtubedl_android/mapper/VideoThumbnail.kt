@@ -1,9 +1,9 @@
 package com.yausername.youtubedl_android.mapper
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import kotlinx.serialization.Serializable
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-class VideoThumbnail {
-    val url: String? = null
+@Serializable
+data class VideoThumbnail (
+    val url: String? = null,
     val id: String? = null
-}
+)
