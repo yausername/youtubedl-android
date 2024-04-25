@@ -59,6 +59,6 @@ public class App extends Application {
     private void initLibraries() throws YoutubeDLException {
         YoutubeDL.getInstance().init(this);
         FFmpeg.getInstance().init(this);
-//        Aria2c.getInstance().init(this);
+        Aria2c.getInstance().init(this);
     }
 }
