@@ -152,6 +152,15 @@ object YoutubeDL {
             request.addOption("--no-cache-dir")
         }
 
+        if (request.buildCommand().contains("libaria2c.so")) {
+            request
+                .addOption("--external-downloader-args", "aria2c:--summary-interval=1")
+                .addOption(
+                    "--external-downloader-args",
+                    "aria2c:--ca-certificate=$ENV_SSL_CERT_FILE"
+                )
+        }
+
         /* Set ffmpeg location, See https://github.com/xibr/ytdlp-lazy/issues/1 */
         request.addOption("--ffmpeg-location", ffmpegPath!!.absolutePath)
         val youtubeDLResponse: YoutubeDLResponse
@@ -242,6 +251,7 @@ object YoutubeDL {
         object STABLE : UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest")
         object NIGHTLY :
             UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp-nightly-builds/releases/latest")
+
         object MASTER :
             UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp-master-builds/releases/latest")
 
