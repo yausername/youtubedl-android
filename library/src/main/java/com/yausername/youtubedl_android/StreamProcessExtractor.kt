@@ -1,10 +1,12 @@
 package com.yausername.youtubedl_android
 
 import android.util.Log
+import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.Reader
+import java.lang.Exception
 import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern
 
@@ -24,25 +26,26 @@ internal class StreamProcessExtractor(
     }
 
     override fun run() {
+        var input: BufferedReader? = null
         try {
-            val input: Reader = InputStreamReader(stream, StandardCharsets.UTF_8)
-            val currentLine = StringBuilder()
-            var nextChar: Int
-            while (input.read().also { nextChar = it } != -1) {
-
-                buffer.append(nextChar.toChar())
-                if (nextChar == '\r'.code || nextChar == '\n'.code && callback != null) {
-                    val line = currentLine.toString()
-                    if (line.startsWith("[")) processOutputLine(line)
-                    currentLine.setLength(0)
-                    continue
+            input = BufferedReader(InputStreamReader(stream, StandardCharsets.UTF_8))
+            var currentLine: String?
+            while (input.readLine().also { currentLine = it } != null) {
+                if (callback != null) {
+                    if (currentLine!!.startsWith("[")) processOutputLine(currentLine!!)
                 }
-                currentLine.append(nextChar.toChar())
             }
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             if (BuildConfig.DEBUG) Log.e(TAG, "failed to read stream", e)
+        } finally {
+            try {
+                input?.close()
+            } catch (e: IOException) {
+                if (BuildConfig.DEBUG) Log.e(TAG, "failed to close stream", e)
+            }
         }
     }
+
 
     private fun processOutputLine(line: String) {
         callback?.let { it(getProgress(line), getEta(line), line) }
