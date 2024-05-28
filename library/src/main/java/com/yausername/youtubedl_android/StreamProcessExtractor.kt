@@ -29,15 +29,14 @@ internal class StreamProcessExtractor(
             val currentLine = StringBuilder()
             var nextChar: Int
             while (input.read().also { nextChar = it } != -1) {
-                currentLine.append(nextChar.toChar())
-                if (nextChar == '\r'.code || nextChar == '\n'.code) {
+                buffer.append(nextChar.toChar())
+                if (nextChar == '\r'.code || nextChar == '\n'.code && callback != null) {
                     val line = currentLine.toString()
-                    if (line.startsWith("[")) processOutputLine(line)
+                    processOutputLine(line)
                     currentLine.setLength(0)
+                    continue
                 }
-                if (currentLine.length > 10 * 1024) {
-                    currentLine.setLength(0)
-                }
+                currentLine.append(nextChar.toChar())
             }
         }
         catch (e: OutOfMemoryError){
