@@ -29,19 +29,26 @@ internal class StreamProcessExtractor(
             val currentLine = StringBuilder()
             var nextChar: Int
             while (input.read().also { nextChar = it } != -1) {
-                buffer.append(nextChar.toChar())
-                if (nextChar == '\r'.code || nextChar == '\n'.code && callback != null) {
+                currentLine.append(nextChar.toChar())
+                if (nextChar == '\r'.code || nextChar == '\n'.code) {
                     val line = currentLine.toString()
                     if (line.startsWith("[")) processOutputLine(line)
                     currentLine.setLength(0)
-                    continue
                 }
-                currentLine.append(nextChar.toChar())
+                if (currentLine.length > 10 * 1024) {
+                    currentLine.setLength(0)
+                }
             }
-        } catch (e: Exception) {
+        }
+        catch (e: OutOfMemoryError){
+            if (BuildConfig.DEBUG) Log.e(TAG, "failed to read stream", e)
+        }
+        catch (e: Exception) {
             if (BuildConfig.DEBUG) Log.e(TAG, "failed to read stream", e)
         }
     }
+
+
 
     private fun processOutputLine(line: String) {
         callback?.let { it(getProgress(line), getEta(line), line) }
