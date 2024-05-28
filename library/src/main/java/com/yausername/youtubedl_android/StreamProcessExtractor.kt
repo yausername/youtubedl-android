@@ -37,6 +37,9 @@ internal class StreamProcessExtractor(
                     continue
                 }
                 currentLine.append(nextChar.toChar())
+                if(currentLine.length > 10 * 1024){
+                    currentLine.setLength(0)
+                }
             }
         }
         catch (e: OutOfMemoryError){
