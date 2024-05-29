@@ -1,0 +1,37 @@
+[versions]
+activityCompose = "1.9.0"
+composeBom = "2024.05.00"
+kotlin = "1.9.20"
+androidToolsBuildGradle = "8.1.4"
+appCompat = "1.6.1"
+junit = "4.13.2"
+androidJunit = "1.1.5"
+espresso = "3.5.1"
+commonsIo = "2.14.0"
+coreKtx = "1.13.1"
+kotlinxSerialization = "1.6.3"
+ktor = "2.3.6"
+lifecycleRuntimeKtx = "2.8.0"
+
+[libraries]
+activityCompose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidToolsBuildGradle = { group = "com.android.tools.build", name = "gradle", version.ref = "androidToolsBuildGradle" }
+androidxComposeBom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+kotlinGradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+appCompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appCompat" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidJunit = { group = "androidx.test.ext", name = "junit", version.ref = "androidJunit" }
+espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso" }
+commonsIo = { group = "commons-io", name = "commons-io", version.ref = "commonsIo" }
+coreKtx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+kotlinxSerializationJson = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+ktorClientCore = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktorClientAndroid = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor" }
+lifecycleRuntimeKtx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+material3 = { group = "androidx.compose.material3", name = "material3" }
+ui = { group = "androidx.compose.ui", name = "ui" }
+uiTestManifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+uiTooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+uiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+uiToolingPreview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+uiGraphics = { group = "androidx.compose.ui", name = "ui-graphics" }
