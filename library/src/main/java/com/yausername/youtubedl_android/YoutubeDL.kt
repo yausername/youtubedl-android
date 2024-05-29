@@ -3,28 +3,26 @@ package com.yausername.youtubedl_android
 import android.content.Context
 import android.os.Build
 import android.util.Log
-import com.yausername.youtubedl_android.Constants.DirectoriesName.ARIA2C
-import com.yausername.youtubedl_android.Constants.LIBRARY_NAME
-import com.yausername.youtubedl_android.Constants.PACKAGES_ROOT_NAME
 import com.yausername.youtubedl_android.data.local.streams.StreamGobbler
 import com.yausername.youtubedl_android.data.local.streams.StreamProcessExtractor
 import com.yausername.youtubedl_android.data.remote.YoutubeDLUpdater
-import com.yausername.youtubedl_android.data.remote.dependencies.DependenciesDownloaderImpl
-import com.yausername.youtubedl_android.domain.DependenciesDownloader
-import com.yausername.youtubedl_android.domain.Dependency
-import com.yausername.youtubedl_android.domain.model.DownloadedDependencies
 import com.yausername.youtubedl_android.domain.model.YoutubeDLResponse
-import com.yausername.youtubedl_android.domain.model.getMissingDependencies
 import com.yausername.youtubedl_android.domain.model.videos.VideoInfo
-import com.yausername.youtubedl_android.util.exceptions.MissingDependency
 import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException
-import com.yausername.youtubedl_android.util.files.FilesUtil.createDirectoryIfNotExists
+import com.yausername.youtubedl_common.Constants
+import com.yausername.youtubedl_common.Constants.DirectoriesName.ARIA2C
+import com.yausername.youtubedl_common.Constants.LIBRARY_NAME
+import com.yausername.youtubedl_common.Constants.PACKAGES_ROOT_NAME
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
+import com.yausername.youtubedl_common.data.remote.dependencies.DependenciesDownloaderImpl
+import com.yausername.youtubedl_common.domain.DependenciesDownloader
+import com.yausername.youtubedl_common.domain.Dependency
+import com.yausername.youtubedl_common.domain.model.DownloadedDependencies
+import com.yausername.youtubedl_common.domain.model.getMissingDependencies
 import com.yausername.youtubedl_common.utils.ZipUtils.unzip
-import kotlinx.coroutines.CoroutineScope
+import com.yausername.youtubedl_common.utils.files.FilesUtil.createDirectoryIfNotExists
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -36,7 +34,7 @@ import kotlin.collections.set
 
 object YoutubeDL {
     private var initialized = false
-    internal lateinit var binariesDirectory: File
+    private lateinit var binariesDirectory: File
 
     private var pythonPath: File? = null
     private var ffmpegPath: File? = null
@@ -52,12 +50,12 @@ object YoutubeDL {
     //Map of process id associated with the process
     private val idProcessMap = Collections.synchronizedMap(HashMap<String, Process>())
 
+    /**
+     * Initializes the library. This method should be called before any other method.
+     * @param appContext the application context
+     */
     @Synchronized
-    @Throws(YoutubeDLException::class, MissingDependency::class)
-            /**
-             * Initializes the library. This method should be called before any other method.
-             * @param appContext the application context
-             */
+    @Throws(YoutubeDLException::class, IllegalStateException::class)
     fun init(appContext: Context) {
         if (initialized) return
 
@@ -104,9 +102,9 @@ object YoutubeDL {
      * RECOMMENDATION: Call this method before init.
      * @param appContext the application context
      * @param callback a callback that will be called with the dependency and the progress of the download
-     * @throws MissingDependency if the dependencies are missing after the installation
+     * @throws IllegalStateException if the dependencies are missing after the installation
      */
-    @Throws(MissingDependency::class)
+    @Throws(IllegalStateException::class)
     fun ensureDependencies(appContext: Context, callback: dependencyDownloadCallback? = null) {
         val installedDependencies = checkInstalledDependencies(appContext)
         installDependencies(appContext, installedDependencies) { dependency, progress ->
@@ -120,7 +118,7 @@ object YoutubeDL {
      * @param downloadedDependencies the downloaded dependencies
      * @param callback a callback that will be called with the dependency and the progress of the download
      */
-    @Throws(MissingDependency::class)
+    @Throws(IllegalStateException::class)
     fun installDependencies(
         appContext: Context,
         downloadedDependencies: DownloadedDependencies,
@@ -174,7 +172,7 @@ object YoutubeDL {
             val postInstallMissingDependencies =
                 checkInstalledDependencies(appContext).getMissingDependencies()
             if (postInstallMissingDependencies.isNotEmpty()) {
-                throw MissingDependency("Some of the dependencies are still missing after the installation: $postInstallMissingDependencies")
+                throw IllegalStateException("Some of the dependencies are still missing after the installation: $postInstallMissingDependencies")
             }
         } else {
             Log.i("YoutubeDL", "All dependencies are installed")
@@ -182,12 +180,12 @@ object YoutubeDL {
     }
 
 
-    @Throws(YoutubeDLException::class)
     /**
      * Initializes yt-dlp.
      * @param appContext the application context
      * @param ytdlpDir the directory where yt-dlp is located
      */
+    @Throws(YoutubeDLException::class)
     internal fun initYtdlp(appContext: Context, ytdlpDir: File) {
         if (!ytdlpDir.exists()) ytdlpDir.mkdirs()
         val ytdlpBinary = File(ytdlpDir, Constants.BinariesName.YTDLP)
@@ -203,12 +201,12 @@ object YoutubeDL {
         }
     }
 
+    /**
+     * Initializes Python.
+     * @param appContext the application context
+     * @param pythonDir the directory where Python is located
+     */
     @Throws(YoutubeDLException::class)
-            /**
-             * Initializes Python.
-             * @param appContext the application context
-             * @param pythonDir the directory where Python is located
-             */
     fun initPython(appContext: Context, pythonDir: File) {
         val pythonLibrary = File(
             binariesDirectory, Constants.LibrariesName.PYTHON
@@ -259,12 +257,12 @@ object YoutubeDL {
         return getInfo(request)
     }
 
+    /**
+     * Gets video information
+     * @param request the request object
+     * @return the video information
+     */
     @Throws(YoutubeDLException::class, InterruptedException::class, CanceledException::class)
-            /**
-             * Gets video information
-             * @param request the request object
-             * @return the video information
-             */
     fun getInfo(request: YoutubeDLRequest): VideoInfo {
         request.addOption("--dump-json")
         val response = execute(request, null, null)

@@ -1,22 +1,22 @@
-package com.yausername.youtubedl_android.util.dependencies
+package com.yausername.youtubedl_common.utils.dependencies
 
 import android.content.Context
-import com.yausername.youtubedl_android.Constants
-import com.yausername.youtubedl_android.YoutubeDL
-import com.yausername.youtubedl_android.domain.CpuArchitecture
-import com.yausername.youtubedl_android.domain.Dependency
-import com.yausername.youtubedl_android.domain.Dependency.Companion.toDirectoryName
-import com.yausername.youtubedl_android.domain.Dependency.Companion.toLibraryName
-import com.yausername.youtubedl_android.domain.model.updates.Release
-import com.yausername.youtubedl_android.util.network.Ktor.client
-import com.yausername.youtubedl_android.util.network.Ktor.makeApiCall
+import com.yausername.youtubedl_common.Constants
+import com.yausername.youtubedl_common.domain.CpuArchitecture
+import com.yausername.youtubedl_common.domain.Dependency
+import com.yausername.youtubedl_common.domain.Dependency.Companion.toDirectoryName
+import com.yausername.youtubedl_common.domain.Dependency.Companion.toLibraryName
+import com.yausername.youtubedl_common.domain.model.updates.Release
+import com.yausername.youtubedl_common.utils.network.Ktor.client
+import com.yausername.youtubedl_common.utils.network.Ktor.makeApiCall
 import com.yausername.youtubedl_common.utils.ZipUtils.unzip
 import org.apache.commons.io.FileUtils
 import java.io.File
 
 object DependenciesUtil {
-    fun deleteDependency(dependency: Dependency): Boolean {
-        val dependencyFile = File(YoutubeDL.binariesDirectory, dependency.toLibraryName())
+    fun deleteDependency(context: Context, dependency: Dependency): Boolean {
+        val binariesDirectory = File(context.applicationInfo.nativeLibraryDir) //Here are all the binaries provided by the jniLibs folder
+        val dependencyFile = File(binariesDirectory, dependency.toLibraryName())
         return FileUtils.deleteQuietly(dependencyFile)
     }
 

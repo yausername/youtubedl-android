@@ -1,4 +1,4 @@
-package com.yausername.youtubedl_android.util.exceptions
+package com.yausername.youtubedl_common.utils.exceptions
 
 class FileDownloadException: Exception {
     constructor(message: String?) : super(message) {}

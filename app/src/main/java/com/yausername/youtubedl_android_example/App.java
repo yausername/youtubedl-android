@@ -7,7 +7,6 @@ import android.widget.Toast;
 import com.yausername.aria2c.Aria2c;
 import com.yausername.ffmpeg.FFmpeg;
 import com.yausername.youtubedl_android.YoutubeDL;
-import com.yausername.youtubedl_android.util.exceptions.MissingDependency;
 import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException;
 
 import io.reactivex.Completable;
@@ -57,7 +56,7 @@ public class App extends Application {
         });
     }
 
-    private void initLibraries() throws YoutubeDLException, MissingDependency {
+    private void initLibraries() throws YoutubeDLException, IllegalStateException {
         YoutubeDL.getInstance().ensureDependencies(this, (dependency, progress) -> {
             // Your callback logic here
             System.out.println("Dependency: " + dependency + ", Progress: " + progress);

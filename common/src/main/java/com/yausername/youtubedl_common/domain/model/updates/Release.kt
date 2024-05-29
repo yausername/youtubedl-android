@@ -1,4 +1,4 @@
-package com.yausername.youtubedl_android.domain.model.updates
+package com.yausername.youtubedl_common.domain.model.updates
 
 import kotlinx.serialization.Serializable
 

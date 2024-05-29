@@ -1,8 +1,8 @@
-package com.yausername.youtubedl_android.data.remote.files
+package com.yausername.youtubedl_common.data.remote
 
 import android.util.Log
-import com.yausername.youtubedl_android.util.exceptions.FileDownloadException
-import com.yausername.youtubedl_android.util.network.Ktor.client
+import com.yausername.youtubedl_common.utils.exceptions.FileDownloadException
+import com.yausername.youtubedl_common.utils.network.Ktor.client
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.prepareGet

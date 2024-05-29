@@ -1,6 +1,6 @@
-package com.yausername.youtubedl_android.domain.model
+package com.yausername.youtubedl_common.domain.model
 
-import com.yausername.youtubedl_android.domain.Dependency
+import com.yausername.youtubedl_common.domain.Dependency
 
 data class DownloadedDependencies(
     val python: Boolean = false,

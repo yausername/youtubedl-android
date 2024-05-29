@@ -9,7 +9,7 @@ import java.io.File
 
 object Aria2c {
     private var initialized = false
-    private var binDir: File? = null
+    private lateinit var binDir: File
 
     @Synchronized
     fun init(appContext: Context) {
@@ -41,7 +41,7 @@ object Aria2c {
     }
 
     private fun shouldUpdateAria2c(appContext: Context, version: String): Boolean {
-        return version != SharedPrefsHelper.get(appContext, aria2cLibVersion)
+        return version != SharedPrefsHelper[appContext, aria2cLibVersion]
     }
 
     private fun updateAria2c(appContext: Context, version: String) {

@@ -1,6 +1,6 @@
-package com.yausername.youtubedl_android.domain
+package com.yausername.youtubedl_common.domain
 
-import com.yausername.youtubedl_android.Constants
+import com.yausername.youtubedl_common.Constants
 
 enum class Dependency {
     PYTHON,

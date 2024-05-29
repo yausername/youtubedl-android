@@ -1,9 +1,9 @@
-package com.yausername.youtubedl_android.domain.model.updates
+package com.yausername.youtubedl_common.domain.model.updates
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Uploader(
+data class Author(
     val login: String = "",
     val id: Long = 0,
     val node_id: String = "",

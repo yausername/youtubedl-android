@@ -1,4 +1,4 @@
-package com.yausername.youtubedl_android.domain
+package com.yausername.youtubedl_common.domain
 
 import android.content.Context
 

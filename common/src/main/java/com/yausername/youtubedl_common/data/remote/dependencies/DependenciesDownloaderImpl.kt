@@ -1,15 +1,15 @@
-package com.yausername.youtubedl_android.data.remote.dependencies
+package com.yausername.youtubedl_common.data.remote.dependencies
 
 import android.content.Context
-import com.yausername.youtubedl_android.Constants.LibrariesName.TemporalFilesName.TEMPORAL_ARIA2C
-import com.yausername.youtubedl_android.Constants.LibrariesName.TemporalFilesName.TEMPORAL_FFMPEG
-import com.yausername.youtubedl_android.Constants.LibrariesName.TemporalFilesName.TEMPORAL_PYTHON
-import com.yausername.youtubedl_android.data.remote.files.FileDownloader
-import com.yausername.youtubedl_android.domain.Dependency
-import com.yausername.youtubedl_android.domain.DependenciesDownloader
-import com.yausername.youtubedl_android.util.device.CpuUtils
-import com.yausername.youtubedl_android.util.dependencies.DependenciesUtil.getDownloadLinkForDependency
-import com.yausername.youtubedl_android.util.dependencies.DependenciesUtil.unzipToDependencyDirectory
+import com.yausername.youtubedl_common.Constants.LibrariesName.TemporalFilesName.TEMPORAL_ARIA2C
+import com.yausername.youtubedl_common.Constants.LibrariesName.TemporalFilesName.TEMPORAL_FFMPEG
+import com.yausername.youtubedl_common.Constants.LibrariesName.TemporalFilesName.TEMPORAL_PYTHON
+import com.yausername.youtubedl_common.data.remote.FileDownloader
+import com.yausername.youtubedl_common.domain.DependenciesDownloader
+import com.yausername.youtubedl_common.domain.Dependency
+import com.yausername.youtubedl_common.utils.dependencies.DependenciesUtil.getDownloadLinkForDependency
+import com.yausername.youtubedl_common.utils.dependencies.DependenciesUtil.unzipToDependencyDirectory
+import com.yausername.youtubedl_common.utils.device.CpuUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext

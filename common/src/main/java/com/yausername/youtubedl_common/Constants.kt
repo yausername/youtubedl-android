@@ -1,4 +1,4 @@
-package com.yausername.youtubedl_android
+package com.yausername.youtubedl_common
 
 object Constants {
     const val LIBRARY_NAME = "youtubedl-android"

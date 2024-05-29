@@ -1,4 +1,4 @@
-package com.yausername.youtubedl_android.domain
+package com.yausername.youtubedl_common.domain
 
 enum class CpuArchitecture {
     ARM32,
@@ -7,7 +7,7 @@ enum class CpuArchitecture {
     X64; // x86_64
 
     companion object {
-        fun String.fromCompleteAbiToCpuArchitecture(): CpuArchitecture {
+        fun String.toCpuArchitecture(): CpuArchitecture {
             return when (this) {
                 "armeabi-v7a" -> ARM32
                 "arm64-v8a" -> ARM64

@@ -1,4 +1,5 @@
 plugins {
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.20'
     id 'org.jetbrains.kotlin.android'
     id 'com.android.library'
     id 'maven-publish'
@@ -56,6 +57,9 @@ dependencies {
 
     implementation "androidx.appcompat:appcompat:$appCompatVer"
     implementation "androidx.core:core-ktx:$coreKtxVer"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVer"
+    implementation "io.ktor:ktor-client-core:$ktorversion"
+    implementation "io.ktor:ktor-client-android:$ktorversion"
     testImplementation "junit:junit:$junitVer"
     androidTestImplementation "androidx.test.ext:junit:$androidJunitVer"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVer"

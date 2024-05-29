@@ -1,14 +1,12 @@
 package com.yausername.youtubedl_android.data.remote
 
 import android.content.Context
-import com.yausername.youtubedl_android.Constants
-import com.yausername.youtubedl_android.Constants.BinariesName.YTDLP
-import com.yausername.youtubedl_android.Constants.DirectoriesName.YTDLP
-import com.yausername.youtubedl_android.Constants.LIBRARY_NAME
+import com.yausername.youtubedl_common.Constants
+import com.yausername.youtubedl_common.Constants.LIBRARY_NAME
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDL.UpdateChannel
 import com.yausername.youtubedl_android.YoutubeDL.UpdateStatus
-import com.yausername.youtubedl_android.domain.model.updates.Release
+import com.yausername.youtubedl_common.domain.model.updates.Release
 import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update

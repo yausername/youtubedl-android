@@ -1,6 +1,6 @@
-package com.yausername.youtubedl_android.util.network
+package com.yausername.youtubedl_common.utils.network
 
-import com.yausername.youtubedl_android.YoutubeDL.json
+import com.yausername.youtubedl_common.utils.json
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
@@ -12,7 +12,7 @@ object Ktor {
         connectTimeout = 10_000 //ms
         socketTimeout = 10_000 //ms
     }) {
-
+        //Here we can add proxy support and more things
     }
 
     @Throws(Exception::class)
