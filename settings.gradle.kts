@@ -1,15 +1,13 @@
-include ':common', ':app', ':library', ':ffmpeg', ':aria2c'
+include(":common", ":app", ":library", ":ffmpeg", ":aria2c", ":app_compose")
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
-        jcenter() // Warning: this repository is going to shut down soon
-
+        jcenter()
         // e.g this is how you would add jitpack
-        maven { url "https://jitpack.io" }
+        maven { url = uri("https://jitpack.io") }
         // Add any repositories you would be adding to all projects here
     }
 }
-include ':app_compose'

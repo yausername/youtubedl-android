@@ -2,12 +2,13 @@
 activityCompose = "1.9.0"
 composeBom = "2024.05.00"
 kotlin = "1.9.20"
-androidToolsBuildGradle = "8.1.4"
+androidToolsBuildGradle = "8.4.1"
 appCompat = "1.6.1"
 junit = "4.13.2"
 androidJunit = "1.1.5"
 espresso = "3.5.1"
 commonsIo = "2.14.0"
+commonsCompress = "1.21"
 coreKtx = "1.13.1"
 kotlinxSerialization = "1.6.3"
 ktor = "2.3.6"
@@ -23,6 +24,7 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidJunit = { group = "androidx.test.ext", name = "junit", version.ref = "androidJunit" }
 espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso" }
 commonsIo = { group = "commons-io", name = "commons-io", version.ref = "commonsIo" }
+commonsCompress = { group = "org.apache.commons", name = "commons-compress", version = "1.21" }
 coreKtx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 kotlinxSerializationJson = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 ktorClientCore = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
@@ -35,3 +37,11 @@ uiTooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 uiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 uiToolingPreview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 uiGraphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+androidApplication = { id = "com.android.application", version.ref = "androidToolsBuildGradle" }
+androidLibrary = { id = "com.android.library", version.ref = "androidToolsBuildGradle" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+mavenPublish = { id = "maven-publish" }
