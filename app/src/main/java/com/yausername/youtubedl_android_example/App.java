@@ -8,6 +8,7 @@ import com.yausername.aria2c.Aria2c;
 import com.yausername.ffmpeg.FFmpeg;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException;
+import com.yausername.youtubedl_common.domain.model.DownloadedDependencies;
 
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -57,11 +58,12 @@ public class App extends Application {
     }
 
     private void initLibraries() throws YoutubeDLException, IllegalStateException {
-        YoutubeDL.getInstance().ensureDependencies(this, (dependency, progress) -> {
+        DownloadedDependencies deps = YoutubeDL.getInstance().ensureDependenciesBridge(this, false,(dependency, progress) -> {
             // Your callback logic here
             System.out.println("Dependency: " + dependency + ", Progress: " + progress);
             return null;
         });
+        Log.i(TAG, "Initialized youtube-dl-android: " + deps);
         YoutubeDL.getInstance().init(this);
         FFmpeg.getInstance().init(this);
         Aria2c.getInstance().init(this);

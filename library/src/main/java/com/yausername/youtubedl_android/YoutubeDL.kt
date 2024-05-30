@@ -2,7 +2,6 @@ package com.yausername.youtubedl_android
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import com.yausername.youtubedl_android.data.local.streams.StreamGobbler
 import com.yausername.youtubedl_android.data.local.streams.StreamProcessExtractor
 import com.yausername.youtubedl_android.data.remote.YoutubeDLUpdater
@@ -10,21 +9,15 @@ import com.yausername.youtubedl_android.domain.model.YoutubeDLResponse
 import com.yausername.youtubedl_android.domain.model.videos.VideoInfo
 import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException
 import com.yausername.youtubedl_common.Constants
-import com.yausername.youtubedl_common.Constants.DirectoriesName.ARIA2C
 import com.yausername.youtubedl_common.Constants.LIBRARY_NAME
 import com.yausername.youtubedl_common.Constants.PACKAGES_ROOT_NAME
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
-import com.yausername.youtubedl_common.data.remote.dependencies.DependenciesDownloaderImpl
-import com.yausername.youtubedl_common.domain.DependenciesDownloader
-import com.yausername.youtubedl_common.domain.Dependency
 import com.yausername.youtubedl_common.domain.model.DownloadedDependencies
-import com.yausername.youtubedl_common.domain.model.getMissingDependencies
 import com.yausername.youtubedl_common.utils.ZipUtils.unzip
+import com.yausername.youtubedl_common.utils.dependencies.DependenciesUtil
+import com.yausername.youtubedl_common.utils.dependencies.dependencyDownloadCallback
 import com.yausername.youtubedl_common.utils.files.FilesUtil.createDirectoryIfNotExists
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.apache.commons.io.FileUtils
 import java.io.File
@@ -45,10 +38,16 @@ object YoutubeDL {
     private lateinit var ENV_SSL_CERT_FILE: String
     private lateinit var ENV_PYTHONHOME: String
 
-    private val dependenciesDownloader: DependenciesDownloader = DependenciesDownloaderImpl()
-
     //Map of process id associated with the process
     private val idProcessMap = Collections.synchronizedMap(HashMap<String, Process>())
+
+    @JvmName("ensureDependenciesBridge")
+    @Throws(IllegalStateException::class)
+    fun ensureDependencies(
+        appContext: Context,
+        skipAria2c: Boolean = false,
+        callback: dependencyDownloadCallback? = null
+    ): DownloadedDependencies = DependenciesUtil.ensureDependencies(appContext, skipAria2c, callback)
 
     /**
      * Initializes the library. This method should be called before any other method.
@@ -96,89 +95,6 @@ object YoutubeDL {
 
         initialized = true
     }
-
-    /**
-     * Asserts that the dependencies are installed and downloads them if they are missing.
-     * RECOMMENDATION: Call this method before init.
-     * @param appContext the application context
-     * @param callback a callback that will be called with the dependency and the progress of the download
-     * @throws IllegalStateException if the dependencies are missing after the installation
-     */
-    @Throws(IllegalStateException::class)
-    fun ensureDependencies(appContext: Context, callback: dependencyDownloadCallback? = null) {
-        val installedDependencies = checkInstalledDependencies(appContext)
-        installDependencies(appContext, installedDependencies) { dependency, progress ->
-            callback?.invoke(dependency, progress)
-        }
-    }
-
-    /**
-     * Asserts that the dependencies are installed and downloads them if they are missing
-     * @param appContext the application context
-     * @param downloadedDependencies the downloaded dependencies
-     * @param callback a callback that will be called with the dependency and the progress of the download
-     */
-    @Throws(IllegalStateException::class)
-    fun installDependencies(
-        appContext: Context,
-        downloadedDependencies: DownloadedDependencies,
-        callback: dependencyDownloadCallback?
-    ) {
-        // We check what dependencies are missing and download them; the callback is called with the dependency and the progress of the download.
-        // get the dependencies that are missing
-        val missingDependencies = downloadedDependencies.getMissingDependencies()
-        if (BuildConfig.DEBUG) Log.i("YoutubeDL", "Missing dependencies: $missingDependencies")
-        if (missingDependencies.isNotEmpty()) {
-            Log.i("YoutubeDL", "Some dependencies are missing: $missingDependencies")
-
-            runBlocking(Dispatchers.IO) {
-                // download the missing dependencies
-                missingDependencies.forEach { dependency ->
-                    Log.i("YoutubeDL", "Downloading $dependency")
-                    var lastProgress = 0 // Initialize with an appropriate default value
-
-                    when (dependency) {
-                        Dependency.PYTHON -> {
-                            dependenciesDownloader.downloadPython(appContext) { progress ->
-                                if (progress != lastProgress) {
-                                    callback?.invoke(dependency, progress)
-                                    lastProgress = progress
-                                }
-                            }
-                        }
-
-                        Dependency.FFMPEG -> {
-                            dependenciesDownloader.downloadFFmpeg(appContext) { progress ->
-                                if (progress != lastProgress) {
-                                    callback?.invoke(dependency, progress)
-                                    lastProgress = progress
-                                }
-                            }
-                        }
-
-                        Dependency.ARIA2C -> {
-                            dependenciesDownloader.downloadAria2c(appContext) { progress ->
-                                if (progress != lastProgress) {
-                                    callback?.invoke(dependency, progress)
-                                    lastProgress = progress
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // check again if the dependencies are installed (this time they should be)
-            val postInstallMissingDependencies =
-                checkInstalledDependencies(appContext).getMissingDependencies()
-            if (postInstallMissingDependencies.isNotEmpty()) {
-                throw IllegalStateException("Some of the dependencies are still missing after the installation: $postInstallMissingDependencies")
-            }
-        } else {
-            Log.i("YoutubeDL", "All dependencies are installed")
-        }
-    }
-
 
     /**
      * Initializes yt-dlp.
@@ -405,30 +321,6 @@ object YoutubeDL {
         }
     }
 
-    /**
-     * Checks if the dependencies are installed
-     * @return the installed dependencies
-     */
-    fun checkInstalledDependencies(appContext: Context): DownloadedDependencies {
-        val libraryBaseDir = File(appContext.noBackupFilesDir, LIBRARY_NAME)
-        val packagesDir = File(libraryBaseDir, PACKAGES_ROOT_NAME)
-
-        val pythonDir = File(
-            packagesDir, Constants.DirectoriesName.PYTHON
-        )
-        val ffmpegDir = File(
-            packagesDir, Constants.DirectoriesName.FFMPEG
-        )
-        val aria2cDir = File(packagesDir, ARIA2C)
-
-        val installedDependencies = DownloadedDependencies(
-            pythonDir.exists(), ffmpegDir.exists(), aria2cDir.exists()
-        )
-
-        Log.i("YoutubeDL", installedDependencies.toString())
-        return installedDependencies
-    }
-
 
     /**
      * Gets the version of yt-dlp
@@ -481,5 +373,3 @@ object YoutubeDL {
     @JvmStatic
     fun getInstance() = this
 }
-
-typealias dependencyDownloadCallback = (Dependency, Int) -> Unit
