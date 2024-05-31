@@ -1,34 +1,18 @@
 package com.yausername.youtubedl_android
 
 import android.content.Context
+import android.util.Log
 import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException
 import com.yausername.youtubedl_common.Constants
+import com.yausername.youtubedl_common.domain.Dependency
+import com.yausername.youtubedl_common.domain.model.DownloadedDependencies
 import com.yausername.youtubedl_common.utils.ZipUtils.unzip
+import com.yausername.youtubedl_common.utils.dependencies.DependenciesUtil
+import com.yausername.youtubedl_common.utils.dependencies.dependencyDownloadCallback
 import org.apache.commons.io.FileUtils
 import java.io.File
 
 object YoutubeDL: YoutubeDLCore() {
-    /**
-     * Initializes yt-dlp.
-     * @param appContext the application context
-     * @param ytdlpDir the directory where yt-dlp is located
-     */
-    @Throws(YoutubeDLException::class)
-    override fun initYtdlp(appContext: Context, ytdlpDir: File) {
-        if (!ytdlpDir.exists()) ytdlpDir.mkdirs()
-        val ytdlpBinary = File(ytdlpDir, Constants.BinariesName.YTDLP)
-        if (!ytdlpBinary.exists()) {
-            try {
-                val inputStream =
-                    appContext.resources.openRawResource(R.raw.ytdlp) /* will be renamed to yt-dlp */
-                FileUtils.copyInputStreamToFile(inputStream, ytdlpBinary)
-            } catch (e: Exception) {
-                FileUtils.deleteQuietly(ytdlpDir)
-                throw YoutubeDLException("Failed to initialize yt-dlp", e)
-            }
-        }
-    }
-
     /**
      * Initializes Python.
      * @param appContext the application context
@@ -42,15 +26,21 @@ object YoutubeDL: YoutubeDLCore() {
         // using size of lib as version
         val pythonSize = pythonLibrary.length().toString()
         if (!pythonDir.exists() || shouldUpdatePython(appContext, pythonSize)) {
-            FileUtils.deleteQuietly(pythonDir)
-            pythonDir.mkdirs()
-            try {
-                unzip(pythonLibrary, pythonDir)
-            } catch (e: Exception) {
-                FileUtils.deleteQuietly(pythonDir)
-                throw YoutubeDLException("Failed to initialize Python", e)
-            }
+            //TODO: REMAKE THE UPDATE SYSTEM FOR THE ONLINE DOWNLOADING
+            Log.i("YoutubeDL", "Update Python - TEST")
             updatePython(appContext, pythonSize)
         }
     }
+
+    @JvmName("ensureDependenciesBridge")
+    @Throws(IllegalStateException::class)
+    fun ensureDependencies(
+        appContext: Context,
+        skipDependencies: List<Dependency> = emptyList(),
+        callback: dependencyDownloadCallback? = null
+    ): DownloadedDependencies =
+        DependenciesUtil.ensureDependencies(appContext, skipDependencies, callback)
+
+    @JvmStatic
+    fun getInstance() = this
 }

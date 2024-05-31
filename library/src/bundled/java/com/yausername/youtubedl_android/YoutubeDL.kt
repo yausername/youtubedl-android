@@ -9,27 +9,6 @@ import java.io.File
 
 object YoutubeDL: YoutubeDLCore() {
     /**
-     * Initializes yt-dlp.
-     * @param appContext the application context
-     * @param ytdlpDir the directory where yt-dlp is located
-     */
-    @Throws(YoutubeDLException::class)
-    override fun initYtdlp(appContext: Context, ytdlpDir: File) {
-        if (!ytdlpDir.exists()) ytdlpDir.mkdirs()
-        val ytdlpBinary = File(ytdlpDir, Constants.BinariesName.YTDLP)
-        if (!ytdlpBinary.exists()) {
-            try {
-                val inputStream =
-                    appContext.resources.openRawResource(R.raw.ytdlp) /* will be renamed to yt-dlp */
-                FileUtils.copyInputStreamToFile(inputStream, ytdlpBinary)
-            } catch (e: Exception) {
-                FileUtils.deleteQuietly(ytdlpDir)
-                throw YoutubeDLException("Failed to initialize yt-dlp", e)
-            }
-        }
-    }
-
-    /**
      * Initializes Python.
      * @param appContext the application context
      * @param pythonDir the directory where Python is located

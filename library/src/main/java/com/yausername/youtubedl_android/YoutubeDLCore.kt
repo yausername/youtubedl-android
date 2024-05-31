@@ -22,6 +22,7 @@ import com.yausername.youtubedl_common.utils.dependencies.DependenciesUtil
 import com.yausername.youtubedl_common.utils.dependencies.dependencyDownloadCallback
 import com.yausername.youtubedl_common.utils.files.FilesUtil.createDirectoryIfNotExists
 import kotlinx.serialization.json.Json
+import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.IOException
 import java.util.Collections
@@ -90,18 +91,28 @@ abstract class YoutubeDLCore {
         initialized = true
     }
 
-    @JvmName("ensureDependenciesBridge")
-    @Throws(IllegalStateException::class)
-    fun ensureDependencies(
-        appContext: Context,
-        skipDependencies: List<Dependency> = emptyList(),
-        callback: dependencyDownloadCallback? = null
-    ): DownloadedDependencies =
-        DependenciesUtil.ensureDependencies(appContext, skipDependencies, callback)
-
     abstract fun initPython(appContext: Context, pythonDir: File)
 
-    abstract fun initYtdlp(appContext: Context, ytdlpDir: File)
+    /**
+     * Initializes yt-dlp.
+     * @param appContext the application context
+     * @param ytdlpDir the directory where yt-dlp is located
+     */
+    @Throws(YoutubeDLException::class)
+    fun initYtdlp(appContext: Context, ytdlpDir: File) {
+        if (!ytdlpDir.exists()) ytdlpDir.mkdirs()
+        val ytdlpBinary = File(ytdlpDir, Constants.BinariesName.YTDLP)
+        if (!ytdlpBinary.exists()) {
+            try {
+                val inputStream =
+                    appContext.resources.openRawResource(R.raw.ytdlp) /* will be renamed to yt-dlp */
+                FileUtils.copyInputStreamToFile(inputStream, ytdlpBinary)
+            } catch (e: Exception) {
+                FileUtils.deleteQuietly(ytdlpDir)
+                throw YoutubeDLException("Failed to initialize yt-dlp", e)
+            }
+        }
+    }
 
     @Throws(YoutubeDLException::class, InterruptedException::class, CanceledException::class)
     fun getInfo(url: String): VideoInfo {
