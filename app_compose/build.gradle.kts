@@ -50,7 +50,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":library"))
+    implementation(project(path = ":library", configuration = "bundledDebugRuntimeElements"))
+
     implementation(project(":ffmpeg"))
     implementation(project(":aria2c"))
     implementation(project(":common"))

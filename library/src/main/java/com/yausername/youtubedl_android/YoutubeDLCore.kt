@@ -2,9 +2,12 @@ package com.yausername.youtubedl_android
 
 import android.content.Context
 import android.os.Build
+import com.yausername.youtubedl_android.YoutubeDL.assertInit
 import com.yausername.youtubedl_android.data.local.streams.StreamGobbler
 import com.yausername.youtubedl_android.data.local.streams.StreamProcessExtractor
 import com.yausername.youtubedl_android.data.remote.YoutubeDLUpdater
+import com.yausername.youtubedl_android.domain.UpdateChannel
+import com.yausername.youtubedl_android.domain.UpdateStatus
 import com.yausername.youtubedl_android.domain.model.YoutubeDLResponse
 import com.yausername.youtubedl_android.domain.model.videos.VideoInfo
 import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException
@@ -13,21 +16,19 @@ import com.yausername.youtubedl_common.Constants.LIBRARY_NAME
 import com.yausername.youtubedl_common.Constants.PACKAGES_ROOT_NAME
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
+import com.yausername.youtubedl_common.domain.Dependency
 import com.yausername.youtubedl_common.domain.model.DownloadedDependencies
-import com.yausername.youtubedl_common.utils.ZipUtils.unzip
 import com.yausername.youtubedl_common.utils.dependencies.DependenciesUtil
 import com.yausername.youtubedl_common.utils.dependencies.dependencyDownloadCallback
 import com.yausername.youtubedl_common.utils.files.FilesUtil.createDirectoryIfNotExists
 import kotlinx.serialization.json.Json
-import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.IOException
 import java.util.Collections
-import kotlin.collections.set
 
-object YoutubeDL {
+abstract class YoutubeDLCore {
     private var initialized = false
-    private lateinit var binariesDirectory: File
+    protected lateinit var binariesDirectory: File
 
     private var pythonPath: File? = null
     private var ffmpegPath: File? = null
@@ -39,15 +40,8 @@ object YoutubeDL {
     private lateinit var ENV_PYTHONHOME: String
 
     //Map of process id associated with the process
-    private val idProcessMap = Collections.synchronizedMap(HashMap<String, Process>())
-
-    @JvmName("ensureDependenciesBridge")
-    @Throws(IllegalStateException::class)
-    fun ensureDependencies(
-        appContext: Context,
-        skipAria2c: Boolean = false,
-        callback: dependencyDownloadCallback? = null
-    ): DownloadedDependencies = DependenciesUtil.ensureDependencies(appContext, skipAria2c, callback)
+    protected open val idProcessMap: MutableMap<String, Process> =
+        Collections.synchronizedMap(HashMap<String, Process>())
 
     /**
      * Initializes the library. This method should be called before any other method.
@@ -55,7 +49,7 @@ object YoutubeDL {
      */
     @Synchronized
     @Throws(YoutubeDLException::class, IllegalStateException::class)
-    fun init(appContext: Context) {
+    open fun init(appContext: Context) {
         if (initialized) return
 
         val baseDir = File(appContext.noBackupFilesDir, LIBRARY_NAME)
@@ -96,76 +90,18 @@ object YoutubeDL {
         initialized = true
     }
 
-    /**
-     * Initializes yt-dlp.
-     * @param appContext the application context
-     * @param ytdlpDir the directory where yt-dlp is located
-     */
-    @Throws(YoutubeDLException::class)
-    internal fun initYtdlp(appContext: Context, ytdlpDir: File) {
-        if (!ytdlpDir.exists()) ytdlpDir.mkdirs()
-        val ytdlpBinary = File(ytdlpDir, Constants.BinariesName.YTDLP)
-        if (!ytdlpBinary.exists()) {
-            try {
-                val inputStream =
-                    appContext.resources.openRawResource(R.raw.ytdlp) /* will be renamed to yt-dlp */
-                FileUtils.copyInputStreamToFile(inputStream, ytdlpBinary)
-            } catch (e: Exception) {
-                FileUtils.deleteQuietly(ytdlpDir)
-                throw YoutubeDLException("Failed to initialize yt-dlp", e)
-            }
-        }
-    }
+    @JvmName("ensureDependenciesBridge")
+    @Throws(IllegalStateException::class)
+    fun ensureDependencies(
+        appContext: Context,
+        skipDependencies: List<Dependency> = emptyList(),
+        callback: dependencyDownloadCallback? = null
+    ): DownloadedDependencies =
+        DependenciesUtil.ensureDependencies(appContext, skipDependencies, callback)
 
-    /**
-     * Initializes Python.
-     * @param appContext the application context
-     * @param pythonDir the directory where Python is located
-     */
-    @Throws(YoutubeDLException::class)
-    fun initPython(appContext: Context, pythonDir: File) {
-        val pythonLibrary = File(
-            binariesDirectory, Constants.LibrariesName.PYTHON
-        )
-        // using size of lib as version
-        val pythonSize = pythonLibrary.length().toString()
-        if (!pythonDir.exists() || shouldUpdatePython(appContext, pythonSize)) {
-            FileUtils.deleteQuietly(pythonDir)
-            pythonDir.mkdirs()
-            try {
-                unzip(pythonLibrary, pythonDir)
-            } catch (e: Exception) {
-                FileUtils.deleteQuietly(pythonDir)
-                throw YoutubeDLException("Failed to initialize Python", e)
-            }
-            updatePython(appContext, pythonSize)
-        }
-    }
+    abstract fun initPython(appContext: Context, pythonDir: File)
 
-    /**
-     * Check if Python should be updated by using the zip file size (both new and old)
-     * @param appContext the application context
-     * @param version the current version of Python (the size of the zip file)
-     */
-    private fun shouldUpdatePython(appContext: Context, version: String): Boolean {
-        return version != SharedPrefsHelper[appContext, PYTHON_LIB_VERSION]
-    }
-
-    /**
-     * Updates the Python version
-     * @param appContext the application context
-     * @param version the new version of Python (the size of the zip file)
-     */
-    private fun updatePython(appContext: Context, version: String) {
-        update(appContext, PYTHON_LIB_VERSION, version)
-    }
-
-    /**
-     * Asserts that the library is initialized
-     */
-    private fun assertInit() {
-        check(initialized) { "The library instance that you are trying to access is not initialized; please, check if you have initialized it by using the YoutubeDL.init() function" }
-    }
+    abstract fun initYtdlp(appContext: Context, ytdlpDir: File)
 
     @Throws(YoutubeDLException::class, InterruptedException::class, CanceledException::class)
     fun getInfo(url: String): VideoInfo {
@@ -221,17 +157,18 @@ object YoutubeDL {
         return false
     }
 
+
     class CanceledException : Exception()
 
+    /**
+     * Executes a request to yt-dlp
+     * @param request the request object
+     * @param processId the process id
+     * @param callback a callback that will be called with the progress percentage, the ETA and the output
+     * @return the response object
+     */
     @JvmOverloads
     @Throws(YoutubeDLException::class, InterruptedException::class, CanceledException::class)
-            /**
-             * Executes a request to yt-dlp
-             * @param request the request object
-             * @param processId the process id
-             * @param callback a callback that will be called with the progress percentage, the ETA and the output
-             * @return the response object
-             */
     fun execute(
         request: YoutubeDLRequest,
         processId: String? = null,
@@ -302,74 +239,72 @@ object YoutubeDL {
         return youtubeDLResponse
     }
 
-    @Synchronized
-    @Throws(YoutubeDLException::class)
-            /**
-             * Updates yt-dlp
-             * @param appContext the application context
-             * @param updateChannel the update channel
-             * @return the update status
-             */
-    fun updateYoutubeDL(
-        appContext: Context, updateChannel: UpdateChannel = UpdateChannel.STABLE
-    ): UpdateStatus? {
-        assertInit()
-        return try {
-            YoutubeDLUpdater.update(appContext, updateChannel)
-        } catch (e: IOException) {
-            throw YoutubeDLException("Failed to update yt-dlp!", e)
-        }
+    /**
+     * Asserts that the library is initialized
+     */
+    fun assertInit() {
+        check(initialized) { "The library instance that you are trying to access is not initialized; please, check if you have initialized it by using the YoutubeDL.init() function" }
     }
 
 
     /**
-     * Gets the version of yt-dlp
+     * Check if Python should be updated by using the zip file size (both new and old)
+     * @param appContext the application context
+     * @param version the current version of Python (the size of the zip file)
      */
-    fun version(appContext: Context?): String? {
-        return YoutubeDLUpdater.version(appContext)
+    fun shouldUpdatePython(appContext: Context, version: String): Boolean {
+        return version != SharedPrefsHelper[appContext, PYTHON_LIB_VERSION]
     }
 
     /**
-     * Gets the version name of yt-dlp
+     * Updates the Python version
+     * @param appContext the application context
+     * @param version the new version of Python (the size of the zip file)
      */
-    fun versionName(appContext: Context?): String? {
-        return YoutubeDLUpdater.versionName(appContext)
+    fun updatePython(appContext: Context, version: String) {
+        update(appContext, PYTHON_LIB_VERSION, version)
     }
 
-    enum class UpdateStatus {
-        DONE, ALREADY_UP_TO_DATE
-    }
+    companion object {
+        /**
+         * Updates yt-dlp
+         * @param appContext the application context
+         * @param updateChannel the update channel
+         * @return the update status
+         */
+        @Synchronized
+        @Throws(YoutubeDLException::class)
+        fun updateYoutubeDL(
+            appContext: Context, updateChannel: UpdateChannel = UpdateChannel.STABLE
+        ): UpdateStatus? {
+            return try {
+                assertInit()
+                YoutubeDLUpdater.update(appContext, updateChannel)
+            } catch (e: IOException) {
+                throw YoutubeDLException("Failed to update yt-dlp!", e)
+            }
+        }
 
-    sealed class UpdateChannel(val apiUrl: String) {
-        data object STABLE :
-            UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest")
+        /**
+         * Gets the version of yt-dlp
+         */
+        fun version(appContext: Context?): String? {
+            return YoutubeDLUpdater.version(appContext)
+        }
 
-        data object NIGHTLY :
-            UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp-nightly-builds/releases/latest")
+        /**
+         * Gets the version name of yt-dlp
+         */
+        fun versionName(appContext: Context?): String? {
+            return YoutubeDLUpdater.versionName(appContext)
+        }
 
-        data object MASTER :
-            UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp-master-builds/releases/latest")
+        const val PYTHON_LIB_VERSION = "pythonLibVersion"
 
-        companion object {
-            @JvmField
-            val _STABLE: STABLE = STABLE
-
-            @JvmField
-            val _NIGHTLY: NIGHTLY = NIGHTLY
-
-            @JvmField
-            val _MASTER: MASTER = MASTER
+        val json = Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+            coerceInputValues = true
         }
     }
-
-    private const val PYTHON_LIB_VERSION = "pythonLibVersion"
-
-    val json = Json {
-        ignoreUnknownKeys = true
-        encodeDefaults = true
-        coerceInputValues = true
-    }
-
-    @JvmStatic
-    fun getInstance() = this
 }

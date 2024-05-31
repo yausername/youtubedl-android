@@ -46,7 +46,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation project(":library")
+    implementation project(":library") targetConfiguration("bundledDebugRuntimeElements") // or nonbundledReleaseRuntimeElements
     implementation project(":ffmpeg")
     implementation project(":aria2c")
     api project(":common")

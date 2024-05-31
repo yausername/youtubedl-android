@@ -12,13 +12,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.yausername.youtubedl_android.YoutubeDL;
+import com.yausername.youtubedl_android.domain.UpdateChannel;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -90,11 +90,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .setItems(new String[]{"Stable Releases", "Nightly Releases", "Master Releases"},
                                 (dialogInterface, which) -> {
                                     if (which == 0)
-                                        updateYoutubeDL(YoutubeDL.UpdateChannel._STABLE);
+                                        updateYoutubeDL(UpdateChannel._STABLE);
                                     else if (which == 1)
-                                        updateYoutubeDL(YoutubeDL.UpdateChannel._NIGHTLY);
+                                        updateYoutubeDL(UpdateChannel._NIGHTLY);
                                     else
-                                        updateYoutubeDL(YoutubeDL.UpdateChannel._MASTER);
+                                        updateYoutubeDL(UpdateChannel._MASTER);
                                 })
                         .create();
                 dialog.show();
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void updateYoutubeDL(YoutubeDL.UpdateChannel updateChannel) {
+    private void updateYoutubeDL(UpdateChannel updateChannel) {
         if (updating) {
             Toast.makeText(MainActivity.this, "Update is already in progress!", Toast.LENGTH_LONG).show();
             return;
@@ -111,17 +111,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         updating = true;
         progressBar.setVisibility(View.VISIBLE);
-        Disposable disposable = Observable.fromCallable(() -> YoutubeDL.getInstance().updateYoutubeDL(this, updateChannel))
+        Disposable disposable = Observable.fromCallable(() -> YoutubeDL.Companion.updateYoutubeDL(this, updateChannel))
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(status -> {
                     progressBar.setVisibility(View.GONE);
                     switch (status) {
                         case DONE:
-                            Toast.makeText(MainActivity.this, "Update successful " + YoutubeDL.getInstance().versionName(this), Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "Update successful " + YoutubeDL.Companion.versionName(this), Toast.LENGTH_LONG).show();
                             break;
                         case ALREADY_UP_TO_DATE:
-                            Toast.makeText(MainActivity.this, "Already up to date " + YoutubeDL.getInstance().versionName(this), Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "Already up to date " + YoutubeDL.Companion.versionName(this), Toast.LENGTH_LONG).show();
                             break;
                         default:
                             Toast.makeText(MainActivity.this, status.toString(), Toast.LENGTH_LONG).show();

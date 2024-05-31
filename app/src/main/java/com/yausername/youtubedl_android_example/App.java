@@ -10,6 +10,8 @@ import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException;
 import com.yausername.youtubedl_common.domain.model.DownloadedDependencies;
 
+import java.util.Collections;
+
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.exceptions.UndeliverableException;
@@ -58,7 +60,7 @@ public class App extends Application {
     }
 
     private void initLibraries() throws YoutubeDLException, IllegalStateException {
-        DownloadedDependencies deps = YoutubeDL.getInstance().ensureDependenciesBridge(this, false,(dependency, progress) -> {
+        DownloadedDependencies deps = YoutubeDL.getInstance().ensureDependenciesBridge(this, Collections.emptyList(),(dependency, progress) -> {
             // Your callback logic here
             System.out.println("Dependency: " + dependency + ", Progress: " + progress);
             return null;

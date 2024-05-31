@@ -8,12 +8,11 @@ android {
     compileSdk = 34
     defaultConfig {
         minSdk = 21
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
-        getByName("release") {
+        release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android.txt"),
@@ -56,7 +55,7 @@ dependencies {
 
     implementation(project(":common"))
     implementation(libs.coreKtx)
-    compileOnly(project(":library"))
+    compileOnly(project(path = ":library", configuration = "bundledDebugRuntimeElements"))
 
     implementation(libs.appCompat)
     testImplementation(libs.junit)

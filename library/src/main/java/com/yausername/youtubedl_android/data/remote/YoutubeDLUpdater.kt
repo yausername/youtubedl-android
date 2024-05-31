@@ -1,11 +1,12 @@
 package com.yausername.youtubedl_android.data.remote
 
 import android.content.Context
+import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_common.Constants
 import com.yausername.youtubedl_common.Constants.LIBRARY_NAME
-import com.yausername.youtubedl_android.YoutubeDL
-import com.yausername.youtubedl_android.YoutubeDL.UpdateChannel
-import com.yausername.youtubedl_android.YoutubeDL.UpdateStatus
+import com.yausername.youtubedl_android.YoutubeDLCore
+import com.yausername.youtubedl_android.domain.UpdateChannel
+import com.yausername.youtubedl_android.domain.UpdateStatus
 import com.yausername.youtubedl_common.domain.model.updates.Release
 import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException
 import com.yausername.youtubedl_common.SharedPrefsHelper
@@ -60,7 +61,7 @@ internal object YoutubeDLUpdater {
     @Throws(IOException::class)
     private fun checkForUpdate(appContext: Context, youtubeDLChannel: UpdateChannel): Release? {
         val url = URL(youtubeDLChannel.apiUrl)
-        val json = YoutubeDL.json.decodeFromStream<Release>(url.openStream())
+        val json = YoutubeDLCore.json.decodeFromStream<Release>(url.openStream())
         val newVersion = json.tag_name
         val oldVersion = SharedPrefsHelper[appContext, dlpVersionKey]
         return if (newVersion == oldVersion) {

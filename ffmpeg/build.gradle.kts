@@ -13,7 +13,7 @@ android {
     }
 
     buildTypes {
-        getByName("release") {
+        release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android.txt"),
@@ -56,7 +56,7 @@ dependencies {
 
     implementation(project(":common"))
     implementation(libs.coreKtx)
-    compileOnly(project(":library"))
+    compileOnly(project(path = ":library", configuration = "bundledDebugRuntimeElements"))
 
     implementation(libs.appCompat)
     testImplementation(libs.junit)

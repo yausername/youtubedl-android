@@ -99,15 +99,22 @@ object DependenciesUtil {
     @Throws(IllegalStateException::class)
     fun ensureDependencies(
         appContext: Context,
-        skipAria2c: Boolean = false,
+        skipDependencies: List<Dependency> = emptyList(),
         callback: dependencyDownloadCallback? = null
     ): DownloadedDependencies {
         // Check the currently installed dependencies
         var installedDependencies = checkInstalledDependencies(appContext)
 
-        // If Aria2c is not installed and ensureAria2c is true, mark Aria2c as not installed
-        if (!installedDependencies.aria2c && skipAria2c) installedDependencies =
-            installedDependencies.copy(aria2c = true)
+        // If a dependency is not installed and it's in the list of dependencies to skip, mark it as installed
+        if (!installedDependencies.python && skipDependencies.contains(Dependency.PYTHON)) {
+            installedDependencies = installedDependencies.copy(python = true)
+        }
+        if (!installedDependencies.ffmpeg && skipDependencies.contains(Dependency.FFMPEG)) {
+            installedDependencies = installedDependencies.copy(ffmpeg = true)
+        }
+        if (!installedDependencies.aria2c && skipDependencies.contains(Dependency.ARIA2C)) {
+            installedDependencies = installedDependencies.copy(aria2c = true)
+        }
 
         // Install the dependencies. The callback is invoked with the dependency and the progress of the download. Returns the installed dependencies.
         return installDependencies(appContext, installedDependencies) { dependency, progress ->
