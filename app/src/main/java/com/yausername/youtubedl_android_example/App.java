@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import com.yausername.aria2c.Aria2c;
 import com.yausername.ffmpeg.FFmpeg;
+import com.yausername.ffmpeg.FFmpegCore;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException;
 import com.yausername.youtubedl_common.domain.model.DownloadedDependencies;
@@ -60,7 +61,6 @@ public class App extends Application {
     }
 
     private void initLibraries() throws YoutubeDLException, IllegalStateException {
-        //UNCOMMENT THE NEXT LINES WHEN YOU WANT TO DOWNLOAD THE DEPENDENCIES USING THE NON-BUNDLED FLAVOR
         DownloadedDependencies deps = YoutubeDL.getInstance().ensureDependencies(this, Collections.emptyList(),(dependency, progress) -> {
             // Your callback logic here
             System.out.println("Dependency: " + dependency + ", Progress: " + progress);

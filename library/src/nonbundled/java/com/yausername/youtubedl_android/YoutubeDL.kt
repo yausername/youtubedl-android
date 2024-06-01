@@ -27,7 +27,6 @@ object YoutubeDL: YoutubeDLCore() {
         val pythonSize = pythonLibrary.length().toString()
         if (!pythonDir.exists() || shouldUpdatePython(appContext, pythonSize)) {
             //TODO: REMAKE THE UPDATE SYSTEM FOR THE ONLINE DOWNLOADING
-            Log.i("YoutubeDL", "Update Python - TEST")
             updatePython(appContext, pythonSize)
         }
     }

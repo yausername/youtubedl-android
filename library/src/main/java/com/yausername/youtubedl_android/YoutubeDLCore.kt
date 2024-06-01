@@ -98,7 +98,7 @@ abstract class YoutubeDLCore {
         callback: dependencyDownloadCallback? = null
     ): DownloadedDependencies?
 
-    abstract fun initPython(appContext: Context, pythonDir: File)
+    internal abstract fun initPython(appContext: Context, pythonDir: File)
 
     /**
      * Initializes yt-dlp.
@@ -106,7 +106,7 @@ abstract class YoutubeDLCore {
      * @param ytdlpDir the directory where yt-dlp is located
      */
     @Throws(YoutubeDLException::class)
-    fun initYtdlp(appContext: Context, ytdlpDir: File) {
+    internal fun initYtdlp(appContext: Context, ytdlpDir: File) {
         if (!ytdlpDir.exists()) ytdlpDir.mkdirs()
         val ytdlpBinary = File(ytdlpDir, Constants.BinariesName.YTDLP)
         if (!ytdlpBinary.exists()) {
@@ -260,7 +260,7 @@ abstract class YoutubeDLCore {
     /**
      * Asserts that the library is initialized
      */
-    fun assertInit() {
+    internal fun assertInit() {
         check(initialized) { "The library instance that you are trying to access is not initialized; please, check if you have initialized it by using the YoutubeDL.init() function" }
     }
 
@@ -270,7 +270,7 @@ abstract class YoutubeDLCore {
      * @param appContext the application context
      * @param version the current version of Python (the size of the zip file)
      */
-    fun shouldUpdatePython(appContext: Context, version: String): Boolean {
+    internal fun shouldUpdatePython(appContext: Context, version: String): Boolean {
         return version != SharedPrefsHelper[appContext, PYTHON_LIB_VERSION]
     }
 
@@ -279,7 +279,7 @@ abstract class YoutubeDLCore {
      * @param appContext the application context
      * @param version the new version of Python (the size of the zip file)
      */
-    fun updatePython(appContext: Context, version: String) {
+    internal fun updatePython(appContext: Context, version: String) {
         update(appContext, PYTHON_LIB_VERSION, version)
     }
 

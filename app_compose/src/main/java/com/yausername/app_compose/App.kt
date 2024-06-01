@@ -3,6 +3,7 @@ package com.yausername.app_compose
 import android.app.Application
 import com.yausername.aria2c.Aria2c
 import com.yausername.ffmpeg.FFmpeg
+import com.yausername.ffmpeg.FFmpegCore
 import com.yausername.youtubedl_android.YoutubeDL
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
