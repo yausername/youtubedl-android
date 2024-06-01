@@ -44,7 +44,7 @@ afterEvaluate {
             create<MavenPublication>("release") {
                 from(components["release"])
                 groupId = "com.github.yausername.youtubedl_android"
-                artifactId = "library"
+                artifactId = "common"
                 version = project.version.toString()
             }
         }
