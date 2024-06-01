@@ -32,12 +32,11 @@ object YoutubeDL: YoutubeDLCore() {
         }
     }
 
-    @JvmName("ensureDependenciesBridge")
     @Throws(IllegalStateException::class)
-    fun ensureDependencies(
+    override fun ensureDependencies(
         appContext: Context,
-        skipDependencies: List<Dependency> = emptyList(),
-        callback: dependencyDownloadCallback? = null
+        skipDependencies: List<Dependency>,
+        callback: dependencyDownloadCallback?
     ): DownloadedDependencies =
         DependenciesUtil.ensureDependencies(appContext, skipDependencies, callback)
 

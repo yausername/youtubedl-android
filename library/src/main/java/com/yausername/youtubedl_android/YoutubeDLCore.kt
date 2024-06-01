@@ -91,6 +91,13 @@ abstract class YoutubeDLCore {
         initialized = true
     }
 
+    @Throws(IllegalStateException::class)
+    abstract fun ensureDependencies(
+        appContext: Context,
+        skipDependencies: List<Dependency> = emptyList(),
+        callback: dependencyDownloadCallback? = null
+    ): DownloadedDependencies?
+
     abstract fun initPython(appContext: Context, pythonDir: File)
 
     /**
