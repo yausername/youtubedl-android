@@ -46,7 +46,6 @@ android {
     }
 
     sourceSets {
-        getByName("main").java.srcDir("src/main/java")
         getByName("nonbundled") {
             java.srcDir("src/nonbundled/java")
             jniLibs.srcDirs("src/nonbundled/jniLibs")
@@ -58,11 +57,25 @@ android {
     }
 
     publishing {
-        multipleVariants {
+        singleVariant("bundledRelease") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+        singleVariant("nonbundledRelease") {
             withSourcesJar()
             withJavadocJar()
         }
     }
+}
+
+tasks.register<Jar>("androidBundledSourcesJar") {
+    archiveClassifier = "sources"
+    from(android.sourceSets.getByName("main").java.srcDirs, android.sourceSets.getByName("bundled").java.srcDirs)
+}
+
+tasks.register<Jar>("androidNonbundledSourcesJar") {
+    archiveClassifier = "sources"
+    from(android.sourceSets.getByName("main").java.srcDirs, android.sourceSets.getByName("nonbundled").java.srcDirs)
 }
 
 afterEvaluate {

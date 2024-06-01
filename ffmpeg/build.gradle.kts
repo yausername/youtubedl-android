@@ -21,6 +21,18 @@ android {
             )
         }
     }
+
+    flavorDimensions.add("bundling")
+
+    productFlavors {
+        create("bundled") {
+            dimension = "bundling"
+        }
+        create("nonbundled") {
+            dimension = "bundling"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -30,10 +42,25 @@ android {
     }
     namespace = "com.yausername.ffmpeg"
 
+    sourceSets {
+        getByName("nonbundled") {
+            java.srcDir("src/nonbundled/java")
+            jniLibs.srcDirs("src/nonbundled/jniLibs")
+        }
+        getByName("bundled") {
+            java.srcDir("src/bundled/java")
+            jniLibs.srcDirs("src/bundled/jniLibs")
+        }
+    }
+
     publishing {
-        singleVariant("release") {
-            withJavadocJar()
+        singleVariant("bundledRelease") {
             withSourcesJar()
+            withJavadocJar()
+        }
+        singleVariant("nonbundledRelease") {
+            withSourcesJar()
+            withJavadocJar()
         }
     }
 }
@@ -41,10 +68,17 @@ android {
 afterEvaluate {
     publishing {
         publications {
-            create<MavenPublication>("release") {
-                from(components["release"])
+            create<MavenPublication>("bundledRelease") {
+                from(components["bundledRelease"])
                 groupId = "com.github.yausername.youtubedl_android"
                 artifactId = "ffmpeg"
+                version = project.version.toString()
+            }
+
+            create<MavenPublication>("nonbundledRelease") {
+                from(components["nonbundledRelease"])
+                groupId = "com.github.yausername.youtubedl_android"
+                artifactId = "ffmpeg-nonbundled"
                 version = project.version.toString()
             }
         }
@@ -56,7 +90,7 @@ dependencies {
 
     implementation(project(":common"))
     implementation(libs.coreKtx)
-    compileOnly(project(path = ":library", configuration = "bundledDebugRuntimeElements"))
+    compileOnly(project(":library"))
 
     implementation(libs.appCompat)
     testImplementation(libs.junit)

@@ -1,6 +1,7 @@
 [versions]
 activityCompose = "1.9.0"
 composeBom = "2024.05.00"
+exomedia = "4.3.0"
 kotlin = "1.9.20"
 androidToolsBuildGradle = "8.4.1"
 appCompat = "1.6.1"
@@ -13,11 +14,13 @@ coreKtx = "1.13.1"
 kotlinxSerialization = "1.6.3"
 ktor = "2.3.6"
 lifecycleRuntimeKtx = "2.8.0"
+rxandroid = "2.1.0"
 
 [libraries]
 activityCompose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidToolsBuildGradle = { group = "com.android.tools.build", name = "gradle", version.ref = "androidToolsBuildGradle" }
 androidxComposeBom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+exomedia = { module = "com.devbrackets.android:exomedia", version.ref = "exomedia" }
 kotlinGradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 appCompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appCompat" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -31,6 +34,7 @@ ktorClientCore = { group = "io.ktor", name = "ktor-client-core", version.ref = "
 ktorClientAndroid = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor" }
 lifecycleRuntimeKtx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
+rxandroid = { module = "io.reactivex.rxjava2:rxandroid", version.ref = "rxandroid" }
 ui = { group = "androidx.compose.ui", name = "ui" }
 uiTestManifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 uiTooling = { group = "androidx.compose.ui", name = "ui-tooling" }

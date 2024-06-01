@@ -20,6 +20,17 @@ android {
         }
     }
 
+    flavorDimensions.add("bundling")
+
+    productFlavors {
+        create("bundled") {
+            dimension = "bundling"
+        }
+        create("nonbundled") {
+            dimension = "bundling"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -50,7 +61,7 @@ android {
 }
 
 dependencies {
-    implementation(project(path = ":library", configuration = "bundledDebugRuntimeElements"))
+    implementation(project(":library"))
 
     implementation(project(":ffmpeg"))
     implementation(project(":aria2c"))

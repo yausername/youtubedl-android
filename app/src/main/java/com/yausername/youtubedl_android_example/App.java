@@ -60,12 +60,13 @@ public class App extends Application {
     }
 
     private void initLibraries() throws YoutubeDLException, IllegalStateException {
-        DownloadedDependencies deps = YoutubeDL.getInstance().ensureDependenciesBridge(this, Collections.emptyList(),(dependency, progress) -> {
-            // Your callback logic here
-            System.out.println("Dependency: " + dependency + ", Progress: " + progress);
-            return null;
-        });
-        Log.i(TAG, "Initialized youtube-dl-android: " + deps);
+        //UNCOMMENT THE NEXT LINES WHEN YOU WANT TO DOWNLOAD THE DEPENDENCIES USING THE NON-BUNDLED FLAVOR
+//        DownloadedDependencies deps = YoutubeDL.getInstance().ensureDependenciesBridge(this, Collections.emptyList(),(dependency, progress) -> {
+//            // Your callback logic here
+//            System.out.println("Dependency: " + dependency + ", Progress: " + progress);
+//            return null;
+//        });
+//        Log.i(TAG, "Initialized youtube-dl-android: " + deps);
         YoutubeDL.getInstance().init(this);
         FFmpeg.getInstance().init(this);
         Aria2c.getInstance().init(this);
