@@ -5,8 +5,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.yausername.aria2c.Aria2c;
+import com.yausername.aria2c.Aria2cCore;
 import com.yausername.ffmpeg.FFmpeg;
-import com.yausername.ffmpeg.FFmpegCore;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.util.exceptions.YoutubeDLException;
 import com.yausername.youtubedl_common.domain.model.DownloadedDependencies;
