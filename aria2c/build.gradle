@@ -1,3 +1,6 @@
+plugins {
+    id 'signing'
+}
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 apply plugin: 'org.jetbrains.kotlin.android'
@@ -21,19 +24,59 @@ android {
     }
     namespace 'com.yausername.aria2c'
 
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'io.github.junkfood02'
+            artifactId = 'youtubedl_android-aria2c'
+            version = versionName
+
+            afterEvaluate {
                 from components.release
-                groupId = 'com.github.yausername.youtubedl_android'
-                artifactId = 'aria2c'
-                version = versionName
+            }
+
+            pom {
+                name = 'youtubedl-android'
+                description = 'youtube-dl for Android'
+                url = 'https://github.com/yausername/youtubedl-android'
+                inceptionYear = '2019'
+                licenses {
+                    license {
+                        name = 'GPL-3.0 license'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.en.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'yausername'
+                        name = 'yausername'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/yausername/youtubedl-android'
+                    url = 'https://github.com/yausername/youtubedl-android'
+                }
             }
         }
     }
+
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir('staging-deploy')
+        }
+    }
+}
+
+signing {
+    useGpgCmd()
+    sign publishing.publications.release
 }
 
 dependencies {
