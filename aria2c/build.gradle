@@ -34,8 +34,8 @@ android {
 publishing {
     publications {
         release(MavenPublication) {
-            groupId = 'io.github.junkfood02'
-            artifactId = 'youtubedl_android-aria2c'
+            groupId = 'io.github.junkfood02.youtubedl-android'
+            artifactId = 'aria2c'
             version = versionName
 
             afterEvaluate {

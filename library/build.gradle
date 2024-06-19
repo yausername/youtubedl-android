@@ -31,7 +31,7 @@ android {
 publishing {
     publications {
         release(MavenPublication) {
-            groupId = 'io.github.junkfood02'
+            groupId = 'io.github.junkfood02.youtubedl-android'
             artifactId = 'library'
             version = versionName
 
