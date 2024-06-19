@@ -1,3 +1,6 @@
+plugins {
+    id 'signing'
+}
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 apply plugin: 'org.jetbrains.kotlin.android'
@@ -19,19 +22,61 @@ android {
         }
     }
     namespace 'com.yausername.youtubedl_common'
-}
-afterEvaluate {
     publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-                groupId = 'com.github.yausername.youtubedl_android'
-                artifactId = 'common'
-                version = versionName
-            }
+        singleVariant("release") {
+            withSourcesJar()
         }
     }
 }
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'io.github.junkfood02'
+            artifactId = 'common'
+            version = versionName
+
+            afterEvaluate {
+                from components.release
+            }
+
+            pom {
+                name = 'youtubedl-android'
+                description = 'youtube-dl for Android'
+                url = 'https://github.com/yausername/youtubedl-android'
+                inceptionYear = '2019'
+                licenses {
+                    license {
+                        name = 'GPL-3.0 license'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.en.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'yausername'
+                        name = 'yausername'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/yausername/youtubedl-android'
+                    url = 'https://github.com/yausername/youtubedl-android'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir('staging-deploy')
+        }
+    }
+}
+
+signing {
+    useGpgCmd()
+    sign publishing.publications.release
+}
+
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
