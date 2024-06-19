@@ -16,19 +16,21 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'org.apache.commons:commons-compress:1.26.2'
+
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
 def versionMajor = 0
-def versionMinor = 15
+def versionMinor = 16
 def versionPatch = 0
 def versionBuild = 0 // bump for dogfood builds, public betas, etc.
 
 ext {
     versionCode = versionMajor * 100000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
-    versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
+    versionName = "${versionMajor}.${versionMinor}.${versionPatch}-alpha"
     appCompatVer = '1.4.2'
     junitVer = '4.13.2'
     androidJunitVer = '1.1.3'

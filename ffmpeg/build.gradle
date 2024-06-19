@@ -1,3 +1,6 @@
+plugins {
+    id 'org.jreleaser' version '1.12.0'
+}
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 apply plugin: 'org.jetbrains.kotlin.android'
@@ -22,18 +25,68 @@ android {
     namespace 'com.yausername.ffmpeg'
 
 }
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-                groupId = 'com.github.yausername.youtubedl_android'
-                artifactId = 'ffmpeg'
-                version = versionName
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.github.yausername.youtubedl_android'
+            artifactId = 'ffmpeg'
+            version = versionName
+
+            from components.findByName('release')
+
+            pom {
+                name = 'youtubedl-android'
+                description = 'youtube-dl for Android'
+                url = 'https://github.com/yausername/youtubedl-android'
+                inceptionYear = '2019'
+                licenses {
+                    license {
+                        name = 'GPL-3.0 license'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.en.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'yausername'
+                        name = 'yausername'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/yausername/youtubedl-android'
+                    url = 'https://github.com/yausername/youtubedl-android'
+                }
             }
         }
     }
+
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir('staging-deploy')
+        }
+    }
 }
+
+jreleaser {
+    signing {
+        active = 'ALWAYS'
+        armored = true
+    }
+    deploy {
+        maven {
+//             Portal Publisher API
+            mavenCentral {
+                sonatype {
+                    active = 'ALWAYS'
+                    url = 'https://central.sonatype.com/api/v1/publisher'
+                    stagingRepository('target/staging-deploy')
+                }
+            }
+        }
+    }
+    gitRootSearch = true
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
