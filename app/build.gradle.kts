@@ -11,7 +11,8 @@ android {
         applicationId = "com.yausername.youtubedl_android_example"
         minSdk = 21
         targetSdk = 34
-        versionName = "TEST"
+        versionName = rootProject.ext["versionName"] as String
+        versionCode = rootProject.ext["versionCode"] as Int
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
