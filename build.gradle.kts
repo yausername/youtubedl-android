@@ -20,7 +20,6 @@ buildscript {
 }
 
 val versionMajor = 0
-
 val versionMinor = 16
 val versionPatch = 0
 val versionBuild = 0 // bump for dogfood builds, public betas, etc.
