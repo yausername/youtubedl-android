@@ -13,3 +13,4 @@
 /captures
 .externalNativeBuild
 target
+/buildSrc/build
