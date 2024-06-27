@@ -1,7 +1,7 @@
 # youtubedl-android
 Android library wrapper for [yt-dlp](https://github.com/yt-dlp/yt-dlp) (formerly [youtube-dl](https://github.com/rg3/youtube-dl)) executable
 
-[![](https://jitpack.io/v/yausername/youtubedl-android.svg)](https://jitpack.io/#yausername/youtubedl-android)
+![Maven Central Version](https://img.shields.io/maven-central/v/io.github.junkfood02.youtubedl-android/library)
 
 
 ## Credits
@@ -38,39 +38,24 @@ Also take a look at [Seal](https://github.com/JunkFood02/Seal), another video/au
 ## Installation
 
 ### Gradle
-Step 1 : Add jitpack repository to your project build file
-```gradle
-allprojects {
-    repositories {
-        maven { url 'https://jitpack.io' }
-    }
+
+```kotlin
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("io.github.junkfood02.youtubedl-android:library:0.16.0")
+    implementation("io.github.junkfood02.youtubedl-android:ffmpeg:0.16.0")
+    implementation("io.github.junkfood02.youtubedl-android:aria2c:0.16.0") // optional
 }
 ```
-Step 2: Add the dependencies
-```gradle
-dependencies {
-    implementation 'com.github.yausername.youtubedl-android:library:0.14.+'
-    implementation 'com.github.yausername.youtubedl-android:ffmpeg:0.14.+' // Optional
-    implementation 'com.github.yausername.youtubedl-android:aria2c:0.14.+' // Optional
- }
-```
-If the build fails, use `-SNAPSHOT`
-```gradle
-dependencies {
-    implementation 'com.github.yausername.youtubedl-android:library:-SNAPSHOT'
-    implementation 'com.github.yausername.youtubedl-android:ffmpeg:-SNAPSHOT' // Optional
-    implementation 'com.github.yausername.youtubedl-android:aria2c:-SNAPSHOT' // Optional
- }
-```
-<br/>
 
 * Set `android:extractNativeLibs="true"` in your app's manifest.
 * Use `abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'` in app/build.gradle, see [sample app](https://github.com/yausername/youtubedl-android/blob/master/app/build.gradle).
 * Use abi splits to reduce apk size, see [sample app](https://github.com/yausername/youtubedl-android/blob/master/app/build.gradle).
 * On Android 10 (API 29), set `android:requestLegacyExternalStorage="true"`.
 * On Android 10+ (API 30 or higher), due to Android's Scoped Storage changes, apps only have the direct access to  `Download/` and `Documents/` . And you can only download the videos into these two directories, see [related issue](https://github.com/yausername/youtubedl-android/issues/174).
-
-<br/>
 
 ## Usage
 

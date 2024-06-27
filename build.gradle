@@ -29,7 +29,7 @@ def versionBuild = 0 // bump for dogfood builds, public betas, etc.
 
 ext {
     versionCode = versionMajor * 100000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
-    versionName = "${versionMajor}.${versionMinor}.${versionPatch}-alpha"
+    versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
     appCompatVer = '1.4.2'
     junitVer = '4.13.2'
     androidJunitVer = '1.1.3'
