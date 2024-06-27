@@ -247,7 +247,7 @@ object YoutubeDL {
         DONE, ALREADY_UP_TO_DATE
     }
 
-    sealed class UpdateChannel(val apiUrl: String) {
+    open class UpdateChannel(val apiUrl: String) {
         object STABLE : UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest")
         object NIGHTLY :
             UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp-nightly-builds/releases/latest")
