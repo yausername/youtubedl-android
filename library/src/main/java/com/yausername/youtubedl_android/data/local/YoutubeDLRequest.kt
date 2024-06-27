@@ -1,4 +1,4 @@
-package com.yausername.youtubedl_android
+package com.yausername.youtubedl_android.data.local
 
 class YoutubeDLRequest {
     private val urls: List<String>

@@ -1,6 +1,7 @@
-package com.yausername.youtubedl_android
+package com.yausername.youtubedl_android.data.local.streams
 
 import android.util.Log
+import com.yausername.youtubedl_android.BuildConfig
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader

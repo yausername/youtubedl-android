@@ -12,13 +12,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.yausername.youtubedl_android.YoutubeDL;
+import com.yausername.youtubedl_android.domain.UpdateChannel;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -87,11 +87,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .setItems(new String[]{"Stable Releases", "Nightly Releases", "Master Releases"},
                                 (dialogInterface, which) -> {
                                     if (which == 0)
-                                        updateYoutubeDL(YoutubeDL.UpdateChannel._STABLE);
+                                        updateYoutubeDL(UpdateChannel._STABLE);
                                     else if (which == 1)
-                                        updateYoutubeDL(YoutubeDL.UpdateChannel._NIGHTLY);
+                                        updateYoutubeDL(UpdateChannel._NIGHTLY);
                                     else
-                                        updateYoutubeDL(YoutubeDL.UpdateChannel._MASTER);
+                                        updateYoutubeDL(UpdateChannel._MASTER);
                                 })
                         .create();
                 dialog.show();
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void updateYoutubeDL(YoutubeDL.UpdateChannel updateChannel) {
+    private void updateYoutubeDL(UpdateChannel updateChannel) {
         if (updating) {
             Toast.makeText(MainActivity.this, "Update is already in progress!", Toast.LENGTH_LONG).show();
             return;

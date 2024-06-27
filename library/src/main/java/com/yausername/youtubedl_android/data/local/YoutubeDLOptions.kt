@@ -1,4 +1,4 @@
-package com.yausername.youtubedl_android
+package com.yausername.youtubedl_android.data.local
 
 import kotlin.collections.ArrayList
 import kotlin.collections.LinkedHashMap
