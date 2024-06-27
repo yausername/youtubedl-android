@@ -3,8 +3,15 @@ package com.yausername.youtubedl_android
 import android.content.Context
 import android.os.Build
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.yausername.youtubedl_android.YoutubeDLException
-import com.yausername.youtubedl_android.mapper.VideoInfo
+import com.yausername.youtubedl_android.data.local.YoutubeDLRequest
+import com.yausername.youtubedl_android.data.local.streams.StreamGobbler
+import com.yausername.youtubedl_android.data.local.streams.StreamProcessExtractor
+import com.yausername.youtubedl_android.data.remote.YoutubeDLUpdater
+import com.yausername.youtubedl_android.domain.UpdateChannel
+import com.yausername.youtubedl_android.domain.UpdateStatus
+import com.yausername.youtubedl_android.domain.YoutubeDLException
+import com.yausername.youtubedl_android.domain.model.YoutubeDLResponse
+import com.yausername.youtubedl_android.domain.model.videos.VideoInfo
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
 import com.yausername.youtubedl_common.utils.ZipUtils.unzip
@@ -241,30 +248,6 @@ object YoutubeDL {
 
     fun versionName(appContext: Context?): String? {
         return YoutubeDLUpdater.versionName(appContext)
-    }
-
-    enum class UpdateStatus {
-        DONE, ALREADY_UP_TO_DATE
-    }
-
-    open class UpdateChannel(val apiUrl: String) {
-        object STABLE : UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest")
-        object NIGHTLY :
-            UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp-nightly-builds/releases/latest")
-
-        object MASTER :
-            UpdateChannel("https://api.github.com/repos/yt-dlp/yt-dlp-master-builds/releases/latest")
-
-        companion object {
-            @JvmField
-            val _STABLE: STABLE = STABLE
-
-            @JvmField
-            val _NIGHTLY: NIGHTLY = NIGHTLY
-
-            @JvmField
-            val _MASTER: MASTER = MASTER
-        }
     }
 
 

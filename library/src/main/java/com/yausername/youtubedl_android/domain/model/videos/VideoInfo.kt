@@ -1,4 +1,4 @@
-package com.yausername.youtubedl_android.mapper
+package com.yausername.youtubedl_android.domain.model.videos
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty

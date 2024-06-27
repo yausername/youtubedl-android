@@ -1,4 +1,4 @@
-package com.yausername.youtubedl_android
+package com.yausername.youtubedl_android.domain
 
 class YoutubeDLException : Exception {
     constructor(message: String?) : super(message) {}

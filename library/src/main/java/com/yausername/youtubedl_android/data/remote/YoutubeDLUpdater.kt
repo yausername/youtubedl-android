@@ -1,11 +1,12 @@
-package com.yausername.youtubedl_android
+package com.yausername.youtubedl_android.data.remote
 
 import android.content.Context
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
-import com.yausername.youtubedl_android.YoutubeDL.UpdateChannel
-import com.yausername.youtubedl_android.YoutubeDL.UpdateStatus
-import com.yausername.youtubedl_android.YoutubeDL.getInstance
+import com.yausername.youtubedl_android.YoutubeDL
+import com.yausername.youtubedl_android.domain.UpdateChannel
+import com.yausername.youtubedl_android.domain.UpdateStatus
+import com.yausername.youtubedl_android.domain.YoutubeDLException
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
 import org.apache.commons.io.FileUtils
@@ -45,7 +46,7 @@ internal object YoutubeDLUpdater {
         } catch (e: Exception) {
             /* if something went wrong restore default version */
             FileUtils.deleteQuietly(ytdlpDir)
-            getInstance().init_ytdlp(appContext, ytdlpDir)
+            YoutubeDL.init_ytdlp(appContext, ytdlpDir)
             throw YoutubeDLException(e)
         } finally {
             file.delete()

@@ -1,4 +1,4 @@
-package com.yausername.youtubedl_android
+package com.yausername.youtubedl_android.domain.model
 
 class YoutubeDLResponse(
     val command: List<String?>,

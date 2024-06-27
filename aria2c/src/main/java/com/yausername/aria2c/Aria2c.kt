@@ -1,7 +1,7 @@
 package com.yausername.aria2c
 
 import android.content.Context
-import com.yausername.youtubedl_android.YoutubeDLException
+import com.yausername.youtubedl_android.domain.YoutubeDLException
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.utils.ZipUtils
 import org.apache.commons.io.FileUtils

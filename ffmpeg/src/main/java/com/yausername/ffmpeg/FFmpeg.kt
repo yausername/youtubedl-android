@@ -1,7 +1,7 @@
 package com.yausername.ffmpeg
 
 import android.content.Context
-import com.yausername.youtubedl_android.YoutubeDLException
+import com.yausername.youtubedl_android.domain.YoutubeDLException
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
 import com.yausername.youtubedl_common.utils.ZipUtils.unzip
