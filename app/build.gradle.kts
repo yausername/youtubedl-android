@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.yausername.youtubedl_android_example"
-        minSdk = 21
+        minSdk = 24
         targetSdk = 34
         versionName = rootProject.ext["versionName"] as String
         versionCode = rootProject.ext["versionCode"] as Int
