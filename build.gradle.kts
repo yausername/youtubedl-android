@@ -46,3 +46,21 @@ allprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+
+tasks.register("packagePublishedArtifacts") {
+    doFirst("publishToMavenLocal") {
+        exec {
+            workingDir = File(System.getProperty("user.home"), ".m2/repository")
+            standardOutput = System.out
+            errorOutput = System.err
+
+            commandLine("pwd")
+            commandLine(
+                "zip",
+                "-r",
+                "$projectDir/archive-$versionCode.zip",
+                "io/github/junkfood02/youtubedl-android"
+            )
+        }
+    }
+}
