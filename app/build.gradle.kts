@@ -62,5 +62,5 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:${rootProject.extra["espressoVer"]}")
 
     implementation("io.reactivex.rxjava2:rxandroid:2.1.0")
-    implementation("com.devbrackets.android:exomedia:4.3.0")
+    implementation("com.devbrackets.android:exomedia:5.1.0")
 }
