@@ -14,4 +14,3 @@
 .externalNativeBuild
 target
 /buildSrc/build
-/archive*.zip
