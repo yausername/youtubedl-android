@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.devbrackets.android.exomedia.listener.OnPreparedListener;
 import com.devbrackets.android.exomedia.ui.widget.VideoView;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.YoutubeDLRequest;
@@ -30,7 +29,7 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
     private VideoView videoView;
     private ProgressBar pbLoading;
 
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private static final String TAG = "StreamingExample";
 
@@ -52,21 +51,13 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
 
     private void initListeners() {
         btnStartStream.setOnClickListener(this);
-        videoView.setOnPreparedListener(new OnPreparedListener() {
-            @Override
-            public void onPrepared() {
-                videoView.start();
-            }
-        });
+        videoView.setOnPreparedListener(() -> videoView.start());
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_start_streaming: {
-                startStream();
-                break;
-            }
+        if (v.getId() == R.id.btn_start_streaming) {
+            startStream();
         }
     }
 
@@ -85,11 +76,11 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
 
         pbLoading.setVisibility(View.VISIBLE);
         Disposable disposable = Observable.fromCallable(() -> {
-            YoutubeDLRequest request = new YoutubeDLRequest(url);
-            // best stream containing video+audio
-            request.addOption("-f", "best");
-            return YoutubeDL.getInstance().getInfo(request);
-        })
+                    YoutubeDLRequest request = new YoutubeDLRequest(url);
+                    // best stream containing video+audio
+                    request.addOption("-f", "best");
+                    return YoutubeDL.getInstance().getInfo(request);
+                })
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(streamInfo -> {
@@ -101,7 +92,7 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
                         setupVideoView(videoUrl);
                     }
                 }, e -> {
-                    if(BuildConfig.DEBUG) Log.e(TAG,  "failed to get stream info", e);
+                    if (BuildConfig.DEBUG) Log.e(TAG, "failed to get stream info", e);
                     pbLoading.setVisibility(View.GONE);
                     Toast.makeText(StreamingExampleActivity.this, "streaming failed. failed to get stream info", Toast.LENGTH_LONG).show();
                 });
@@ -109,6 +100,6 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
     }
 
     private void setupVideoView(String videoUrl) {
-        videoView.setVideoURI(Uri.parse(videoUrl));
+        videoView.setMedia(Uri.parse(videoUrl));
     }
 }
