@@ -53,7 +53,7 @@ publishing {
 
     repositories {
         maven {
-            url = uri(layout.buildDirectory.dir("staging-deploy"))
+            url = uri(rootProject.buildDir.resolve("staging-deploy").absolutePath)
         }
     }
 }
