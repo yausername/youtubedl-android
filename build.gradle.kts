@@ -26,6 +26,7 @@ val versionMinor = 17
 val versionPatch = 0
 val versionBuild = 0 // bump for dogfood builds, public betas, etc.
 val versionCode = versionMajor * 100000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
+val versionName = "$versionMajor.$versionMinor.$versionPatch"
 
 extra.apply {
     set("versionCode", versionCode)
@@ -42,7 +43,7 @@ extra.apply {
 
 allprojects {
     group = "com.github.yausername"
-    version = versionCode
+    version = versionName
 }
 
 tasks.register<Delete>("clean") {
