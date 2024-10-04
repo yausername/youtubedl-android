@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.Publishing
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     val kotlin_version by extra("1.7.22")
@@ -47,20 +49,28 @@ tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
 
-tasks.register("packagePublishedArtifacts") {
-    doFirst("publishToMavenLocal") {
-        exec {
-            workingDir = File(System.getProperty("user.home"), ".m2/repository")
-            standardOutput = System.out
-            errorOutput = System.err
-
-            commandLine("pwd")
-            commandLine(
-                "zip",
-                "-r",
-                "$projectDir/archive-$versionCode.zip",
-                "io/github/junkfood02/youtubedl-android"
-            )
+afterEvaluate {
+    tasks.register("packagePublishedArtifacts") {
+        val librariesToPublish = listOf("common", "library", "aria2c", "ffmpeg")
+        librariesToPublish.forEach {
+            println("dependsOn $it!")
+            dependsOn(":$it:publishReleasePublicationToMavenRepository")
         }
+        doLast {
+            exec {
+                workingDir = project.buildDir.resolve("staging-deploy")
+                standardOutput = System.out
+                errorOutput = System.err
+
+                commandLine(
+                    "zip",
+                    "-r",
+                    projectDir.resolve("archive-$versionCode.zip").absolutePath,
+                    "io/github/junkfood02/youtubedl-android"
+                )
+            }
+        }
+
     }
 }
+
