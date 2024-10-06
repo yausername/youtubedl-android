@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.yausername.youtubedl_android_example"
-        minSdk = 21
+        minSdk = 24
         targetSdk = 34
         versionName = rootProject.ext["versionName"] as String
         versionCode = rootProject.ext["versionCode"] as Int
@@ -62,5 +62,5 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:${rootProject.extra["espressoVer"]}")
 
     implementation("io.reactivex.rxjava2:rxandroid:2.1.0")
-    implementation("com.devbrackets.android:exomedia:4.3.0")
+    implementation("com.devbrackets.android:exomedia:5.1.0")
 }

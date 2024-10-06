@@ -141,7 +141,6 @@ try {
 and options for the request as below:
 ```kotlin
 request.addOption("--downloader", "libaria2c.so");
-request.addOption("--external-downloader-args", "aria2c:\"--summary-interval=1\"");
 ```
 
 ## Docs
