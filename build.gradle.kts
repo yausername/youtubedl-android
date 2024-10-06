@@ -1,3 +1,6 @@
+import com.android.build.api.dsl.Publishing
+import com.android.build.gradle.internal.cxx.os.exe
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     val kotlin_version by extra("1.7.22")
@@ -20,10 +23,11 @@ buildscript {
 }
 
 val versionMajor = 0
-val versionMinor = 16
-val versionPatch = 1
+val versionMinor = 17
+val versionPatch = 0
 val versionBuild = 0 // bump for dogfood builds, public betas, etc.
 val versionCode = versionMajor * 100000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
+val versionName = "$versionMajor.$versionMinor.$versionPatch"
 
 extra.apply {
     set("versionCode", versionCode)
@@ -40,9 +44,34 @@ extra.apply {
 
 allprojects {
     group = "com.github.yausername"
-    version = versionCode
+    version = versionName
 }
 
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+
+tasks.register("packagePublishedArtifacts") {
+    val librariesToPublish = listOf("common", "library", "aria2c", "ffmpeg")
+    librariesToPublish.forEach {
+        dependsOn(":$it:publishReleasePublicationToMavenRepository")
+    }
+    doLast {
+        exec {
+            workingDir = project.buildDir.resolve("staging-deploy")
+            standardOutput = System.out
+            errorOutput = System.err
+
+            val zipCommands = listOf(
+                "zip",
+                "-r",
+                project.buildDir.resolve("archive-$versionName.zip").absolutePath,
+            ) + librariesToPublish.map { "io/github/junkfood02/youtubedl-android/$it/$versionName" }
+
+            commandLine(zipCommands)
+        }
+    }
+
+}
+
+
