@@ -11,7 +11,7 @@ android {
     namespace = "com.yausername.ffmpeg"
     compileSdk = 34
     defaultConfig {
-        minSdk = 21
+        minSdk = 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -51,7 +51,7 @@ publishing {
 
     repositories {
         maven {
-            url = uri(layout.buildDirectory.dir("staging-deploy"))
+            url = uri(rootProject.buildDir.resolve("staging-deploy").absolutePath)
         }
     }
 }
