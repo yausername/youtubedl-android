@@ -1,6 +1,5 @@
-import MavenConfiguration.commonPomConfiguration
-
 plugins {
+    id("com.yausername.youtubedl_android")
     id("signing")
     id("com.android.library")
     id("maven-publish")
@@ -25,42 +24,11 @@ android {
             )
         }
     }
-
-
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-        }
-    }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("release") {
-            groupId = "io.github.junkfood02.youtubedl-android"
-            artifactId = "aria2c"
-            version = project.version.toString()
-
-            afterEvaluate {
-                from(components["release"])
-            }
-
-            pom {
-                commonPomConfiguration()
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            url = uri(rootProject.buildDir.resolve("staging-deploy").absolutePath)
-        }
-    }
-}
-
-signing {
-    useGpgCmd()
-    sign(publishing.publications["release"])
+configurePublishing {
+    artifactId = project.name
+    isPublished = true
 }
 
 dependencies {
