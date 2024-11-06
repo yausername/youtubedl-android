@@ -65,40 +65,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_streaming_example: {
-                Intent i = new Intent(MainActivity.this, StreamingExampleActivity.class);
-                startActivity(i);
-                break;
-            }
-            case R.id.btn_downloading_example: {
-                Intent i = new Intent(MainActivity.this, DownloadingExampleActivity.class);
-                startActivity(i);
-                break;
-            }
-            case R.id.btn_command_example: {
-                Intent i = new Intent(MainActivity.this, CommandExampleActivity.class);
-                startActivity(i);
-                break;
-            }
-            case R.id.btn_update: {
-                AlertDialog dialog = new AlertDialog.Builder(this)
-                        .setTitle("Update Channel")
-                        .setItems(new String[]{"Stable Releases", "Nightly Releases", "Master Releases"},
-                                (dialogInterface, which) -> {
-                                    if (which == 0)
-                                        updateYoutubeDL(YoutubeDL.UpdateChannel._STABLE);
-                                    else if (which == 1)
-                                        updateYoutubeDL(YoutubeDL.UpdateChannel._NIGHTLY);
-                                    else
-                                        updateYoutubeDL(YoutubeDL.UpdateChannel._MASTER);
-                                })
-                        .create();
-                dialog.show();
-                break;
-            }
+        int id = v.getId();
+        if (id == R.id.btn_streaming_example) {
+            Intent i = new Intent(MainActivity.this, StreamingExampleActivity.class);
+            startActivity(i);
+        } else if (id == R.id.btn_downloading_example) {
+            Intent i = new Intent(MainActivity.this, DownloadingExampleActivity.class);
+            startActivity(i);
+        } else if (id == R.id.btn_command_example) {
+            Intent i = new Intent(MainActivity.this, CommandExampleActivity.class);
+            startActivity(i);
+        } else if (id == R.id.btn_update) {
+            AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setTitle("Update Channel")
+                    .setItems(new String[]{"Stable Releases", "Nightly Releases", "Master Releases"},
+                            (dialogInterface, which) -> {
+                                if (which == 0)
+                                    updateYoutubeDL(YoutubeDL.UpdateChannel._STABLE);
+                                else if (which == 1)
+                                    updateYoutubeDL(YoutubeDL.UpdateChannel._NIGHTLY);
+                                else
+                                    updateYoutubeDL(YoutubeDL.UpdateChannel._MASTER);
+                            })
+                    .create();
+            dialog.show();
         }
     }
+
 
     private void updateYoutubeDL(YoutubeDL.UpdateChannel updateChannel) {
         if (updating) {

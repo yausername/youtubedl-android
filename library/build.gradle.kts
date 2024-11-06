@@ -25,6 +25,9 @@ android {
             )
         }
     }
+    buildFeatures {
+        buildConfig = true
+    }
 }
 
 configurePublishing {
