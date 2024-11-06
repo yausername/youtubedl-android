@@ -25,6 +25,9 @@ object Aria2c {
 
     private fun initAria2c(appContext: Context, aria2cDir: File) {
         val aria2cLib = File(binDir, aria2cLibName)
+        if (!aria2cLib.exists()) {
+            return
+        }
         // using size of lib as version
         val aria2cSize = aria2cLib.length().toString()
         if (!aria2cDir.exists() || shouldUpdateAria2c(appContext, aria2cSize)) {
