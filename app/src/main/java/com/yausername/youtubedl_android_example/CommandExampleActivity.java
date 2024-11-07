@@ -87,22 +87,21 @@ public class CommandExampleActivity extends AppCompatActivity implements View.On
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_run_command:
-                runCommand();
-                break;
-            case R.id.btn_stop_download:
-                if (running) {
-                    try {
-                        YoutubeDL.getInstance().destroyProcessById(processId);
-                        running = false;
-                    } catch (Exception e) {
-                        Log.e(TAG, e.toString());
-                    }
+        int id = v.getId();
+        if (id == R.id.btn_run_command) {
+            runCommand();
+        } else if (id == R.id.btn_stop_download) {
+            if (running) {
+                try {
+                    YoutubeDL.getInstance().destroyProcessById(processId);
+                    running = false;
+                } catch (Exception e) {
+                    Log.e(TAG, e.toString());
                 }
-                break;
+            }
         }
     }
+
 
     private void runCommand() {
         if (running) {

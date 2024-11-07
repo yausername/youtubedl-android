@@ -37,11 +37,20 @@ internal class StreamProcessExtractor(
                     continue
                 }
                 currentLine.append(nextChar.toChar())
+                if(currentLine.length > 10 * 1024){
+                    currentLine.setLength(0)
+                }
             }
-        } catch (e: IOException) {
+        }
+        catch (e: OutOfMemoryError){
+            if (BuildConfig.DEBUG) Log.e(TAG, "failed to read stream", e)
+        }
+        catch (e: Exception) {
             if (BuildConfig.DEBUG) Log.e(TAG, "failed to read stream", e)
         }
     }
+
+
 
     private fun processOutputLine(line: String) {
         callback?.let { it(getProgress(line), getEta(line), line) }
