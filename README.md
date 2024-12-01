@@ -143,7 +143,14 @@ and options for the request as below:
 request.addOption("--downloader", "libaria2c.so");
 ```
 
-## Docs
+## Development
+
+Executables and the packages of dependencies are managed with [Git LFS](https://github.com/git-lfs/git-lfs).
+Install Git LFS on your machine, and then fetch the files with the commands below:
+```shell
+git lfs install
+git lfs pull
+```
 
 *  Though not required for just using this library, documentation on building python for android can be seen [here](BUILD_PYTHON.md). Same for ffmpeg [here](BUILD_FFMPEG.md). Alternatively, you can use pre-built packages from [here (android5+)](https://packages.termux.dev/apt/termux-main-21/pool/main/) or [here (android7+)](https://packages.termux.dev/apt/termux-main/pool/main/).
 * youtubedl-android uses lazy extractors based build of yt-dlp - [ytdlp-lazy](https://github.com/xibr/ytdlp-lazy) (formerly [youtubedl-lazy](https://github.com/yausername/youtubedl-lazy/))
