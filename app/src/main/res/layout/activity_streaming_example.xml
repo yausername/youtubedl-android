@@ -6,14 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".StreamingExampleActivity">
 
-    <com.devbrackets.android.exomedia.ui.widget.VideoView
-        android:id="@+id/video_view"
-        android:layout_width="match_parent"
-        android:layout_height="220dp"
-        android:paddingTop="10dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:useDefaultControls="true" />
-
     <ProgressBar
         android:id="@+id/pb_status"
         android:layout_width="wrap_content"

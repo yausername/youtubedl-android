@@ -12,7 +12,7 @@
     <string name="btn_stop_command">Stop Command</string>
     <string name="command_hint">enter command here</string>
     <string name="url_error">enter a valid url</string>
-    <string name="command_error">enter a valid command</string>
+    <string name="command_error_1">enter a valid command</string>
     <string name="start">Do the thing</string>
     <string name="example_command">Example command: --extract-audio --audio-format mp3 -o /sdcard/Download/youtubedl-android/%(title)s.%(ext)s https://www.youtube.com/watch?v=dQw4w9WgXcQ</string>
     <string name="download_start">Starting Download</string>

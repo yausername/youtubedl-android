@@ -12,8 +12,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.devbrackets.android.exomedia.listener.OnPreparedListener;
-import com.devbrackets.android.exomedia.ui.widget.VideoView;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.YoutubeDLRequest;
 
@@ -27,7 +25,6 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
 
     private Button btnStartStream;
     private EditText etUrl;
-    private VideoView videoView;
     private ProgressBar pbLoading;
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -46,18 +43,18 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
     private void initViews() {
         btnStartStream = findViewById(R.id.btn_start_streaming);
         etUrl = findViewById(R.id.et_url);
-        videoView = findViewById(R.id.video_view);
+//        videoView = findViewById(R.id.video_view);
         pbLoading = findViewById(R.id.pb_status);
     }
 
     private void initListeners() {
         btnStartStream.setOnClickListener(this);
-        videoView.setOnPreparedListener(new OnPreparedListener() {
-            @Override
-            public void onPrepared() {
-                videoView.start();
-            }
-        });
+//        videoView.setOnPreparedListener(new OnPreparedListener() {
+//            @Override
+//            public void onPrepared() {
+//                videoView.start();
+//            }
+//        });
     }
 
     @Override
@@ -109,6 +106,6 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
     }
 
     private void setupVideoView(String videoUrl) {
-        videoView.setVideoURI(Uri.parse(videoUrl));
+//        videoView.setVideoURI(Uri.parse(videoUrl));
     }
 }
