@@ -9,8 +9,10 @@ import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
 import com.yausername.youtubedl_common.utils.ZipUtils.unzip
 import org.apache.commons.io.FileUtils
+import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
+import java.io.InputStreamReader
 import java.util.Collections
 import kotlin.collections.set
 
@@ -128,12 +130,28 @@ object YoutubeDL {
                 alive = p!!.isAlive
             }
             if (alive) {
-                p!!.destroy()
+                val result = destroyPIDWithChildProcesses(id)
+                if (!result) {
+                    //fallback just destroy process
+                    p!!.destroy()
+                }
                 idProcessMap.remove(id)
                 return true
             }
         }
         return false
+    }
+
+    private fun destroyPIDWithChildProcesses(id: String) : Boolean {
+        try {
+            val command = "pstree -p $id | grep -oP '\\(\\K[^\\)]+' | xargs kill"
+            val processBuilder = ProcessBuilder("/system/bin/sh", "-c", command)
+            val process = processBuilder.start()
+            val res = process.waitFor()
+            return res == 0
+        }catch (e: Exception) {
+            return false
+        }
     }
 
     class CanceledException : Exception()
