@@ -24,7 +24,7 @@ buildscript {
 
 val versionMajor = 0
 val versionMinor = 17
-val versionPatch = 2
+val versionPatch = 3
 val versionBuild = 0 // bump for dogfood builds, public betas, etc.
 val versionCode = versionMajor * 100000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
 val versionName = "$versionMajor.$versionMinor.$versionPatch"
