@@ -16,6 +16,7 @@ internal class StreamProcessExtractor(
     private val p = Pattern.compile("\\[download\\]\\s+(\\d+\\.\\d)% .* ETA (\\d+):(\\d+)")
     private val pAria2c =
         Pattern.compile("\\[#\\w{6}.*\\((\\d*\\.*\\d+)%\\).*?((\\d+)m)*((\\d+)s)*]")
+    private val pFFmpeg = Pattern.compile("size=.*")
     private var progress = PERCENT
     private var eta = ETA
 
@@ -49,11 +50,20 @@ internal class StreamProcessExtractor(
 
     private fun getProgress(line: String): Float {
         val matcher = p.matcher(line)
-        if (matcher.find()) return matcher.group(GROUP_PERCENT).toFloat()
-            .also { progress = it } else {
-            val mAria2c = pAria2c.matcher(line)
-            if (mAria2c.find()) return mAria2c.group(1).toFloat().also { progress = it }
+        if (matcher.find()) {
+            return matcher.group(GROUP_PERCENT)!!.toFloat().also { progress = it }
         }
+
+        val mAria2c = pAria2c.matcher(line)
+        if (mAria2c.find()) {
+            return mAria2c.group(1)!!.toFloat().also { progress = it }
+        }
+
+        val mFFmpeg = pFFmpeg.matcher(line)
+        if (mFFmpeg.find()) {
+            return 99f.also { progress = it }
+        }
+
         return progress
     }
 
