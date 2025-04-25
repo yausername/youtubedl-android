@@ -3,16 +3,13 @@ package com.yausername.youtubedl_android
 import android.content.Context
 import android.os.Build
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.yausername.youtubedl_android.YoutubeDLException
 import com.yausername.youtubedl_android.mapper.VideoInfo
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
 import com.yausername.youtubedl_common.utils.ZipUtils.unzip
 import org.apache.commons.io.FileUtils
-import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
-import java.io.InputStreamReader
 import java.util.Collections
 import kotlin.collections.set
 
@@ -126,15 +123,13 @@ object YoutubeDL {
         if (idProcessMap.containsKey(id)) {
             val p = idProcessMap[id]
             var alive = true
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 alive = p!!.isAlive
             }
             if (alive) {
-                val result = destroyPIDWithChildProcesses(id)
-                if (!result) {
-                    //fallback just destroy process
-                    p!!.destroy()
-                }
+                destroyChildProcesses(id)
+                p?.destroy()
                 idProcessMap.remove(id)
                 return true
             }
@@ -142,7 +137,7 @@ object YoutubeDL {
         return false
     }
 
-    private fun destroyPIDWithChildProcesses(id: String) : Boolean {
+    private fun destroyChildProcesses(id: String) : Boolean {
         try {
             val command = "pstree -p $id | grep -oP '\\(\\K[^\\)]+' | xargs kill"
             val processBuilder = ProcessBuilder("/system/bin/sh", "-c", command)
@@ -163,6 +158,27 @@ object YoutubeDL {
         processId: String? = null,
         callback: ((Float, Long, String) -> Unit)? = null
     ): YoutubeDLResponse {
+        return executeImpl(request, processId, false, callback)
+    }
+
+    @JvmOverloads
+    @Throws(YoutubeDLException::class, InterruptedException::class, CanceledException::class)
+    fun execute(
+        request: YoutubeDLRequest,
+        processId: String? = null,
+        redirectErrorStream: Boolean,
+        callback: ((Float, Long, String) -> Unit)? = null
+    ): YoutubeDLResponse {
+        return executeImpl(request, processId, redirectErrorStream, callback)
+    }
+
+    @Throws(YoutubeDLException::class, InterruptedException::class, CanceledException::class)
+    private fun executeImpl(
+        request: YoutubeDLRequest,
+        processId: String? = null,
+        redirectErrorStream: Boolean = false,
+        callback: ((Float, Long, String) -> Unit)? = null
+    ) : YoutubeDLResponse {
         assertInit()
         if (processId != null && idProcessMap.containsKey(processId)) throw YoutubeDLException("Process ID already exists")
         // disable caching unless explicitly requested
@@ -192,6 +208,8 @@ object YoutubeDL {
         command.addAll(listOf(pythonPath!!.absolutePath, ytdlpPath!!.absolutePath))
         command.addAll(args)
         val processBuilder = ProcessBuilder(command)
+            .redirectErrorStream(redirectErrorStream)
+
         processBuilder.environment().apply {
             this["LD_LIBRARY_PATH"] = ENV_LD_LIBRARY_PATH
             this["SSL_CERT_FILE"] = ENV_SSL_CERT_FILE
