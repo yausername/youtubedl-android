@@ -40,14 +40,16 @@ Also take a look at [Seal](https://github.com/JunkFood02/Seal), another video/au
 ### Gradle
 
 ```kotlin
+val youtubedlAndroid = "0.17.4"
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation("io.github.junkfood02.youtubedl-android:library:0.16.0")
-    implementation("io.github.junkfood02.youtubedl-android:ffmpeg:0.16.0")
-    implementation("io.github.junkfood02.youtubedl-android:aria2c:0.16.0") // optional
+    implementation("io.github.junkfood02.youtubedl-android:library:$youtubedlAndroid")
+    implementation("io.github.junkfood02.youtubedl-android:ffmpeg:$youtubedlAndroid")
+    implementation("io.github.junkfood02.youtubedl-android:aria2c:$youtubedlAndroid") // optional
 }
 ```
 
