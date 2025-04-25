@@ -151,7 +151,6 @@ object YoutubeDL {
 
     class CanceledException : Exception()
 
-    @JvmOverloads
     @Throws(YoutubeDLException::class, InterruptedException::class, CanceledException::class)
     fun execute(
         request: YoutubeDLRequest,
@@ -166,7 +165,7 @@ object YoutubeDL {
     fun execute(
         request: YoutubeDLRequest,
         processId: String? = null,
-        redirectErrorStream: Boolean,
+        redirectErrorStream: Boolean = false,
         callback: ((Float, Long, String) -> Unit)? = null
     ): YoutubeDLResponse {
         return executeImpl(request, processId, redirectErrorStream, callback)
