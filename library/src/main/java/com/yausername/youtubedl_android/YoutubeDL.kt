@@ -158,7 +158,7 @@ object YoutubeDL {
         processId: String? = null,
         callback: ((Float, Long, String) -> Unit)? = null
     ): YoutubeDLResponse {
-        return executeImpl(request, processId, callback, false)
+        return executeImpl(request, processId, false, callback)
     }
 
     @JvmOverloads
@@ -166,18 +166,18 @@ object YoutubeDL {
     fun execute(
         request: YoutubeDLRequest,
         processId: String? = null,
-        callback: ((Float, Long, String) -> Unit)? = null,
-        redirectErrorStream: Boolean
+        redirectErrorStream: Boolean,
+        callback: ((Float, Long, String) -> Unit)? = null
     ): YoutubeDLResponse {
-        return executeImpl(request, processId, callback, redirectErrorStream)
+        return executeImpl(request, processId, redirectErrorStream, callback)
     }
 
     @Throws(YoutubeDLException::class, InterruptedException::class, CanceledException::class)
     private fun executeImpl(
         request: YoutubeDLRequest,
         processId: String? = null,
-        callback: ((Float, Long, String) -> Unit)? = null,
-        redirectErrorStream: Boolean = false
+        redirectErrorStream: Boolean = false,
+        callback: ((Float, Long, String) -> Unit)? = null
     ) : YoutubeDLResponse {
         assertInit()
         if (processId != null && idProcessMap.containsKey(processId)) throw YoutubeDLException("Process ID already exists")
