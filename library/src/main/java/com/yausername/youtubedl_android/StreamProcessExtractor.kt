@@ -27,20 +27,46 @@ internal class StreamProcessExtractor(
         try {
             val input: Reader = InputStreamReader(stream, StandardCharsets.UTF_8)
             val currentLine = StringBuilder()
+            val maxLineLength = 10_000  // Limit to 10,000 characters per line
+            val maxBufferLength = 1_000_000  // Limit to 1 million characters in total buffer
+
             var nextChar: Int
             while (input.read().also { nextChar = it } != -1) {
 
-                buffer.append(nextChar.toChar())
-                if (nextChar == '\r'.code || nextChar == '\n'.code && callback != null) {
-                    val line = currentLine.toString()
-                    if (line.startsWith("[")) processOutputLine(line)
-                    currentLine.setLength(0)
-                    continue
+                val c = nextChar.toChar()
+
+                // Safely append to buffer
+                synchronized(buffer) {
+                    buffer.append(c)
+                    if (buffer.length > maxBufferLength) {
+                        buffer.delete(0, buffer.length / 2) // truncate older half
+                    }
                 }
-                currentLine.append(nextChar.toChar())
+
+                // Process line if newline character is detected
+                if (c == '\r' || c == '\n') {
+                    if (callback != null) {
+                        val line = currentLine.toString()
+                        processOutputLine(line)
+                    }
+                    currentLine.setLength(0)
+                } else {
+                    // Protect against excessively long lines
+                    if (currentLine.length < maxLineLength) {
+                        currentLine.append(c)
+                    } else {
+                        // Drop the line if it's too long (could also log or throw)
+                        currentLine.setLength(0)
+                    }
+                }
             }
         } catch (e: IOException) {
             if (BuildConfig.DEBUG) Log.e(TAG, "failed to read stream", e)
+        } finally {
+            try {
+                stream.close()
+            } catch (ignored: IOException) {
+            }
         }
     }
 
