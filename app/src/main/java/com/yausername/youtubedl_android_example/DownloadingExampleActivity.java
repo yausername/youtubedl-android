@@ -1,6 +1,7 @@
 package com.yausername.youtubedl_android_example;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -46,7 +47,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
 
     private boolean downloading = false;
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
-    private String processId = "MyDlProcess";
+    private final String processId = "MyDlProcess";
 
 
     private final Function3<Float, Long, String, Unit> callback = new Function3<Float, Long, String, Unit>() {
@@ -90,17 +91,15 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_start_download:
-                startDownload();
-                break;
-            case R.id.btn_stop_download:
-                try {
-                    YoutubeDL.getInstance().destroyProcessById(processId);
-                } catch (Exception e) {
-                    Log.e(TAG, e.toString());
-                }
-                break;
+        int id = v.getId();
+        if (id == R.id.btn_start_download) {
+            startDownload();
+        } else if (id == R.id.btn_stop_download) {
+            try {
+                YoutubeDL.getInstance().destroyProcessById(processId);
+            } catch (Exception e) {
+                Log.e(TAG, e.toString());
+            }
         }
     }
 
@@ -148,7 +147,7 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
                     Toast.makeText(DownloadingExampleActivity.this, "download successful", Toast.LENGTH_LONG).show();
                     downloading = false;
                 }, e -> {
-                    if (BuildConfig.DEBUG) Log.e(TAG, "failed to download", e);
+                    Log.e(TAG, "failed to download", e);
                     pbLoading.setVisibility(View.GONE);
                     tvDownloadStatus.setText(getString(R.string.download_failed));
                     tvCommandOutput.setText(e.getMessage());
@@ -180,16 +179,12 @@ public class DownloadingExampleActivity extends AppCompatActivity implements Vie
     }
 
     public boolean isStoragePermissionGranted() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED) {
-                return true;
-            } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                return false;
-            }
-        } else {
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
             return true;
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            return false;
         }
     }
 }

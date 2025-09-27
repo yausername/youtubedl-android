@@ -92,7 +92,7 @@ public class StreamingExampleActivity extends AppCompatActivity implements View.
                         setupVideoView(videoUrl);
                     }
                 }, e -> {
-                    if (BuildConfig.DEBUG) Log.e(TAG, "failed to get stream info", e);
+                    Log.e(TAG, "failed to get stream info", e);
                     pbLoading.setVisibility(View.GONE);
                     Toast.makeText(StreamingExampleActivity.this, "streaming failed. failed to get stream info", Toast.LENGTH_LONG).show();
                 });

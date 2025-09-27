@@ -12,7 +12,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:extractNativeLibs="true"
         android:requestLegacyExternalStorage="true">
         <activity android:name=".MainActivity"
             android:exported="true">
