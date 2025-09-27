@@ -33,7 +33,7 @@ public class App extends Application {
 
             @Override
             public void onError(Throwable e) {
-                if(BuildConfig.DEBUG) Log.e(TAG, "failed to initialize youtubedl-android", e);
+                Log.e(TAG, "failed to initialize youtubedl-android", e);
                 Toast.makeText(getApplicationContext(), "initialization failed: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
         });
