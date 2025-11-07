@@ -17,6 +17,7 @@ object YoutubeDL {
     private var initialized = false
     private var pythonPath: File? = null
     private var ffmpegPath: File? = null
+    private var quickJsPath: File? = null
     private var ytdlpPath: File? = null
     private var binDir: File? = null
     private var ENV_LD_LIBRARY_PATH: String? = null
@@ -35,6 +36,7 @@ object YoutubeDL {
         binDir = File(appContext.applicationInfo.nativeLibraryDir)
         pythonPath = File(binDir, pythonBinName)
         ffmpegPath = File(binDir, ffmpegBinName)
+        quickJsPath = File(binDir, quickJsBinName)
         val pythonDir = File(packagesDir, pythonDirName)
         val ffmpegDir = File(packagesDir, ffmpegDirName)
         val aria2cDir = File(packagesDir, aria2cDirName)
@@ -194,6 +196,8 @@ object YoutubeDL {
                 )
         }
 
+        request.addOption("--js-runtimes", "quickjs:${quickJsPath!!.absolutePath}")
+
         /* Set ffmpeg location, See https://github.com/xibr/ytdlp-lazy/issues/1 */
         request.addOption("--ffmpeg-location", ffmpegPath!!.absolutePath)
         val youtubeDLResponse: YoutubeDLResponse
@@ -309,6 +313,7 @@ object YoutubeDL {
     private const val pythonDirName = "python"
     private const val ffmpegDirName = "ffmpeg"
     private const val ffmpegBinName = "libffmpeg.so"
+    private const val quickJsBinName = "libqjs.so"
     private const val aria2cDirName = "aria2c"
     const val ytdlpDirName = "yt-dlp"
     const val ytdlpBin = "yt-dlp"
