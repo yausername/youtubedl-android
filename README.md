@@ -40,7 +40,7 @@ Also take a look at [Seal](https://github.com/JunkFood02/Seal), another video/au
 ### Gradle
 
 ```kotlin
-val youtubedlAndroid = "0.18.0"
+val youtubedlAndroid = "0.18.1"
 
 repositories {
     mavenCentral()
