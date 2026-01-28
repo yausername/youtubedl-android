@@ -13,14 +13,13 @@ android {
     defaultConfig {
         minSdk = 24
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
-            )
         }
     }
 }
@@ -31,8 +30,6 @@ configurePublishing {
 }
 
 dependencies {
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-
     implementation("androidx.appcompat:appcompat:${rootProject.extra["appCompatVer"]}")
     implementation("androidx.core:core-ktx:${rootProject.extra["coreKtxVer"]}")
     testImplementation("junit:junit:${rootProject.extra["junitVer"]}")
