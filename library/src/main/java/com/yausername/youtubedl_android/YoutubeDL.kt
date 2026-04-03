@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.yausername.youtubedl_android.mapper.VideoInfo
+import com.yausername.youtubedl_common.utils.PackagedArchiveLocator
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
 import com.yausername.youtubedl_common.utils.ZipUtils.unzip
@@ -71,19 +72,24 @@ object YoutubeDL {
 
     @Throws(YoutubeDLException::class)
     fun initPython(appContext: Context, pythonDir: File) {
-        val pythonLib = File(binDir, pythonLibName)
-        // using size of lib as version
-        val pythonSize = pythonLib.length().toString()
-        if (!pythonDir.exists() || shouldUpdatePython(appContext, pythonSize)) {
+        val baseDir = File(appContext.noBackupFilesDir, baseName)
+        val pythonArchive =
+            PackagedArchiveLocator.resolve(
+                appContext = appContext,
+                baseDir = baseDir,
+                fileName = pythonLibName,
+            ) ?: throw YoutubeDLException("failed to locate python payload")
+
+        if (!pythonDir.exists() || shouldUpdatePython(appContext, pythonArchive.version)) {
             FileUtils.deleteQuietly(pythonDir)
             pythonDir.mkdirs()
             try {
-                unzip(pythonLib, pythonDir)
+                unzip(pythonArchive.file, pythonDir)
             } catch (e: Exception) {
                 FileUtils.deleteQuietly(pythonDir)
                 throw YoutubeDLException("failed to initialize", e)
             }
-            updatePython(appContext, pythonSize)
+            updatePython(appContext, pythonArchive.version)
         }
     }
 

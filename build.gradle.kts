@@ -24,7 +24,8 @@ val versionMinor = 18
 val versionPatch = 1
 val versionBuild = 0 // bump for dogfood builds, public betas, etc.
 val versionCode = versionMajor * 100000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
-val versionName = "$versionMajor.$versionMinor.$versionPatch"
+val versionSuffix = providers.gradleProperty("versionSuffix").orNull ?: "-local16k2"
+val versionName = "$versionMajor.$versionMinor.$versionPatch$versionSuffix"
 
 extra.apply {
     set("versionCode", versionCode)
@@ -71,4 +72,9 @@ tasks.register("packagePublishedArtifacts") {
 
 }
 
-
+tasks.register("publishAllToMavenLocal") {
+    val librariesToPublish = listOf("common", "library", "aria2c", "ffmpeg")
+    librariesToPublish.forEach {
+        dependsOn(":$it:publishReleasePublicationToMavenLocal")
+    }
+}
