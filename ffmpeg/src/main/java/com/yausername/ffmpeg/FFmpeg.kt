@@ -4,6 +4,7 @@ import android.content.Context
 import com.yausername.youtubedl_android.YoutubeDLException
 import com.yausername.youtubedl_common.SharedPrefsHelper
 import com.yausername.youtubedl_common.SharedPrefsHelper.update
+import com.yausername.youtubedl_common.utils.PackagedArchiveLocator
 import com.yausername.youtubedl_common.utils.ZipUtils.unzip
 import org.apache.commons.io.FileUtils
 import java.io.File
@@ -25,19 +26,24 @@ object FFmpeg {
     }
 
     private fun initFFmpeg(appContext: Context, ffmpegDir: File) {
-        val ffmpegLib = File(binDir, ffmpegLibName)
-        // using size of lib as version
-        val ffmpegSize = ffmpegLib.length().toString()
-        if (!ffmpegDir.exists() || shouldUpdateFFmpeg(appContext, ffmpegSize)) {
+        val baseDir = File(appContext.noBackupFilesDir, baseName)
+        val ffmpegArchive =
+            PackagedArchiveLocator.resolve(
+                appContext = appContext,
+                baseDir = baseDir,
+                fileName = ffmpegLibName,
+            ) ?: throw YoutubeDLException("failed to locate ffmpeg payload")
+
+        if (!ffmpegDir.exists() || shouldUpdateFFmpeg(appContext, ffmpegArchive.version)) {
             FileUtils.deleteQuietly(ffmpegDir)
             ffmpegDir.mkdirs()
             try {
-                unzip(ffmpegLib, ffmpegDir)
+                unzip(ffmpegArchive.file, ffmpegDir)
             } catch (e: Exception) {
                 FileUtils.deleteQuietly(ffmpegDir)
                 throw YoutubeDLException("failed to initialize", e)
             }
-            updateFFmpeg(appContext, ffmpegSize)
+            updateFFmpeg(appContext, ffmpegArchive.version)
         }
     }
 

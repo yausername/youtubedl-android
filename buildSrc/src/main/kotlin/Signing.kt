@@ -7,6 +7,14 @@ import org.gradle.kotlin.dsl.getByType
 import org.gradle.plugins.signing.SigningExtension
 
 internal fun Project.configureSigning() {
+    val isPublishingToMavenLocal =
+        gradle.startParameter.taskNames.any { taskName ->
+            taskName.contains("MavenLocal", ignoreCase = true)
+        }
+    if (isPublishingToMavenLocal) {
+        return
+    }
+
     val publishing = extensions.getByType<PublishingExtension>()
 
     extensions.getByType<SigningExtension>().run {

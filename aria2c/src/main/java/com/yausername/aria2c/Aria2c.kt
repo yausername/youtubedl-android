@@ -3,6 +3,7 @@ package com.yausername.aria2c
 import android.content.Context
 import com.yausername.youtubedl_android.YoutubeDLException
 import com.yausername.youtubedl_common.SharedPrefsHelper
+import com.yausername.youtubedl_common.utils.PackagedArchiveLocator
 import com.yausername.youtubedl_common.utils.ZipUtils
 import org.apache.commons.io.FileUtils
 import java.io.File
@@ -24,22 +25,27 @@ object Aria2c {
     }
 
     private fun initAria2c(appContext: Context, aria2cDir: File) {
-        val aria2cLib = File(binDir, aria2cLibName)
-        if (!aria2cLib.exists()) {
+        val baseDir = File(appContext.noBackupFilesDir, baseName)
+        val aria2cArchive =
+            PackagedArchiveLocator.resolve(
+                appContext = appContext,
+                baseDir = baseDir,
+                fileName = aria2cLibName,
+            )
+
+        if (aria2cArchive == null) {
             return
         }
-        // using size of lib as version
-        val aria2cSize = aria2cLib.length().toString()
-        if (!aria2cDir.exists() || shouldUpdateAria2c(appContext, aria2cSize)) {
+        if (!aria2cDir.exists() || shouldUpdateAria2c(appContext, aria2cArchive.version)) {
             FileUtils.deleteQuietly(aria2cDir)
             aria2cDir.mkdirs()
             try {
-                ZipUtils.unzip(aria2cLib, aria2cDir)
+                ZipUtils.unzip(aria2cArchive.file, aria2cDir)
             } catch (e: Exception) {
                 FileUtils.deleteQuietly(aria2cDir)
                 throw YoutubeDLException("failed to initialize", e)
             }
-            updateAria2c(appContext, aria2cSize)
+            updateAria2c(appContext, aria2cArchive.version)
         }
     }
 
