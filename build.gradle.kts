@@ -25,7 +25,17 @@ val versionPatch = 1
 val versionBuild = 0 // bump for dogfood builds, public betas, etc.
 val versionCode = versionMajor * 100000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
 val versionSuffix = providers.gradleProperty("versionSuffix").orNull ?: "-local16k2"
-val versionName = "$versionMajor.$versionMinor.$versionPatch$versionSuffix"
+val defaultVersionName = "$versionMajor.$versionMinor.$versionPatch$versionSuffix"
+val publishedVersion = providers.gradleProperty("version").orNull ?: defaultVersionName
+
+val defaultPublishGroup = "io.github.junkfood02.youtubedl-android"
+val jitpackOwnerGroup = providers.gradleProperty("group").orNull
+val publishedGroup =
+    if (System.getenv("JITPACK") == "true" && !jitpackOwnerGroup.isNullOrBlank()) {
+        "$jitpackOwnerGroup.${rootProject.projectDir.name}"
+    } else {
+        defaultPublishGroup
+    }
 
 extra.apply {
     set("versionCode", versionCode)
@@ -41,8 +51,8 @@ extra.apply {
 }
 
 allprojects {
-    group = "com.github.yausername"
-    version = versionName
+    group = publishedGroup
+    version = publishedVersion
 }
 
 tasks.register<Delete>("clean") {
@@ -60,11 +70,13 @@ tasks.register("packagePublishedArtifacts") {
             standardOutput = System.out
             errorOutput = System.err
 
+            val publishedGroupPath = publishedGroup.replace('.', '/')
+
             val zipCommands = listOf(
                 "zip",
                 "-r",
-                project.buildDir.resolve("archive-$versionName.zip").absolutePath,
-            ) + librariesToPublish.map { "io/github/junkfood02/youtubedl-android/$it/$versionName" }
+                project.buildDir.resolve("archive-$publishedVersion.zip").absolutePath,
+            ) + librariesToPublish.map { "$publishedGroupPath/$it/$publishedVersion" }
 
             commandLine(zipCommands)
         }
@@ -77,4 +89,8 @@ tasks.register("publishAllToMavenLocal") {
     librariesToPublish.forEach {
         dependsOn(":$it:publishReleasePublicationToMavenLocal")
     }
+}
+
+tasks.register("publishToMavenLocal") {
+    dependsOn("publishAllToMavenLocal")
 }
