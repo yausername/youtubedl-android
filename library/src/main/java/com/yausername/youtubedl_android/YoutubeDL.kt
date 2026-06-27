@@ -18,9 +18,11 @@ object YoutubeDL {
     private var pythonPath: File? = null
     private var ffmpegPath: File? = null
     private var quickJsPath: File? = null
+    private var quickJsArg: String? = null   // path passed to --js-runtimes (qjs binary, or an API-23 wrapper)
     private var ytdlpPath: File? = null
     private var binDir: File? = null
     private var ENV_LD_LIBRARY_PATH: String? = null
+    private var ENV_LD_PRELOAD: String? = null
     private var ENV_SSL_CERT_FILE: String? = null
     private var ENV_PYTHONHOME: String? = null
     private var TMPDIR: String = ""
@@ -45,12 +47,39 @@ object YoutubeDL {
         ENV_LD_LIBRARY_PATH = pythonDir.absolutePath + "/usr/lib" + ":" +
                 ffmpegDir.absolutePath + "/usr/lib" + ":" +
                 aria2cDir.absolutePath + "/usr/lib"
+        // Preload the API-23 shim so its backfilled symbols (in6addr_any, strchrnul, …) are
+        // globally visible to ffmpeg/ffprobe's transitively-loaded libs (libzmq/libidn2/…),
+        // which a plain DT_NEEDED on the executable does NOT reach on the API-23 linker.
+        // The python shim is always extracted by initPython, so this path always exists.
+        ENV_LD_PRELOAD = pythonDir.absolutePath + "/usr/lib/libshim.so"
         ENV_SSL_CERT_FILE = pythonDir.absolutePath + "/usr/etc/tls/cert.pem"
         ENV_PYTHONHOME = pythonDir.absolutePath + "/usr"
         TMPDIR = appContext.cacheDir.absolutePath
         initPython(appContext, pythonDir)
         init_ytdlp(appContext, ytdlpDir)
+        quickJsArg = buildQuickJsArg(baseDir)
         initialized = true
+    }
+
+    /**
+     * Path to pass as the quickjs JS runtime. On API < 24 the dynamic linker prints "unused DT
+     * entry" warnings to stderr when loading these API-24-built libs; yt-dlp's `qjs --help` version
+     * probe merges stderr into stdout and matches the version anchored at the start of output, so the
+     * warning hides "QuickJS version ..." and quickjs is rejected as unsupported. Wrap qjs in a tiny
+     * script that drops stderr so the probe parses cleanly. (Exec from the data dir is permitted on
+     * API 23; API 24+ doesn't emit the warnings, so it uses the qjs binary directly.)
+     */
+    private fun buildQuickJsArg(baseDir: File): String {
+        val direct = quickJsPath!!.absolutePath
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) return direct
+        return try {
+            val wrapper = File(baseDir, "qjs")
+            wrapper.writeText("#!/system/bin/sh\nexec $direct \"\$@\" 2>/dev/null\n")
+            wrapper.setExecutable(true, false)
+            wrapper.absolutePath
+        } catch (e: Exception) {
+            direct
+        }
     }
 
     @Throws(YoutubeDLException::class)
@@ -196,7 +225,7 @@ object YoutubeDL {
                 )
         }
 
-        request.addOption("--js-runtimes", "quickjs:${quickJsPath!!.absolutePath}")
+        request.addOption("--js-runtimes", "quickjs:${quickJsArg ?: quickJsPath!!.absolutePath}")
 
         /* Set ffmpeg location, See https://github.com/xibr/ytdlp-lazy/issues/1 */
         request.addOption("--ffmpeg-location", ffmpegPath!!.absolutePath)
@@ -215,6 +244,12 @@ object YoutubeDL {
 
         processBuilder.environment().apply {
             this["LD_LIBRARY_PATH"] = ENV_LD_LIBRARY_PATH
+            // yt-dlp's Popen strips LD_LIBRARY_PATH from spawned subprocesses (PyInstaller workaround,
+            // yt_dlp/utils/_utils.py) and only restores it from LD_LIBRARY_PATH_ORIG. Without this,
+            // directly-invoked ffmpeg/ffprobe/quickjs can't resolve libshim.so/libc++_shared.so and
+            // appear as "exe versions: none" / "ffprobe not found" on API 23. (#304 follow-up)
+            this["LD_LIBRARY_PATH_ORIG"] = ENV_LD_LIBRARY_PATH
+            this["LD_PRELOAD"] = ENV_LD_PRELOAD
             this["SSL_CERT_FILE"] = ENV_SSL_CERT_FILE
             this["PATH"] = System.getenv("PATH") + ":" + binDir!!.absolutePath
             this["PYTHONHOME"] = ENV_PYTHONHOME

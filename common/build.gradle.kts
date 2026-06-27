@@ -11,7 +11,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 23 // Android 6.0 (see library module / #304)
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

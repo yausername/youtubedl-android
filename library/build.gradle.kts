@@ -11,7 +11,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 23 // Android 6.0; the bundled python is patched for API 23 (see tools/patch_python_api23.sh, #304)
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
