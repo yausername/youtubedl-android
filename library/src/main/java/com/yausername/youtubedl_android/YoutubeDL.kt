@@ -13,6 +13,7 @@ import java.io.IOException
 import java.util.Collections
 import kotlin.collections.set
 
+@Suppress("ConstPropertyName")
 object YoutubeDL {
     private var initialized = false
     private var pythonPath: File? = null
@@ -122,21 +123,16 @@ object YoutubeDL {
     }
 
     fun destroyProcessById(id: String): Boolean {
-        if (idProcessMap.containsKey(id)) {
-            val p = idProcessMap[id]
-            var alive = true
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                alive = p!!.isAlive
-            }
-            if (alive) {
-                destroyChildProcesses(id)
-                p?.destroy()
-                idProcessMap.remove(id)
-                return true
-            }
+        val process = idProcessMap[id] ?: return false
+        try {
+             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || process.isAlive) {
+                 destroyChildProcesses(id)
+                 process.destroy()
+             }
+            return true
+        } finally {
+             idProcessMap.remove(id)
         }
-        return false
     }
 
     private fun destroyChildProcesses(id: String) : Boolean {
@@ -181,7 +177,7 @@ object YoutubeDL {
         callback: ((Float, Long, String) -> Unit)? = null
     ) : YoutubeDLResponse {
         assertInit()
-        if (processId != null && idProcessMap.containsKey(processId)) throw YoutubeDLException("Process ID already exists")
+        if (processId != null && idProcessMap.containsKey(processId)) { throw YoutubeDLException("Process ID already exists") }
         // disable caching unless explicitly requested
         if (!request.hasOption("--cache-dir") || request.getOption("--cache-dir") == null) {
             request.addOption("--no-cache-dir")
@@ -200,7 +196,6 @@ object YoutubeDL {
 
         /* Set ffmpeg location, See https://github.com/xibr/ytdlp-lazy/issues/1 */
         request.addOption("--ffmpeg-location", ffmpegPath!!.absolutePath)
-        val youtubeDLResponse: YoutubeDLResponse
         val process: Process
         val exitCode: Int
         val outBuffer = StringBuffer() //stdout
@@ -227,37 +222,47 @@ object YoutubeDL {
         } catch (e: IOException) {
             throw YoutubeDLException(e)
         }
+
         if (processId != null) {
             idProcessMap[processId] = process
         }
-        val outStream = process.inputStream
-        val errStream = process.errorStream
-        val stdOutProcessor = StreamProcessExtractor(outBuffer, outStream, callback)
-        val stdErrProcessor = StreamGobbler(errBuffer, errStream)
-        exitCode = try {
-            stdOutProcessor.join()
-            stdErrProcessor.join()
-            process.waitFor()
-        } catch (e: InterruptedException) {
-            process.destroy()
-            if (processId != null) idProcessMap.remove(processId)
-            throw e
-        }
-        val out = outBuffer.toString()
-        val err = errBuffer.toString()
-        if (exitCode > 0) {
-            if (processId != null && !idProcessMap.containsKey(processId))
-                throw CanceledException()
-            if (!ignoreErrors(request, out)) {
+
+        try {
+            val outStream = process.inputStream
+            val errStream = process.errorStream
+            val stdOutProcessor = StreamProcessExtractor(outBuffer, outStream, callback)
+            val stdErrProcessor = StreamGobbler(errBuffer, errStream)
+
+            exitCode = try {
+                stdOutProcessor.join()
+                stdErrProcessor.join()
+                process.waitFor()
+            } catch (e: InterruptedException) {
+                process.destroy()
+                throw e
+            }
+
+            val out = outBuffer.toString()
+            val err = errBuffer.toString()
+
+            if (exitCode > 0) {
+                if (processId != null && !idProcessMap.containsKey(processId)) {
+                    throw CanceledException()
+                }
+
+                if (!ignoreErrors(request, out)) {
+                    throw YoutubeDLException(err)
+                }
+            }
+            val elapsedTime = System.currentTimeMillis() - startTime
+
+            val youtubeDLResponse = YoutubeDLResponse(command, exitCode, elapsedTime, out, err)
+            return youtubeDLResponse
+        } finally {
+            if (processId != null) {
                 idProcessMap.remove(processId)
-                throw YoutubeDLException(err)
             }
         }
-        idProcessMap.remove(processId)
-
-        val elapsedTime = System.currentTimeMillis() - startTime
-        youtubeDLResponse = YoutubeDLResponse(command, exitCode, elapsedTime, out, err)
-        return youtubeDLResponse
     }
 
     @Synchronized
