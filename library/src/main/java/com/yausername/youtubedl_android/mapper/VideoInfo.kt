@@ -79,4 +79,31 @@ class VideoInfo {
     @JsonProperty("manifest_url")
     val manifestUrl: String? = null
     val url: String? = null
+
+    @JsonProperty("audio_channels")
+    val audioChannels: Int? = null
+    val track: String? = null
+
+    @JsonProperty("track_number")
+    val trackNumber: Int? = null
+
+    @JsonProperty("track_id")
+    val trackId: String? = null
+    val artists: ArrayList<String>? = null
+    val genres: ArrayList<String>? = null
+    val album: String? = null
+
+    @JsonProperty("album_type")
+    val albumType: String? = null
+
+    @JsonProperty("album_artists")
+    val albumArtists: ArrayList<String>? = null
+    val composers: ArrayList<String>? = null
+
+    @JsonProperty("disc_number")
+    val discNumber: Int? = null
+
+    @JsonProperty("release_year")
+    val releaseYear: Int? = null
+
 }

@@ -5,9 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class VideoFormat {
-    val asr = 0
-    val tbr = 0
-    val abr = 0
+    val asr: Double? = null
+    val tbr: Double? = null
+    val abr: Double? = null
     val format: String? = null
 
     @JsonProperty("format_id")
@@ -23,11 +23,11 @@ class VideoFormat {
     val height = 0
 
     @JsonProperty("filesize")
-    val fileSize: Long = 0
+    val fileSize: Long? = null
 
     @JsonProperty("filesize_approx")
     val fileSizeApproximate: Long = 0
-    val fps = 0
+    val fps: Double? = null
     val url: String? = null
 
     @JsonProperty("manifest_url")
