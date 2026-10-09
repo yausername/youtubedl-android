@@ -17,12 +17,14 @@ object YoutubeDL {
     private var initialized = false
     private var pythonPath: File? = null
     private var ffmpegPath: File? = null
-    private var quickJsPath: File? = null
+    private var aria2cPath: File? = null
     private var ytdlpPath: File? = null
     private var binDir: File? = null
     private var ENV_LD_LIBRARY_PATH: String? = null
     private var ENV_SSL_CERT_FILE: String? = null
     private var ENV_PYTHONHOME: String? = null
+    private var ENV_ARIA2_OPENSSL_CONF: String? = null
+    private var ENV_ARIA2_OPENSSL_MODULES: String? = null
     private var TMPDIR: String = ""
     private val idProcessMap = Collections.synchronizedMap(HashMap<String, Process>())
 
@@ -36,22 +38,57 @@ object YoutubeDL {
         binDir = File(appContext.applicationInfo.nativeLibraryDir)
         pythonPath = File(binDir, pythonBinName)
         ffmpegPath = File(binDir, ffmpegBinName)
-        quickJsPath = File(binDir, quickJsBinName)
         val pythonDir = File(packagesDir, pythonDirName)
         val ffmpegDir = File(packagesDir, ffmpegDirName)
         val aria2cDir = File(packagesDir, aria2cDirName)
         val ytdlpDir = File(baseDir, ytdlpDirName)
         ytdlpPath = File(ytdlpDir, ytdlpBin)
         ENV_LD_LIBRARY_PATH = pythonDir.absolutePath + "/usr/lib" + ":" +
-                ffmpegDir.absolutePath + "/usr/lib" + ":" +
-                aria2cDir.absolutePath + "/usr/lib"
-        ENV_SSL_CERT_FILE = pythonDir.absolutePath + "/usr/etc/tls/cert.pem"
+        ffmpegDir.absolutePath + "/usr/lib" + ":" +
+        aria2cDir.absolutePath + "/usr/lib" + ":" +
+        binDir!!.absolutePath
+        ENV_SSL_CERT_FILE = pythonDir.absolutePath + "/usr/lib/python3.14/site-packages/certifi/cacert.pem"
         ENV_PYTHONHOME = pythonDir.absolutePath + "/usr"
+        ENV_ARIA2_OPENSSL_CONF =
+            File(aria2cDir, "usr/etc/tls/openssl.cnf").absolutePath
+        ENV_ARIA2_OPENSSL_MODULES =
+            File(aria2cDir, "usr/lib/ossl-modules").absolutePath
         TMPDIR = appContext.cacheDir.absolutePath
+        initFFmpeg(appContext, ffmpegDir)
         initPython(appContext, pythonDir)
+        initAria2c(appContext, aria2cDir)
         init_ytdlp(appContext, ytdlpDir)
         initialized = true
     }
+
+    @Throws(YoutubeDLException::class)
+    private fun initFFmpeg(appContext: Context, ffmpegDir: File) {
+        val ffmpegLib = File(binDir, ffmpegLibName)
+        val ffmpegSize = ffmpegLib.length().toString()
+
+        if (!ffmpegDir.exists() || shouldUpdateFFmpeg(appContext, ffmpegSize)) {
+            FileUtils.deleteQuietly(ffmpegDir)
+            ffmpegDir.mkdirs()
+
+            try {
+                 unzip(ffmpegLib, ffmpegDir)
+            } catch (e: Exception) {
+                FileUtils.deleteQuietly(ffmpegDir)
+                throw YoutubeDLException("failed to initialize FFmpeg", e)
+            }
+
+            updateFFmpeg(appContext, ffmpegSize)
+        }
+    }
+
+    private fun shouldUpdateFFmpeg(appContext: Context, version: String): Boolean {
+        return version != SharedPrefsHelper[appContext, ffmpegLibVersion]
+    }
+
+    private fun updateFFmpeg(appContext: Context, version: String) {
+        update(appContext, ffmpegLibVersion, version)
+    }
+
 
     @Throws(YoutubeDLException::class)
     fun init_ytdlp(appContext: Context, ytdlpDir: File) {
@@ -74,17 +111,25 @@ object YoutubeDL {
         val pythonLib = File(binDir, pythonLibName)
         // using size of lib as version
         val pythonSize = pythonLib.length().toString()
+
         if (!pythonDir.exists() || shouldUpdatePython(appContext, pythonSize)) {
             FileUtils.deleteQuietly(pythonDir)
             pythonDir.mkdirs()
+
             try {
                 unzip(pythonLib, pythonDir)
             } catch (e: Exception) {
                 FileUtils.deleteQuietly(pythonDir)
                 throw YoutubeDLException("failed to initialize", e)
             }
+
             updatePython(appContext, pythonSize)
         }
+
+        // Avoid shadowing Android's system liblzma.so through LD_LIBRARY_PATH.
+        FileUtils.deleteQuietly(
+            File(pythonDir, "usr/lib/liblzma.so")
+        )
     }
 
     private fun shouldUpdatePython(appContext: Context, version: String): Boolean {
@@ -93,6 +138,47 @@ object YoutubeDL {
 
     private fun updatePython(appContext: Context, version: String) {
         update(appContext, pythonLibVersion, version)
+    }
+
+    @Throws(YoutubeDLException::class)
+    fun initAria2c(appContext: Context, aria2cDir: File) {
+        val aria2cLib = File(binDir, aria2cLibName)
+        val aria2cSize = aria2cLib.length().toString()
+
+        if (!aria2cDir.exists() || shouldUpdateAria2c(appContext, aria2cSize)) {
+            FileUtils.deleteQuietly(aria2cDir)
+            aria2cDir.mkdirs()
+            try {
+                unzip(aria2cLib, aria2cDir)
+            } catch (e: Exception) {
+                FileUtils.deleteQuietly(aria2cDir)
+                throw YoutubeDLException("failed to initialize aria2c", e)
+            }
+            updateAria2c(appContext, aria2cSize)
+        }
+
+        aria2cPath = File(binDir, aria2cBinName)
+        val aria2cBinary = aria2cPath!!
+
+        if (!aria2cBinary.exists()) {
+            throw YoutubeDLException(
+                "aria2c native executable not found at ${aria2cBinary.absolutePath}"
+            )
+        }
+
+        if (!aria2cBinary.canExecute()) {
+            throw YoutubeDLException(
+                "aria2c native executable is not executable at ${aria2cBinary.absolutePath}"
+            )
+        }
+    }
+
+    private fun shouldUpdateAria2c(appContext: Context, version: String): Boolean {
+        return version != SharedPrefsHelper[appContext, aria2cLibVersion]
+    }
+
+    private fun updateAria2c(appContext: Context, version: String) {
+        update(appContext, aria2cLibVersion, version)
     }
 
     private fun assertInit() {
@@ -187,6 +273,26 @@ object YoutubeDL {
             request.addOption("--no-cache-dir")
         }
 
+        // This automatically makes Quick JS available at runtime without outside invocation,
+        // it's commented out but can be uncommented if you want to make it work off-rip on runtime.
+
+//        val quickJsCli = File(
+//            ffmpegPath!!.parentFile,
+//            "libqjs-cli.so"
+//        )
+//
+//        if (quickJsCli.exists()) {
+//            request.addOption(
+//                "--js-runtimes",
+//                "quickjs:${quickJsCli.absolutePath}"
+//            )
+//        }
+
+        // For curl_cffi and cffi, have something like "request.addOption("--impersonate", "chrome")".
+        // I will try to squash bugs as much as I can, I also suggest having this feature as "Cutting-Edge"
+        // or "Experimental" and ask users to report bugs, so it doesn't mess with anything working currently.
+        // As I stated in the PR, This feature is almost guaranteed to either not work or need extra work on x86.
+
         if (request.buildCommand().contains("libaria2c.so")) {
             request
                 .addOption("--external-downloader-args", "aria2c:--summary-interval=1")
@@ -196,8 +302,6 @@ object YoutubeDL {
                 )
         }
 
-        request.addOption("--js-runtimes", "quickjs:${quickJsPath!!.absolutePath}")
-
         /* Set ffmpeg location, See https://github.com/xibr/ytdlp-lazy/issues/1 */
         request.addOption("--ffmpeg-location", ffmpegPath!!.absolutePath)
         val youtubeDLResponse: YoutubeDLResponse
@@ -206,7 +310,13 @@ object YoutubeDL {
         val outBuffer = StringBuffer() //stdout
         val errBuffer = StringBuffer() //stderr
         val startTime = System.currentTimeMillis()
-        val args = request.buildCommand()
+        val args = request.buildCommand().map { arg ->
+            if (arg == "libaria2c.so") {
+                aria2cPath!!.absolutePath
+            } else {
+                arg
+            }
+        }
         val command: MutableList<String?> = ArrayList()
         command.addAll(listOf(pythonPath!!.absolutePath, ytdlpPath!!.absolutePath))
         command.addAll(args)
@@ -216,8 +326,11 @@ object YoutubeDL {
         processBuilder.environment().apply {
             this["LD_LIBRARY_PATH"] = ENV_LD_LIBRARY_PATH
             this["SSL_CERT_FILE"] = ENV_SSL_CERT_FILE
-            this["PATH"] = System.getenv("PATH") + ":" + binDir!!.absolutePath
+            this["PATH"] =
+                System.getenv("PATH") + ":" + binDir!!.absolutePath + ":" + aria2cPath!!.parentFile!!.absolutePath
             this["PYTHONHOME"] = ENV_PYTHONHOME
+            this["OPENSSL_CONF"] = ENV_ARIA2_OPENSSL_CONF
+            this["OPENSSL_MODULES"] = ENV_ARIA2_OPENSSL_MODULES
             this["HOME"] = ENV_PYTHONHOME
             this["TMPDIR"] = TMPDIR
         }
@@ -313,8 +426,12 @@ object YoutubeDL {
     private const val pythonDirName = "python"
     private const val ffmpegDirName = "ffmpeg"
     private const val ffmpegBinName = "libffmpeg.so"
-    private const val quickJsBinName = "libqjs.so"
+    private const val ffmpegLibName = "libffmpeg.zip.so"
+    private const val ffmpegLibVersion = "ffmpegLibVersion"
     private const val aria2cDirName = "aria2c"
+    private const val aria2cBinName = "libaria2c.so"
+    private const val aria2cLibName = "libaria2.zip.so"
+    private const val aria2cLibVersion = "aria2cLibVersion"
     const val ytdlpDirName = "yt-dlp"
     const val ytdlpBin = "yt-dlp"
     private const val pythonLibVersion = "pythonLibVersion"
