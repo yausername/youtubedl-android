@@ -12,26 +12,29 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.PlaybackException;
+import androidx.media3.common.Player;
+import androidx.media3.datasource.DefaultDataSource;
+import androidx.media3.datasource.DefaultHttpDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.ui.PlayerView;
 
-import java.io.IOException;
+import java.util.Collections;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/** Plays authorized content returned by the application's own entitlement-checking backend. */
+/** Plays authorized content returned by the application's entitlement-checking backend. */
 public class AuthorizedPlaybackActivity extends AppCompatActivity {
-    private static final String SESSION_PREFS = "session";
-    private static final String ACCESS_TOKEN_KEY = "access_token";
-
     private EditText videoIdInput;
     private Button playButton;
     private ProgressBar progressBar;
     private TextView statusView;
     private PlayerView playerView;
     private ExoPlayer player;
+    private PlaybackApi playbackApi;
     @Nullable private Call<PlaybackResponse> playbackCall;
 
     @Override
@@ -44,9 +47,29 @@ public class AuthorizedPlaybackActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.authorized_progress);
         statusView = findViewById(R.id.authorized_status);
         playerView = findViewById(R.id.authorized_player_view);
+        playbackApi = PlaybackApiClient.create(getApplicationContext());
 
-        player = new ExoPlayer.Builder(this).build();
+        // Also add the app's bearer token to HLS/DASH requests when the backend requires it.
+        // Prefer short-lived signed CDN URLs; never put a long-lived service secret in the client.
+        SessionManager sessionManager = new SessionManager(this);
+        DefaultHttpDataSource.Factory httpFactory = new DefaultHttpDataSource.Factory()
+                .setAllowCrossProtocolRedirects(false);
+        String accessToken = sessionManager.getAccessToken();
+        if (!TextUtils.isEmpty(accessToken)) {
+            httpFactory.setDefaultRequestProperties(
+                    Collections.singletonMap("Authorization", "Bearer " + accessToken));
+        }
+        DefaultDataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(this, httpFactory);
+        player = new ExoPlayer.Builder(this)
+                .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
+                .build();
         playerView.setPlayer(player);
+        player.addListener(new Player.Listener() {
+            @Override
+            public void onPlayerError(PlaybackException error) {
+                showStatus(getString(R.string.authorized_player_error));
+            }
+        });
         playButton.setOnClickListener(view -> requestAuthorizedPlayback());
     }
 
@@ -56,11 +79,7 @@ public class AuthorizedPlaybackActivity extends AppCompatActivity {
             videoIdInput.setError(getString(R.string.authorized_video_id_error));
             return;
         }
-
-        // Connect this to the app's real login/session manager. Never embed a service secret in the APK.
-        String accessToken = getSharedPreferences(SESSION_PREFS, MODE_PRIVATE)
-                .getString(ACCESS_TOKEN_KEY, null);
-        if (TextUtils.isEmpty(accessToken)) {
+        if (new SessionManager(this).getAccessToken() == null) {
             showStatus(getString(R.string.authorized_login_required));
             return;
         }
@@ -68,8 +87,7 @@ public class AuthorizedPlaybackActivity extends AppCompatActivity {
         if (playbackCall != null) playbackCall.cancel();
         setLoading(true);
         showStatus(getString(R.string.authorized_requesting));
-
-        playbackCall = PlaybackApiClient.getApi().requestPlayback("Bearer " + accessToken, videoId);
+        playbackCall = playbackApi.requestPlayback(videoId);
         playbackCall.enqueue(new Callback<PlaybackResponse>() {
             @Override
             public void onResponse(Call<PlaybackResponse> call, Response<PlaybackResponse> response) {
@@ -106,8 +124,7 @@ public class AuthorizedPlaybackActivity extends AppCompatActivity {
 
         MediaItem.Builder item = new MediaItem.Builder().setUri(uri);
         if (!TextUtils.isEmpty(data.mimeType)) item.setMimeType(data.mimeType);
-        // The backend must issue short-lived URLs and enforce authorization on every request.
-        // DRM streams must use the content provider's official license/DRM integration.
+        // DRM must be configured using the content provider's official license integration.
         player.setMediaItem(item.build());
         player.prepare();
         player.play();

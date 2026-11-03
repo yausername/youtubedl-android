@@ -2,14 +2,10 @@ package com.yausername.youtubedl_android_example;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
-import retrofit2.http.Header;
 import retrofit2.http.Path;
 
-/** Calls only the app's configured backend, which must enforce content entitlement. */
+/** Calls the app's own backend, which must check identity and video entitlement on every request. */
 public interface PlaybackApi {
     @GET("api/videos/{videoId}/playback")
-    Call<PlaybackResponse> requestPlayback(
-            @Header("Authorization") String authorization,
-            @Path("videoId") String videoId
-    );
+    Call<PlaybackResponse> requestPlayback(@Path("videoId") String videoId);
 }

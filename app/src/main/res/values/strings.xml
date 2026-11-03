@@ -34,4 +34,5 @@
     <string name="authorized_network_error">Could not reach the playback backend.</string>
     <string name="authorized_invalid_url">Backend must return a valid HTTPS playback URL.</string>
     <string name="authorized_playing">Authorized stream loaded.</string>
+    <string name="authorized_player_error">Playback failed. Check stream format, expiry, CDN authorization, or network.</string>
 </resources>
