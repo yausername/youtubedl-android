@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <androidx.media3.ui.PlayerView
+        android:id="@+id/authorized_player_view"
+        android:layout_width="match_parent"
+        android:layout_height="240dp" />
+
+    <EditText
+        android:id="@+id/authorized_video_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:hint="@string/authorized_video_id_hint"
+        android:inputType="text" />
+
+    <Button
+        android:id="@+id/authorized_play_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/authorized_play" />
+
+    <ProgressBar
+        android:id="@+id/authorized_progress"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/authorized_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:accessibilityLiveRegion="polite"
+        android:paddingTop="8dp"
+        android:text="@string/authorized_setup_note" />
+</LinearLayout>

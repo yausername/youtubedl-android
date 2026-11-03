@@ -49,7 +49,6 @@ android {
             useLegacyPackaging = true
         }
     }
-
 }
 
 dependencies {
@@ -68,4 +67,13 @@ dependencies {
 
     implementation("io.reactivex.rxjava2:rxandroid:2.1.0")
     implementation("com.devbrackets.android:exomedia:5.1.0")
+
+    // Authorized playback from your own backend / a content provider's official API.
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    implementation("androidx.media3:media3-exoplayer-hls:1.4.1")
+    implementation("androidx.media3:media3-exoplayer-dash:1.4.1")
+    implementation("androidx.media3:media3-ui:1.4.1")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }
