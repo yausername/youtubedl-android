@@ -5,9 +5,10 @@ This Android sample is intended only for content you own, content licensed to yo
 ## Configure the app
 
 1. In `PlaybackApiClient.java`, set `BASE_URL` to your own HTTPS backend URL (keep the trailing slash).
-2. Connect your existing sign-in flow to `new SessionManager(context).saveAccessToken(accessToken)`. Call `clear()` on logout. The access token is encrypted using an AES key held by Android Keystore; never ship a backend service secret in the APK.
-3. The playback screen calls `GET /api/videos/{videoId}/playback` with `Authorization: Bearer <user access token>`.
-4. Return a JSON envelope such as:
+2. The sample login screen posts JSON `{ "username": "...", "password": "..." }` to `POST /api/auth/login`. The backend should return `{ "code": 0, "message": "ok", "data": { "token": "..." } }` after verifying credentials. Connect your real identity provider/backend; do not hardcode demo credentials or secrets in the app.
+3. The returned user access token is encrypted using an AES key held by Android Keystore. Sign out removes the stored token.
+4. The playback screen calls `GET /api/videos/{videoId}/playback` with `Authorization: Bearer <user access token>`.
+5. Return a JSON envelope such as:
 
 ```json
 {

@@ -1,5 +1,6 @@
 package com.yausername.youtubedl_android_example;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -23,8 +24,11 @@ import retrofit2.Response;
 
 /** Plays authorized content returned by the application's entitlement-checking backend. */
 public class AuthorizedPlaybackActivity extends AppCompatActivity {
+    private static final int LOGIN_REQUEST = 1001;
+
     private EditText videoIdInput;
     private Button playButton;
+    private Button loginButton;
     private ProgressBar progressBar;
     private TextView statusView;
     private PlayerView playerView;
@@ -39,13 +43,14 @@ public class AuthorizedPlaybackActivity extends AppCompatActivity {
 
         videoIdInput = findViewById(R.id.authorized_video_id);
         playButton = findViewById(R.id.authorized_play_button);
+        loginButton = findViewById(R.id.authorized_login_button);
         progressBar = findViewById(R.id.authorized_progress);
         statusView = findViewById(R.id.authorized_status);
         playerView = findViewById(R.id.authorized_player_view);
         playbackApi = PlaybackApiClient.create(getApplicationContext());
 
-        // The backend should return a short-lived signed URL or provider-approved playback
-        // configuration. Do not forward the app's bearer token to a CDN/media host.
+        // The backend returns a short-lived signed URL. Do not forward the backend bearer token
+        // to a CDN/media host; use provider-approved media authorization if separately required.
         player = new ExoPlayer.Builder(this).build();
         playerView.setPlayer(player);
         player.addListener(new Player.Listener() {
@@ -54,7 +59,30 @@ public class AuthorizedPlaybackActivity extends AppCompatActivity {
                 showStatus(getString(R.string.authorized_player_error));
             }
         });
+        loginButton.setOnClickListener(view ->
+                startActivityForResult(new Intent(this, LoginActivity.class), LOGIN_REQUEST));
         playButton.setOnClickListener(view -> requestAuthorizedPlayback());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateLoginStatus();
+    }
+
+    private void updateLoginStatus() {
+        boolean signedIn = new SessionManager(this).getAccessToken() != null;
+        loginButton.setText(signedIn ? R.string.authorized_logout : R.string.authorized_login);
+        loginButton.setOnClickListener(view -> {
+            SessionManager session = new SessionManager(this);
+            if (session.getAccessToken() != null) {
+                session.clear();
+                showStatus(getString(R.string.authorized_logged_out));
+                updateLoginStatus();
+            } else {
+                startActivityForResult(new Intent(this, LoginActivity.class), LOGIN_REQUEST);
+            }
+        });
     }
 
     private void requestAuthorizedPlayback() {

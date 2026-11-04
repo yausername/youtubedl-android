@@ -19,6 +19,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".LoginActivity" android:exported="false" />
         <activity android:name=".AuthorizedPlaybackActivity" android:screenOrientation="portrait" />
         <activity android:name=".StreamingExampleActivity" android:screenOrientation="portrait" />
         <activity android:name=".DownloadingExampleActivity" android:screenOrientation="portrait" />
