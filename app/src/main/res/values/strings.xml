@@ -3,6 +3,7 @@
     <string name="btn_streaming_example">Streaming Example</string>
     <string name="btn_downloading_example">Downloading Example</string>
     <string name="btn_command_example">Custom Command Example</string>
+    <string name="btn_authorized_playback">Authorized Playback (Backend)</string>
     <string name="btn_update">Update yt-dlp</string>
     <string name="btn_start_stream">Start Stream</string>
     <string name="btn_start_download">Start Download</string>
@@ -22,4 +23,28 @@
     <string name="command_complete">Command Complete</string>
     <string name="command_failed">Command Failed</string>
     <string name="use_config_file">Use Config File?</string>
+    <string name="authorized_video_id_hint">Video ID authorized by your backend</string>
+    <string name="authorized_video_id_error">Enter a video ID</string>
+    <string name="authorized_play">Request authorized playback</string>
+    <string name="authorized_setup_note">Configure your HTTPS backend and login session before playback.</string>
+    <string name="authorized_login_required">Log in first; no access token is available.</string>
+    <string name="authorized_requesting">Checking access with backend…</string>
+    <string name="authorized_not_permitted">Backend denied access. Check login and entitlement.</string>
+    <string name="authorized_bad_response">Backend returned no playable authorized stream.</string>
+    <string name="authorized_network_error">Could not reach the playback backend.</string>
+    <string name="authorized_invalid_url">Backend must return a valid HTTPS playback URL.</string>
+    <string name="authorized_playing">Authorized stream loaded.</string>
+    <string name="authorized_player_error">Playback failed. Check stream format, expiry, CDN authorization, or network.</string>
+    <string name="authorized_login">Sign in</string>
+    <string name="authorized_logout">Sign out</string>
+    <string name="authorized_logged_out">Signed out.</string>
+    <string name="login_username_hint">Username</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_submit">Sign in</string>
+    <string name="login_username_required">Enter your username.</string>
+    <string name="login_password_required">Enter your password.</string>
+    <string name="login_requesting">Signing in…</string>
+    <string name="login_rejected">Sign-in failed. Check credentials and backend response.</string>
+    <string name="login_storage_error">Could not securely store the session token.</string>
+    <string name="login_network_error">Could not reach the sign-in backend.</string>
 </resources>
