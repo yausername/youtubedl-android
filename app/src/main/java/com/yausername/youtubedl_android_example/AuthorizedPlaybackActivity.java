@@ -14,13 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
-import androidx.media3.datasource.DefaultDataSource;
-import androidx.media3.datasource.DefaultHttpDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
-import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.ui.PlayerView;
-
-import java.util.Collections;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -49,20 +44,9 @@ public class AuthorizedPlaybackActivity extends AppCompatActivity {
         playerView = findViewById(R.id.authorized_player_view);
         playbackApi = PlaybackApiClient.create(getApplicationContext());
 
-        // Also add the app's bearer token to HLS/DASH requests when the backend requires it.
-        // Prefer short-lived signed CDN URLs; never put a long-lived service secret in the client.
-        SessionManager sessionManager = new SessionManager(this);
-        DefaultHttpDataSource.Factory httpFactory = new DefaultHttpDataSource.Factory()
-                .setAllowCrossProtocolRedirects(false);
-        String accessToken = sessionManager.getAccessToken();
-        if (!TextUtils.isEmpty(accessToken)) {
-            httpFactory.setDefaultRequestProperties(
-                    Collections.singletonMap("Authorization", "Bearer " + accessToken));
-        }
-        DefaultDataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(this, httpFactory);
-        player = new ExoPlayer.Builder(this)
-                .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
-                .build();
+        // The backend should return a short-lived signed URL or provider-approved playback
+        // configuration. Do not forward the app's bearer token to a CDN/media host.
+        player = new ExoPlayer.Builder(this).build();
         playerView.setPlayer(player);
         player.addListener(new Player.Listener() {
             @Override
@@ -124,7 +108,7 @@ public class AuthorizedPlaybackActivity extends AppCompatActivity {
 
         MediaItem.Builder item = new MediaItem.Builder().setUri(uri);
         if (!TextUtils.isEmpty(data.mimeType)) item.setMimeType(data.mimeType);
-        // DRM must be configured using the content provider's official license integration.
+        // DRM must use the content provider's official license integration.
         player.setMediaItem(item.build());
         player.prepare();
         player.play();

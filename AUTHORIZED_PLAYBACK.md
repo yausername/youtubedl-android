@@ -21,6 +21,6 @@ This Android sample is intended only for content you own, content licensed to yo
 }
 ```
 
-The API must authenticate the user, check entitlement for the requested video, and issue a short-lived URL for content the user is authorized to watch. Enforce expiry and authorization at the origin/CDN too; `expiresAt` in the response is informational, not a security check. For HLS/DASH, make sure segment and manifest requests are authorized (for example via provider-supported signed cookies/URLs or the configured bearer header). Avoid redirecting credentials across origins.
+The API must authenticate the user, check entitlement for the requested video, and issue a short-lived URL for content the user is authorized to watch. Enforce expiry and authorization at the origin/CDN too; `expiresAt` in the response is informational, not a security check. The app deliberately does not forward its backend bearer token to the media/CDN host; use provider-approved signed URLs/cookies or an explicitly designed media authorization flow. Ensure redirects and segment requests remain authorized without leaking backend credentials across origins.
 
 For DRM media, use the content provider's official DRM/license integration. This sample intentionally does not implement license extraction or DRM circumvention. Test the Gradle build against your configured Android SDK and backend; `api.example.com` is a placeholder.
